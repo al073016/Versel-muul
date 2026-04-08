@@ -125,8 +125,14 @@ export default function LoginPage() {
   };
 
   const iniciarSesionConGoogle = async () => {
+    if (loading) return;
+
     setLoading(true);
     setErrorMessage("");
+
+    const resetTimer = window.setTimeout(() => {
+      setLoading(false);
+    }, 6000);
 
     const redirectTo = `${window.location.origin}/${locale}/auth/callback?next=/perfil`;
     const { error } = await supabase.auth.signInWithOAuth({
@@ -143,7 +149,27 @@ export default function LoginPage() {
       setErrorMessage(error.message || t("errorCredenciales"));
       setLoading(false);
     }
+
+    window.clearTimeout(resetTimer);
   };
+
+  useEffect(() => {
+    // If user comes back from OAuth and this page is restored from cache,
+    // ensure actions are not left in a blocked loading state.
+    setLoading(false);
+
+    const unlockUi = () => setLoading(false);
+
+    window.addEventListener("focus", unlockUi);
+    window.addEventListener("pageshow", unlockUi);
+    document.addEventListener("visibilitychange", unlockUi);
+
+    return () => {
+      window.removeEventListener("focus", unlockUi);
+      window.removeEventListener("pageshow", unlockUi);
+      document.removeEventListener("visibilitychange", unlockUi);
+    };
+  }, [searchParams]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
