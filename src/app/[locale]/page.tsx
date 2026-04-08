@@ -14,28 +14,28 @@ export default function HomePage() {
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
-            backgroundImage: 'linear-gradient(135deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.6) 100%), url("https://images.unsplash.com/photo-1518182170546-07661fd94144?q=80&w=1920&h=1080&auto=format&fit=crop")',
+            backgroundImage: 'linear-gradient(135deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.75) 50%, rgba(0,0,0,0.85) 100%), url("https://images.unsplash.com/photo-1518182170546-07661fd94144?q=80&w=1920&h=1080&auto=format&fit=crop")',
           }}
         />
         
         {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/80 to-black/60" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent" style={{background: 'linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.85) 30%, rgba(0,0,0,0.75) 100%)'}} />
         
         {/* Content */}
         <div className="relative z-10 h-full max-w-[1440px] mx-auto px-6 md:px-12 flex flex-col justify-center items-start">
           {/* Label */}
-          <div className="inline-flex items-center gap-2 mb-8 text-white/80 font-label text-xs uppercase tracking-[0.2em]">
+          <div className="inline-flex items-center gap-2 mb-8 font-label text-xs uppercase tracking-[0.2em]" style={{color: '#FFFFFF', textShadow: '0 0 15px rgba(0,0,0,0.9)'}}>
             <span className="w-2 h-2 rounded-full bg-yellow-400"></span>
             Curaduría de Inteligencia Editorial
           </div>
           
           {/* Main Headline */}
-          <h1 className="font-headline text-6xl md:text-7xl lg:text-8xl text-white max-w-5xl leading-[1.1] mb-6 md:mb-8 font-black tracking-tight" style={{textShadow: '0 0 40px rgba(0,0,0,0.95), 2px 2px 8px rgba(0,0,0,0.8)'}}>
-            Descubre lo <br className="hidden md:block" /><span className="italic font-light">mejor de México</span>
+          <h1 className="font-headline text-6xl md:text-7xl lg:text-8xl max-w-5xl leading-[1.1] mb-6 md:mb-8 font-black tracking-tight" style={{color: '#FFFFFF', textShadow: '0 0 50px rgba(0,0,0,1), 3px 3px 12px rgba(0,0,0,0.9), 0 0 20px rgba(0,0,0,0.8)'}}>
+            Descubre lo <br className="hidden md:block" /><span className="italic font-light" style={{color: '#FFFFFF'}}>mejor de México</span>
           </h1>
           
           {/* Subheading */}
-          <p className="text-white text-lg md:text-xl max-w-2xl mb-10 md:mb-12 font-body leading-relaxed" style={{textShadow: '0 0 20px rgba(0,0,0,0.9), 1px 1px 4px rgba(0,0,0,0.8)'}}>
+          <p className="text-lg md:text-xl max-w-2xl mb-10 md:mb-12 font-body leading-relaxed" style={{color: '#FFFFFF', textShadow: '0 0 30px rgba(0,0,0,1), 2px 2px 8px rgba(0,0,0,0.9)'}}>
             Una selección curada de destinos, sabores y cultura local impulsada por la inteligencia de datos de Coppel.
           </p>
           
