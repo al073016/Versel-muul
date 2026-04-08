@@ -16,7 +16,7 @@ import {
   Trash2
 } from "lucide-react";
 
-type TabType = "cuenta" | "direcciones" | "rutas" | "resenas" | "ajustes";
+type TabType = "cuenta" | "direcciones" | "rutas" | "resenas" | "ajustes" | "editar";
 
 export default function PerfilPage() {
   const t = useTranslations("perfil");

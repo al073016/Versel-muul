@@ -14,13 +14,17 @@ export interface Perfil {
   id: string;
   nombre_completo?: string;
   nombre?: string;
+  apellido?: string | null;
+  username?: string | null;
   tipo_cuenta?: TipoCuenta;
   tipo?: "usuario" | "empresa";
   idioma?: string;
   language?: string;
   avatar_url?: string | null;
   foto_url?: string | null;
+  banner_url?: string | null;
   ciudad: string | null;
+  telefono?: string | null;
   created_at: string;
 }
 
@@ -37,6 +41,18 @@ export interface Negocio {
   horario_apertura: string | null;
   horario_cierre: string | null;
   especialidades: string[];
+  foto_url?: string | null;
+  banner_url?: string | null;
+  instagram?: string | null;
+  facebook?: string | null;
+  caracteristicas?: {
+    pago_tarjeta?: boolean;
+    transferencias?: boolean;
+    pet_friendly?: boolean;
+    vegana?: boolean;
+    accesibilidad?: boolean;
+  } | null;
+  seguidores?: number;
   verificado: boolean;
   activo: boolean;
   created_at: string;
