@@ -290,13 +290,13 @@ export default function LoginPage() {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <article className="bg-[#e9edf7] p-7 rounded-3xl border border-outline-variant/10 shadow-sm">
+                <article className="bg-[#f1f5f9] p-7 rounded-[2rem] border border-[#003e6f]/5 shadow-sm">
                   <span className="text-xl" aria-hidden="true">🧭</span>
-                  <h3 className="font-headline italic text-4xl leading-none text-primary mt-4">{t("featureOneTitle")}</h3>
-                  <p className="text-on-surface-variant mt-3 text-lg">{t("featureOneBody")}</p>
+                  <h3 className="font-headline italic text-4xl leading-none text-[#003e6f] mt-4">{t("featureOneTitle")}</h3>
+                  <p className="text-[#003e6f]/60 mt-3 text-lg">{t("featureOneBody")}</p>
                 </article>
 
-                <article className="bg-primary text-white p-7 rounded-3xl shadow-xl shadow-primary/20">
+                <article className="bg-[#003e6f] text-white p-7 rounded-[2rem] shadow-xl shadow-[#003e6f]/10">
                   <span className="text-xl" aria-hidden="true">🛡️</span>
                   <h3 className="font-headline italic text-4xl leading-none mt-4 !text-white">{t("featureTwoTitle")}</h3>
                   <p className="opacity-90 mt-3 text-lg">{t("featureTwoBody")}</p>
@@ -304,17 +304,17 @@ export default function LoginPage() {
               </div>
             </>
           ) : (
-            <div className="bg-[#e9edf7] rounded-[2rem] border border-outline-variant/10 shadow-sm min-h-[620px] p-8 md:p-10 flex flex-col justify-between relative overflow-hidden">
-              <div className="absolute -bottom-24 -left-20 w-72 h-72 bg-[#f8f1cf] opacity-45 blur-3xl rounded-full pointer-events-none" />
+            <div className="bg-[#f1f5f9] rounded-[2.5rem] border border-[#003e6f]/5 shadow-sm min-h-[620px] p-8 md:p-12 flex flex-col justify-between relative overflow-hidden">
+              <div className="absolute -bottom-24 -left-20 w-72 h-72 bg-[#fed000]/10 opacity-45 blur-3xl rounded-full pointer-events-none" />
               <div className="space-y-6 relative z-10">
-                <span className="font-label text-primary text-xs tracking-[0.28em] uppercase">{t("businessHeroEyebrow")}</span>
-                <h1 className="text-5xl md:text-6xl xl:text-7xl font-headline text-primary leading-[0.95]">
+                <span className="font-label text-[#003e6f] text-xs font-black tracking-[0.28em] uppercase">{t("businessHeroEyebrow")}</span>
+                <h1 className="text-5xl md:text-6xl xl:text-7xl font-headline text-[#003e6f] leading-[0.95]">
                   {t("businessHeroTitle")}
                 </h1>
-                <p className="text-on-surface-variant text-xl max-w-xl leading-relaxed">{t("businessHeroSubtitle")}</p>
+                <p className="text-[#003e6f]/60 text-xl max-w-xl leading-relaxed">{t("businessHeroSubtitle")}</p>
               </div>
-              <div className="relative z-10 bg-[#f4efde] border-l-4 border-[#f5c11f] rounded-xl px-5 py-4">
-                <p className="text-[#7b6421] font-semibold text-base">{t("businessBenefit")}</p>
+              <div className="relative z-10 bg-[#fed000] border-l-8 border-[#003e6f] rounded-2xl px-8 py-6 shadow-lg">
+                <p className="text-[#003e6f] font-black text-lg leading-tight uppercase tracking-tighter">{t("businessBenefit")}</p>
               </div>
             </div>
           )}
@@ -322,15 +322,15 @@ export default function LoginPage() {
 
         <section className="w-full">
           <div className="bg-white rounded-[2.25rem] border border-outline-variant/10 shadow-xl p-8 md:p-10">
-            <div className="mb-7 flex items-center justify-between bg-[#eef2fb] rounded-full p-1.5">
+            <div className="mb-8 flex items-center justify-between bg-slate-100 rounded-full p-1.5 border border-slate-200 shadow-inner">
               <button
                 type="button"
                 onClick={() => {
                   setProfile("turista");
                   setErrorMessage("");
                 }}
-                className={`flex-1 rounded-full py-2.5 text-sm font-bold transition-all ${
-                  profile === "turista" ? "bg-white text-primary shadow-sm" : "text-primary/60"
+                className={`flex-1 rounded-full py-3.5 text-xs font-black uppercase tracking-[0.1em] transition-all ${
+                  profile === "turista" ? "bg-white text-[#003e6f] shadow-lg" : "text-[#003e6f]/40"
                 }`}
               >
                 {t("turista")}
@@ -341,8 +341,8 @@ export default function LoginPage() {
                   setProfile("negocio");
                   setErrorMessage("");
                 }}
-                className={`flex-1 rounded-full py-2.5 text-sm font-bold transition-all ${
-                  profile === "negocio" ? "bg-white text-primary shadow-sm" : "text-primary/60"
+                className={`flex-1 rounded-full py-3.5 text-xs font-black uppercase tracking-[0.1em] transition-all ${
+                  profile === "negocio" ? "bg-white text-[#003e6f] shadow-lg" : "text-[#003e6f]/40"
                 }`}
               >
                 {t("negocio")}
@@ -694,23 +694,23 @@ export default function LoginPage() {
 
                 <button
                   type="button"
-                  className="w-full h-14 bg-[#eef2fb] rounded-full border border-outline-variant/15 flex items-center justify-center gap-3"
+                  className="w-full h-14 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-center gap-4 hover:bg-slate-100 transition-all shadow-sm"
                 >
-                  <span className="w-6 h-6 rounded-full bg-white border border-outline-variant/20 flex items-center justify-center" aria-hidden="true">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                  <span className="w-8 h-8 rounded-full bg-white border border-slate-100 flex items-center justify-center shadow-inner" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                       <path d="M21.805 12.231c0-.819-.066-1.416-.209-2.034H12v3.805h5.64c-.114.946-.731 2.37-2.103 3.327l-.019.127 3.042 2.309.211.021c1.94-1.749 3.034-4.322 3.034-7.555Z" fill="#4285F4"/>
                       <path d="M12 21.923c2.762 0 5.084-.895 6.778-2.436l-3.234-2.457c-.866.595-2.03 1.011-3.544 1.011-2.705 0-4.998-1.749-5.817-4.166l-.122.01-3.163 2.398-.042.114c1.684 3.286 5.151 5.526 9.144 5.526Z" fill="#34A853"/>
                       <path d="M6.183 13.875A5.858 5.858 0 0 1 5.842 12c0-.652.124-1.28.333-1.874l-.006-.125-3.203-2.436-.105.049A9.786 9.786 0 0 0 1.8 12c0 1.558.38 3.032 1.061 4.386l3.322-2.511Z" fill="#FBBC05"/>
                       <path d="M12 5.959c1.903 0 3.186.809 3.915 1.487l2.857-2.735C17.075 3.153 14.762 2.077 12 2.077c-3.993 0-7.46 2.24-9.144 5.526L6.165 10c.837-2.417 3.13-4.041 5.835-4.041Z" fill="#EA4335"/>
                     </svg>
                   </span>
-                  <span className="font-bold text-base text-primary">{t("google")}</span>
+                  <span className="font-black text-xs uppercase tracking-widest text-[#003e6f]">{t("google")}</span>
                 </button>
-                <p className="text-center text-xs text-on-surface-variant mt-3">{t("googleSoon")}</p>
+                <p className="text-center text-[10px] font-bold text-[#003e6f]/40 uppercase tracking-widest mt-4">{t("googleSoon")}</p>
               </>
             )}
 
-            <div className="mt-8 text-center text-sm text-on-surface-variant">
+            <div className="mt-10 text-center text-[11px] font-black uppercase tracking-widest text-[#003e6f]/60">
               {mode === "login" ? t("sinCuenta") : t("yaTienesCuenta")}{" "}
               <button
                 type="button"
@@ -718,7 +718,7 @@ export default function LoginPage() {
                   setMode((prev) => (prev === "login" ? "register" : "login"));
                   setErrorMessage("");
                 }}
-                className="text-primary font-bold underline underline-offset-4 decoration-secondary"
+                className="text-[#003e6f] underline underline-offset-8 decoration-[#fed000] decoration-4 hover:decoration-[#003e6f] transition-all"
               >
                 {mode === "login" ? t("registrate") : t("iniciaSesion")}
               </button>

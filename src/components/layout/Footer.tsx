@@ -32,7 +32,7 @@ export default function Footer() {
   };
 
   return (
-    <footer className="w-full bg-neutral-950">
+    <footer className="w-full bg-neutral-950 pb-24 md:pb-0">
       <div className="max-w-[1440px] mx-auto px-8 md:px-16">
 
         {/* Top: Branding Row — logos distribuidos a lo largo */}

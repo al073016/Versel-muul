@@ -12,22 +12,20 @@ export type NivelInsignia = "bronce" | "plata" | "oro" | "platino";
 
 export interface Perfil {
   id: string;
-  tipo_cuenta: TipoCuenta;
-  username: string;
-  nombre: string;
-  apellido: string;
-  correo: string;
-  telefono?: string | null;
   nombre_completo?: string;
-  nombre_original?: string;
+  nombre?: string;
+  apellido?: string | null;
+  username?: string | null;
+  tipo_cuenta?: TipoCuenta;
+  tipo?: "usuario" | "empresa";
   idioma?: string;
   language?: string;
   avatar_url?: string | null;
   foto_url?: string | null;
   banner_url?: string | null;
-  ciudad?: string | null;
+  ciudad: string | null;
+  telefono?: string | null;
   created_at: string;
-  updated_at?: string;
 }
 
 export interface Negocio {
@@ -43,6 +41,18 @@ export interface Negocio {
   horario_apertura: string | null;
   horario_cierre: string | null;
   especialidades: string[];
+  foto_url?: string | null;
+  banner_url?: string | null;
+  instagram?: string | null;
+  facebook?: string | null;
+  caracteristicas?: {
+    pago_tarjeta?: boolean;
+    transferencias?: boolean;
+    pet_friendly?: boolean;
+    vegana?: boolean;
+    accesibilidad?: boolean;
+  } | null;
+  seguidores?: number;
   verificado: boolean;
   activo: boolean;
   created_at: string;

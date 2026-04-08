@@ -131,20 +131,20 @@ export default function TiendasPage() {
 
           <div className="max-w-7xl mx-auto relative z-10">
             <div className="mb-12 animate-fade-in-up">
-              <h1 className="text-5xl md:text-7xl font-black font-headline tracking-tighter mb-4 text-on-surface">
-                {t("titulo")} <br /><span className="text-secondary">{t("registradas")}</span>
+              <h1 className="text-5xl md:text-7xl font-black font-headline tracking-tighter mb-4 text-[#003e6f]">
+                {t("titulo")} <br /><span className="text-[#005596]">{t("registradas")}</span>
               </h1>
-              <p className="text-on-surface-variant max-w-xl text-lg">{t("subtitulo")}</p>
+              <p className="text-neutral-500 max-w-xl text-lg">{t("subtitulo")}</p>
             </div>
 
             <div className="flex flex-col md:flex-row gap-6 mb-12">
               <div className="flex-grow relative">
-                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
-                <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder={t("buscar")} className="w-full bg-surface-container-highest border-none rounded-xl py-4 pl-12 pr-4 text-on-surface focus:ring-2 focus:ring-secondary/40 placeholder:text-on-surface-variant" />
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#003e6f]/40">search</span>
+                <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder={t("buscar")} className="w-full !bg-slate-100 border border-slate-200 rounded-xl py-4 pl-12 pr-4 text-[#003e6f] focus:ring-2 focus:ring-[#003e6f]/20 placeholder:text-[#003e6f]/40 outline-none transition-all" />
               </div>
               <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: "none" }}>
                 {filterOptions.map((f) => (
-                  <button key={f.value} onClick={() => setActiveFilter(f.value)} className={`whitespace-nowrap px-6 py-2 rounded-full font-bold text-sm transition-colors ${activeFilter === f.value ? "bg-secondary text-on-secondary" : "bg-surface-container-high text-on-surface hover:bg-surface-container-highest"}`}>{f.label}</button>
+                  <button key={f.value} onClick={() => setActiveFilter(f.value)} className={`whitespace-nowrap px-6 py-2 rounded-full font-bold text-sm transition-colors ${activeFilter === f.value ? "bg-[#003e6f] text-white" : "bg-slate-200/50 text-[#003e6f] hover:bg-slate-200"}`}>{f.label}</button>
                 ))}
               </div>
             </div>
@@ -162,18 +162,21 @@ export default function TiendasPage() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 stagger-children">
                 {filteredNegocios.map((negocio) => (
-                  <Link key={negocio.id} href={`/negocio/${slugify(negocio.nombre) || negocio.id}`} className="group bg-surface-container-low rounded-xl overflow-hidden relative shadow-lg hover:translate-y-[-4px] transition-transform duration-300">
-                    <div className="h-64 relative bg-gradient-to-br from-surface-container-high to-surface-container-highest flex items-center justify-center">
-                      <div className="absolute inset-0 bg-gradient-to-t from-surface-container-low via-transparent to-transparent z-10" />
-                      <span className="text-8xl group-hover:scale-105 transition-transform duration-500">{categoryEmojis[negocio.categoria] || "🏪"}</span>
-                      <span className="absolute top-4 left-4 z-20 bg-primary/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-primary tracking-widest uppercase">{categoryLabels[negocio.categoria] || negocio.categoria}</span>
-                      {negocio.verificado && (<span className="absolute top-4 right-4 z-20 bg-white/10 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-on-surface flex items-center gap-1">🌊 Muul</span>)}
+                  <Link key={negocio.id} href={`/negocio/${slugify(negocio.nombre) || negocio.id}`} className="group bg-white border border-neutral-100 rounded-3xl overflow-hidden relative shadow-sm hover:shadow-2xl hover:translate-y-[-8px] transition-all duration-500">
+                    <div className="h-64 relative bg-slate-50 flex items-center justify-center overflow-hidden">
+                      <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent z-10" />
+                      <span className="text-8xl group-hover:scale-110 transition-transform duration-700">{categoryEmojis[negocio.categoria] || "🏪"}</span>
+                      <span className="absolute top-4 left-4 z-20 bg-white/80 backdrop-blur-md border border-neutral-100 px-4 py-1.5 rounded-full text-[10px] font-black text-[#003e6f] tracking-widest uppercase">{categoryLabels[negocio.categoria] || negocio.categoria}</span>
+                      {negocio.verificado && (<span className="absolute top-4 right-4 z-20 bg-[#003e6f]/10 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-black text-[#003e6f] flex items-center gap-1">🌊 MUUL</span>)}
                     </div>
-                    <div className="p-6 relative">
-                      <h3 className="text-2xl font-bold font-headline mb-1 text-on-surface">{negocio.nombre}</h3>
-                      <p className="text-secondary font-semibold text-sm mb-2">{negocio.horario_apertura && negocio.horario_cierre ? `${negocio.horario_apertura} - ${negocio.horario_cierre}` : t("horarioNoDisponible")}</p>
-                      {negocio.descripcion && (<p className="text-on-surface-variant text-sm line-clamp-2 mb-4">{negocio.descripcion}</p>)}
-                      <div className="w-full bg-surface-container-highest text-on-surface py-3 rounded-lg font-bold text-center group-hover:bg-secondary group-hover:text-on-secondary transition-all duration-300">{t("verProductos")}</div>
+                    <div className="p-8 relative">
+                      <h3 className="text-2xl font-black font-headline mb-2 text-[#003e6f]">{negocio.nombre}</h3>
+                      <p className="text-[#005596] font-bold text-sm mb-4 flex items-center gap-2">
+                        <span className="material-symbols-outlined text-sm">schedule</span>
+                        {negocio.horario_apertura && negocio.horario_cierre ? `${negocio.horario_apertura} - ${negocio.horario_cierre}` : t("horarioNoDisponible")}
+                      </p>
+                      {negocio.descripcion && (<p className="text-neutral-500 text-sm line-clamp-2 mb-6 font-body leading-relaxed">{negocio.descripcion}</p>)}
+                      <div className="w-full bg-slate-100 text-[#003e6f] py-4 rounded-2xl font-black text-sm text-center group-hover:bg-[#fed000] group-hover:text-[#003e6f] transition-all duration-300 shadow-sm">{t("verProductos")}</div>
                     </div>
                   </Link>
                 ))}
@@ -183,12 +186,12 @@ export default function TiendasPage() {
         </section>
 
         {/* ===== REGISTRO ===== */}
-        <section className="bg-[#111113] py-24 px-6 border-t border-white/5">
+        <section className="bg-white py-24 px-6 border-t border-neutral-100">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-16 animate-fade-in-up">
-              <span className="text-secondary font-bold tracking-[0.2em] uppercase text-xs mb-4 block">{t("hacCrecer")}</span>
-              <h2 className="text-4xl md:text-5xl font-black font-headline text-on-surface">{t("registroTitulo")}</h2>
-              <p className="text-on-surface-variant mt-4">{t("registroSubtitulo")}</p>
+              <span className="text-[#005596] font-bold tracking-[0.2em] uppercase text-xs mb-4 block">{t("hacCrecer")}</span>
+              <h2 className="text-4xl md:text-5xl font-black font-headline text-[#003e6f]">{t("registroTitulo")}</h2>
+              <p className="text-neutral-500 mt-4">{t("registroSubtitulo")}</p>
             </div>
 
             {regSuccess ? (
@@ -206,27 +209,27 @@ export default function TiendasPage() {
                 <form className="space-y-8 relative z-10" onSubmit={handleRegistro}>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-1">{t("nombreNegocio")} *</label>
-                      <input type="text" required value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder={t("nombreNegocioPlaceholder")} className="w-full bg-surface-container-highest border-none rounded-xl py-4 px-6 text-on-surface focus:ring-2 focus:ring-secondary/40 placeholder:text-on-surface-variant/40" />
+                      <label className="text-[10px] font-black uppercase tracking-widest text-[#005596] ml-4">{t("nombreNegocio")} *</label>
+                      <input type="text" required value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder={t("nombreNegocioPlaceholder")} className="w-full !bg-slate-100 border border-slate-200 rounded-2xl py-4 px-8 text-[#003e6f] focus:ring-2 focus:ring-[#003e6f]/20 placeholder:text-[#003e6f]/30 outline-none transition-all" />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-1">{t("rfc")}</label>
-                      <input type="text" value={rfc} onChange={(e) => setRfc(e.target.value)} placeholder={t("rfcPlaceholder")} className="w-full bg-surface-container-highest border-none rounded-xl py-4 px-6 text-on-surface focus:ring-2 focus:ring-secondary/40 placeholder:text-on-surface-variant/40" />
+                      <label className="text-[10px] font-black uppercase tracking-widest text-[#005596] ml-4">{t("rfc")}</label>
+                      <input type="text" value={rfc} onChange={(e) => setRfc(e.target.value)} placeholder={t("rfcPlaceholder")} className="w-full !bg-slate-100 border border-slate-200 rounded-2xl py-4 px-8 text-[#003e6f] focus:ring-2 focus:ring-[#003e6f]/20 placeholder:text-[#003e6f]/30 outline-none transition-all" />
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-1">{t("descripcion")}</label>
-                    <textarea value={descripcion} onChange={(e) => setDescripcion(e.target.value)} placeholder={t("descripcionPlaceholder")} rows={3} className="w-full bg-surface-container-highest border-none rounded-xl py-4 px-6 text-on-surface focus:ring-2 focus:ring-secondary/40 placeholder:text-on-surface-variant/40 resize-none" />
+                    <label className="text-[10px] font-black uppercase tracking-widest text-[#005596] ml-4">{t("descripcion")}</label>
+                    <textarea value={descripcion} onChange={(e) => setDescripcion(e.target.value)} placeholder={t("descripcionPlaceholder")} rows={3} className="w-full !bg-slate-100 border border-slate-200 rounded-2xl py-4 px-8 text-[#003e6f] focus:ring-2 focus:ring-[#003e6f]/20 placeholder:text-[#003e6f]/30 outline-none transition-all resize-none" />
                   </div>
 
                   <div className="space-y-4">
-                    <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-1">{t("categoria")} *</label>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-[#005596] ml-4">{t("categoria")} *</label>
                     <div className="grid grid-cols-3 gap-4">
                       {businessCategories.map((cat) => (
-                        <button key={cat.id} type="button" onClick={() => setSelectedCategory(cat.id)} className={`flex flex-col items-center justify-center p-6 bg-surface-container-highest rounded-2xl border-2 transition-all ${selectedCategory === cat.id ? "border-secondary text-secondary shadow-[0_0_15px_rgba(152,213,162,0.1)]" : "border-transparent hover:border-secondary/20"}`}>
+                        <button key={cat.id} type="button" onClick={() => setSelectedCategory(cat.id)} className={`flex flex-col items-center justify-center p-6 bg-slate-50 rounded-2xl border-2 transition-all ${selectedCategory === cat.id ? "border-[#003e6f] text-[#003e6f] bg-white shadow-lg" : "border-transparent hover:border-[#003e6f]/10"}`}>
                           <span className="text-3xl mb-2">{cat.emoji}</span>
-                          <span className="text-xs font-bold">{cat.label}</span>
+                          <span className="text-xs font-black uppercase tracking-tighter">{cat.label}</span>
                         </button>
                       ))}
                     </div>
@@ -234,31 +237,31 @@ export default function TiendasPage() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-1">{t("horarioApertura")}</label>
-                      <input type="time" value={horarioApertura} onChange={(e) => setHorarioApertura(e.target.value)} className="w-full bg-surface-container-highest border-none rounded-xl py-4 px-6 text-on-surface focus:ring-2 focus:ring-secondary/40" />
+                      <label className="text-[10px] font-black uppercase tracking-widest text-[#005596] ml-4">{t("horarioApertura")}</label>
+                      <input type="time" value={horarioApertura} onChange={(e) => setHorarioApertura(e.target.value)} className="w-full !bg-slate-100 border border-slate-200 rounded-2xl py-4 px-8 text-[#003e6f] outline-none" />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-1">{t("horarioCierre")}</label>
-                      <input type="time" value={horarioCierre} onChange={(e) => setHorarioCierre(e.target.value)} className="w-full bg-surface-container-highest border-none rounded-xl py-4 px-6 text-on-surface focus:ring-2 focus:ring-secondary/40" />
+                      <label className="text-[10px] font-black uppercase tracking-widest text-[#005596] ml-4">{t("horarioCierre")}</label>
+                      <input type="time" value={horarioCierre} onChange={(e) => setHorarioCierre(e.target.value)} className="w-full !bg-slate-100 border border-slate-200 rounded-2xl py-4 px-8 text-[#003e6f] outline-none" />
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-1">{t("direccion")}</label>
-                    <input type="text" value={direccion} onChange={(e) => setDireccion(e.target.value)} placeholder={t("direccionPlaceholder")} className="w-full bg-surface-container-highest border-none rounded-xl py-4 px-6 text-on-surface focus:ring-2 focus:ring-secondary/40 placeholder:text-on-surface-variant/40" />
+                    <label className="text-[10px] font-black uppercase tracking-widest text-[#005596] ml-4">{t("direccion")}</label>
+                    <input type="text" value={direccion} onChange={(e) => setDireccion(e.target.value)} placeholder={t("direccionPlaceholder")} className="w-full !bg-slate-100 border border-slate-200 rounded-2xl py-4 px-8 text-[#003e6f] focus:ring-2 focus:ring-[#003e6f]/20 placeholder:text-[#003e6f]/30 outline-none transition-all" />
                   </div>
 
                   <div className="space-y-4">
-                    <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-1">{t("ubicacion")} *</label>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-[#005596] ml-4">{t("ubicacion")} *</label>
                     <div className="flex gap-4">
-                      <button type="button" onClick={capturarGPS} className="flex-grow bg-surface-container-highest text-on-surface-variant py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-surface-container-high transition-all">
+                      <button type="button" onClick={capturarGPS} className="flex-grow bg-slate-100 text-[#003e6f] py-4 rounded-2xl font-black flex items-center justify-center gap-2 hover:bg-slate-200 transition-all shadow-sm">
                         <span className="material-symbols-outlined">location_on</span>{t("capturarGPS")}
                       </button>
-                      <button type="button" className={`px-6 rounded-xl flex items-center justify-center transition-all ${gpsActive ? "bg-secondary text-on-secondary shadow-glow-secondary" : "bg-surface-container-highest text-on-surface-variant"}`}>
+                      <button type="button" className={`px-6 rounded-2xl flex items-center justify-center transition-all ${gpsActive ? "bg-[#fed000] text-[#003e6f] shadow-lg shadow-[#fed000]/20" : "bg-slate-100 text-slate-400"}`}>
                         <span className="material-symbols-outlined" style={gpsActive ? { fontVariationSettings: "'FILL' 1" } : undefined}>check_circle</span>
                       </button>
                     </div>
-                    {gpsActive && latitud && longitud && (<div className="text-[10px] text-secondary font-mono text-right uppercase tracking-widest animate-fade-in-up">GPS: {latitud.toFixed(4)}° N, {longitud.toFixed(4)}° W ({t("gpsActivo")})</div>)}
+                    {gpsActive && latitud && longitud && (<div className="text-[10px] text-[#fed000] bg-[#003e6f] px-4 py-1.5 rounded-full w-fit ml-auto font-mono uppercase tracking-widest shadow-sm">GPS: {latitud.toFixed(4)}° N, {longitud.toFixed(4)}° W</div>)}
                   </div>
 
                   <div className="space-y-4">
@@ -274,7 +277,7 @@ export default function TiendasPage() {
 
                   {regError && (<div className="p-3 rounded-lg bg-error-container/20 border border-error/20 text-error text-xs font-medium animate-fade-in-up">{regError}</div>)}
 
-                  <button type="submit" disabled={registrando} className="w-full bg-secondary text-on-secondary py-5 rounded-xl font-headline font-black text-lg uppercase tracking-tighter hover:brightness-110 active:scale-[0.98] transition-all shadow-xl shadow-secondary/10 disabled:opacity-50 disabled:cursor-not-allowed">
+                  <button type="submit" disabled={registrando} className="w-full bg-[#003e6f] text-white !text-white py-5 rounded-xl font-headline font-black text-lg uppercase tracking-tighter hover:bg-[#fed000] hover:text-[#003e6f] active:scale-[0.98] transition-all shadow-xl shadow-[#003e6f]/10 disabled:opacity-50 disabled:cursor-not-allowed">
                     {registrando ? t("registrando") : t("registrar")}
                   </button>
                 </form>

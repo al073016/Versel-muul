@@ -23,7 +23,7 @@ html {
 }
 
 body {
-  background-color: #f8f9ff;
+  background-color: #ffffff;
   color: #001c39;
   font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
   min-height: 100vh;
@@ -100,7 +100,8 @@ body {
 /* Glass Card (for elevated surfaces) */
 .glass-card {
   background: #ffffff;
-  box-shadow: 0 4px 32px rgba(0, 28, 57, 0.06);
+  box-shadow: 0 10px 40px rgba(0, 50, 100, 0.08);
+  border: 1px solid rgba(0, 62, 111, 0.05);
 }
 
 /* Editorial gradient background */
@@ -129,14 +130,14 @@ body {
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #003e6f;
+  color: #005596;
 }
 
 /* Editorial serif heading */
 .editorial-heading, .font-headline, h1, h2, h3, h4 {
   font-family: 'Newsreader', Georgia, serif;
   font-weight: 700;
-  color: #001c39;
+  color: #003e6f;
 }
 
 .font-body, p, span, div, button, input {
@@ -150,16 +151,16 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #eff3ff;
+  background: #f8f9ff;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c4c6d0;
+  background: #cbd5e1;
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #74777f;
+  background: #94a3b8;
 }
 
 /* --- Selection Color --- */
@@ -191,6 +192,15 @@ body {
   }
 }
 
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
 /* Staggered children animation */
 .stagger-children > * {
   opacity: 0;
@@ -220,9 +230,9 @@ input[type="number"],
 input[type="time"],
 textarea,
 select {
-  background-color: #ffffff;
+  background-color: #f1f5f9;
   color: #001c39;
-  border: 1px solid rgba(196, 198, 208, 0.4);
+  border: 1px solid rgba(0, 62, 111, 0.08);
   outline: none;
   border-radius: 0.75rem;
 }
@@ -235,12 +245,12 @@ input[type="time"]:focus,
 textarea:focus,
 select:focus {
   border-color: #003e6f;
-  box-shadow: 0 0 0 3px rgba(0, 62, 111, 0.12);
+  box-shadow: 0 0 0 3px rgba(0, 62, 111, 0.08);
 }
 
 input::placeholder,
 textarea::placeholder {
-  color: rgba(68, 71, 78, 0.5);
+  color: rgba(0, 28, 57, 0.4);
 }
 
 /* Mapbox GL Fix */
@@ -267,6 +277,11 @@ textarea::placeholder {
 }
 
 .card-hover:hover {
-  background-color: #e4e7f4;
+  background-color: rgba(255, 255, 255, 0.05);
   transform: translateY(-2px);
+}
+
+/* Base transitions for theme switching if needed */
+body, nav, div, section, footer {
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }

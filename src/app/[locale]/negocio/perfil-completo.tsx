@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Link } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import type { Negocio } from "@/types/database";
 
 const categoryEmojis: Record<string, string> = {
@@ -14,20 +14,17 @@ const categoryEmojis: Record<string, string> = {
   deportes: "⚽",
 };
 
-export default function NegocioDashboardPage() {
+export default function NegocioPerfilCompleto() {
   const supabase = createClient();
   const t = useTranslations("negocio");
-  const tNav = useTranslations("nav");
-  const [loading, setLoading] = useState(true);
   const [negocio, setNegocio] = useState<Negocio | null>(null);
-  const [authenticated, setAuthenticated] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [isEditor, setIsEditor] = useState(false);
 
-  const [fotoPerfil, setFotoPerfil] = useState("");
   const [banner, setBanner] = useState("");
+  const [fotoPerfil, setFotoPerfil] = useState("");
   const [instagram, setInstagram] = useState("");
   const [facebook, setFacebook] = useState("");
-  const [saveMessage, setSaveMessage] = useState("");
   const [caracteristicas, setCaracteristicas] = useState({
     pago_tarjeta: false,
     transferencias: false,
@@ -43,12 +40,10 @@ export default function NegocioDashboardPage() {
       } = await supabase.auth.getUser();
 
       if (!user) {
-        setAuthenticated(false);
         setLoading(false);
         return;
       }
 
-      setAuthenticated(true);
       const { data } = await supabase
         .from("negocios")
         .select("*")
@@ -59,8 +54,8 @@ export default function NegocioDashboardPage() {
       if (data && data.length > 0) {
         const neg = data[0] as Negocio;
         setNegocio(neg);
-        setFotoPerfil(neg.foto_url || "");
         setBanner(neg.banner_url || "");
+        setFotoPerfil(neg.foto_url || "");
         setInstagram(neg.instagram || "");
         setFacebook(neg.facebook || "");
         setCaracteristicas({
@@ -83,8 +78,8 @@ export default function NegocioDashboardPage() {
     const { error } = await supabase
       .from("negocios")
       .update({
-        foto_url: fotoPerfil,
         banner_url: banner,
+        foto_url: fotoPerfil,
         instagram,
         facebook,
         caracteristicas,
@@ -92,78 +87,68 @@ export default function NegocioDashboardPage() {
       .eq("id", negocio.id);
 
     if (!error) {
-      setIsEditing(false);
-      setSaveMessage("✓ Cambios guardados exitosamente");
+      setIsEditor(false);
       setNegocio({
         ...negocio,
-        foto_url: fotoPerfil,
         banner_url: banner,
+        foto_url: fotoPerfil,
         instagram,
         facebook,
         caracteristicas,
       });
-      setTimeout(() => setSaveMessage(""), 3000);
-    } else {
-      setSaveMessage("✗ Error al guardar cambios");
-      setTimeout(() => setSaveMessage(""), 3000);
     }
   };
 
-  if (loading) {
+  if (loading)
     return (
-      <main className="max-w-7xl mx-auto min-h-screen px-6 py-24 flex items-center justify-center">
-        <div className="animate-pulse space-y-4 w-full max-w-2xl">
-          <div className="h-64 bg-surface-container-high rounded-3xl" />
-          <div className="h-12 bg-surface-container-high rounded w-1/2" />
-          <div className="h-6 bg-surface-container-high rounded w-3/4" />
-        </div>
-      </main>
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Cargando...</p>
+      </div>
     );
-  }
 
-  if (!authenticated) {
+  if (!negocio)
     return (
-      <main className="max-w-4xl mx-auto min-h-screen px-6 py-24 flex flex-col items-center justify-center text-center gap-6">
-        <span className="text-6xl">🔐</span>
-        <h1 className="text-4xl font-bold">Accede a tu panel</h1>
-        <p className="text-on-surface-variant max-w-xl">Inicia sesión para gestionar tu negocio</p>
-        <Link href="/login" className="px-8 py-4 bg-secondary text-on-secondary rounded-full font-bold">
-          {tNav("login")}
-        </Link>
-      </main>
-    );
-  }
-
-  if (!negocio) {
-    return (
-      <main className="max-w-4xl mx-auto min-h-screen px-6 py-24 flex flex-col items-center justify-center text-center gap-6">
+      <div className="min-h-screen flex flex-col items-center justify-center gap-6">
         <span className="text-6xl">🏪</span>
-        <h1 className="text-4xl font-bold">No tienes un negocio registrado</h1>
-        <p className="text-on-surface-variant max-w-xl">Registra tu negocio en MUUL</p>
-        <Link href="/tiendas" className="px-8 py-4 bg-primary text-white rounded-full font-bold">
+        <p>No tienes un negocio registrado</p>
+        <Link href="/tiendas" className="px-6 py-3 bg-primary text-white rounded-full">
           Registrar negocio
         </Link>
-      </main>
+      </div>
     );
-  }
 
   return (
     <main className="min-h-screen pt-20 pb-12">
       {/* BANNER */}
-      <div className="relative h-64 bg-gradient-to-br from-primary/20 to-secondary/20 overflow-hidden">
-        {banner && <img src={banner} alt="banner" className="w-full h-full object-cover" />}
+      <div className="relative h-72 bg-gradient-to-br from-primary/20 to-secondary/20 overflow-hidden">
+        {fotoPerfil && (
+          <img src={fotoPerfil} alt={negocio.nombre} className="w-full h-full object-cover" />
+        )}
         <div className="absolute inset-0 bg-black/30" />
+        {isEditor && (
+          <div className="absolute inset-0 flex items-center justify-center gap-4">
+            <input
+              type="text"
+              placeholder="URL del banner"
+              value={banner}
+              onChange={(e) => setBanner(e.target.value)}
+              className="px-4 py-2 rounded bg-white/90"
+            />
+          </div>
+        )}
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-12">
         {/* Header */}
         <div className="flex flex-col md:flex-row gap-8 mb-12">
           {/* Avatar */}
-          <div className="w-40 h-40 rounded-full overflow-hidden border-4 border-white shadow-xl -mt-32 shrink-0 bg-surface-container-low flex items-center justify-center text-6xl">
+          <div className="w-40 h-40 rounded-full overflow-hidden border-4 border-white shadow-xl -mt-32 shrink-0 bg-surface-container-low">
             {fotoPerfil ? (
               <img src={fotoPerfil} alt={negocio.nombre} className="w-full h-full object-cover" />
             ) : (
-              categoryEmojis[negocio.categoria] || "🏪"
+              <div className="w-full h-full flex items-center justify-center text-6xl">
+                {categoryEmojis[negocio.categoria] || "🏪"}
+              </div>
             )}
           </div>
 
@@ -171,7 +156,7 @@ export default function NegocioDashboardPage() {
           <div className="flex-1 flex flex-col justify-center gap-4">
             <h1 className="text-5xl font-bold">{negocio.nombre}</h1>
             <p className="text-on-surface-variant text-lg">{negocio.descripcion}</p>
-            <div className="flex items-center gap-4 flex-wrap">
+            <div className="flex items-center gap-4">
               <span className="px-3 py-1 bg-primary-container text-primary-fixed rounded-full text-sm font-bold">
                 {negocio.categoria}
               </span>
@@ -183,42 +168,21 @@ export default function NegocioDashboardPage() {
               <span className="text-gray-600">👥 {negocio.seguidores || 0} seguidores</span>
             </div>
 
-            <div className="flex gap-4">
-              {isEditing ? (
-                <>
-                  <button
-                    onClick={handleGuardar}
-                    className="px-6 py-3 bg-green-600 text-white rounded-full font-bold hover:bg-green-700"
-                  >
-                    Guardar cambios
-                  </button>
-                  <button
-                    onClick={() => setIsEditing(false)}
-                    className="px-6 py-3 border border-gray-300 rounded-full font-bold hover:bg-gray-100"
-                  >
-                    Cancelar
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button
-                    onClick={() => setIsEditing(true)}
-                    className="px-6 py-3 bg-primary text-white rounded-full font-bold hover:brightness-110"
-                  >
-                    Editar perfil
-                  </button>
-                  <Link href={`/negocio/${negocio.id}`} className="px-6 py-3 border border-primary text-primary rounded-full font-bold hover:bg-primary/10">
-                    Ver página pública
-                  </Link>
-                </>
-              )}
-            </div>
+            {isEditor ? (
+              <button onClick={handleGuardar} className="w-fit px-6 py-3 bg-green-600 text-white rounded-full font-bold">
+                Guardar cambios
+              </button>
+            ) : (
+              <button onClick={() => setIsEditor(true)} className="w-fit px-6 py-3 bg-primary text-white rounded-full font-bold">
+                Editar perfil
+              </button>
+            )}
           </div>
         </div>
 
         {/* Características */}
         <section className="bg-surface-container-low rounded-3xl p-8 mb-12">
-          <h2 className="text-2xl font-bold mb-6">Características del negocio</h2>
+          <h2 className="text-2xl font-bold mb-6">Características</h2>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             {[
               { key: "pago_tarjeta", label: "Pago con tarjeta", emoji: "💳" },
@@ -230,13 +194,12 @@ export default function NegocioDashboardPage() {
               <button
                 key={key}
                 onClick={() =>
-                  isEditing &&
+                  isEditor &&
                   setCaracteristicas({
                     ...caracteristicas,
                     [key]: !caracteristicas[key as keyof typeof caracteristicas],
                   })
                 }
-                disabled={!isEditing}
                 className={`p-4 rounded-2xl text-center transition-all ${
                   caracteristicas[key as keyof typeof caracteristicas]
                     ? "bg-secondary text-white shadow-lg"
@@ -255,79 +218,45 @@ export default function NegocioDashboardPage() {
           <h2 className="text-2xl font-bold mb-6">Redes Sociales</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="text-sm font-bold mb-2 block">Instagram</label>
+              <label className="block text-sm font-bold mb-2">Instagram</label>
               <input
                 type="text"
                 value={instagram}
                 onChange={(e) => setInstagram(e.target.value)}
-                disabled={!isEditing}
+                disabled={!isEditor}
                 placeholder="@usuario"
-                className="w-full px-4 py-3 rounded-lg border border-outline-variant/20 bg-white disabled:bg-gray-100"
+                className="w-full px-4 py-3 rounded-lg border border-outline-variant/20 bg-white"
               />
             </div>
             <div>
-              <label className="text-sm font-bold mb-2 block">Facebook</label>
+              <label className="block text-sm font-bold mb-2">Facebook</label>
               <input
                 type="text"
                 value={facebook}
                 onChange={(e) => setFacebook(e.target.value)}
-                disabled={!isEditing}
+                disabled={!isEditor}
                 placeholder="facebook.com/usuario"
-                className="w-full px-4 py-3 rounded-lg border border-outline-variant/20 bg-white disabled:bg-gray-100"
+                className="w-full px-4 py-3 rounded-lg border border-outline-variant/20 bg-white"
               />
             </div>
           </div>
         </section>
 
-        {/* Estadísticas */}
-        <section className="grid grid-cols-3 gap-6 mb-12">
+        {/* Estadísticas Dummy */}
+        <section className="grid grid-cols-3 gap-6">
           <div className="bg-primary/10 rounded-3xl p-6 text-center">
             <div className="text-3xl font-bold text-primary">245</div>
-            <div className="text-sm text-gray-600">Visitas este mes</div>
+            <div className="text-sm text-gray-600">Visitas</div>
           </div>
           <div className="bg-secondary/10 rounded-3xl p-6 text-center">
             <div className="text-3xl font-bold text-secondary">18</div>
-            <div className="text-sm text-gray-600">Productos activos</div>
+            <div className="text-sm text-gray-600">Productos</div>
           </div>
           <div className="bg-tertiary/10 rounded-3xl p-6 text-center">
             <div className="text-3xl font-bold text-tertiary">4.8</div>
-            <div className="text-sm text-gray-600">Rating promedio</div>
+            <div className="text-sm text-gray-600">Rating</div>
           </div>
         </section>
-
-        {/* URLs de edición */}
-        {isEditing && (
-          <section className="bg-yellow-50 rounded-3xl p-8 border border-yellow-200">
-            <h3 className="font-bold mb-4">URLs (opcional)</h3>
-            <div>
-              <label className="text-sm font-bold mb-2 block">Foto de perfil URL</label>
-              <input
-                type="text"
-                value={fotoPerfil}
-                onChange={(e) => setFotoPerfil(e.target.value)}
-                placeholder="https://ejemplo.com/foto.jpg"
-                className="w-full px-4 py-3 rounded-lg border border-yellow-300"
-              />
-            </div>
-            <div className="mt-4">
-              <label className="text-sm font-bold mb-2 block">Banner URL</label>
-              <input
-                type="text"
-                value={banner}
-                onChange={(e) => setBanner(e.target.value)}
-                placeholder="https://ejemplo.com/banner.jpg"
-                className="w-full px-4 py-3 rounded-lg border border-yellow-300"
-              />
-            </div>
-          </section>
-        )}
-
-        {/* Save Message */}
-        {saveMessage && (
-          <div className={`fixed bottom-8 left-1/2 -translate-x-1/2 px-8 py-4 rounded-full font-bold text-white shadow-lg animate-fade-in-up ${saveMessage.startsWith("✓") ? "bg-green-600" : "bg-error"}`}>
-            {saveMessage}
-          </div>
-        )}
       </div>
     </main>
   );

@@ -10,6 +10,12 @@ interface UserInfo {
   initials: string;
   nombre: string;
   avatar_url?: string | null;
+  userId: string;
+}
+
+interface BusinessInfo {
+  id: string;
+  nombre: string;
 }
 
 export default function Navbar() {
@@ -18,6 +24,7 @@ export default function Navbar() {
   const locale = useLocale();
   const supabase = createClient();
   const [user, setUser] = useState<UserInfo | null>(null);
+  const [negocio, setNegocio] = useState<BusinessInfo | null>(null);
   const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false);
   const languageMenuRef = useRef<HTMLDivElement>(null);
   const t = useTranslations("nav");
@@ -33,15 +40,17 @@ export default function Navbar() {
     () => [
       { href: "/", label: t("explorar") },
       { href: "/tiendas", label: t("categorias") },
-      { href: "/negocio", label: t("negocio") },
       { href: "/mapa", label: t("mapa") },
+      { href: "/amigos", label: t("amigos") },
+      { href: "/ofertas", label: t("ofertas") },
     ],
     [t]
   );
 
   const cambiarIdioma = (newLocale: "es" | "en" | "zh" | "pt") => {
-    router.push(pathname, { locale: newLocale });
     setIsLanguageMenuOpen(false);
+    router.push(pathname, { locale: newLocale });
+    setTimeout(() => router.refresh(), 100);
   };
 
   const getCurrentLanguageLabel = () => {
@@ -52,56 +61,53 @@ export default function Navbar() {
   const isActive = (path: string) => pathname === path || (path !== "/" && pathname?.startsWith(path));
 
   useEffect(() => {
-    const getUser = async () => {
-      const {
-        data: { user: authUser },
-      } = await supabase.auth.getUser();
-      if (authUser) {
-        const perfil = await getPerfilCompat(supabase, authUser.id);
-        const nombre = perfil?.nombre_completo || authUser.user_metadata?.nombre_completo || authUser.email || "Usuario";
-        const parts = nombre.split(" ");
-        const initials =
-          parts.length >= 2 ? (parts[0][0] + parts[1][0]).toUpperCase() : nombre.substring(0, 2).toUpperCase();
-        setUser({ 
-          initials, 
-          nombre, 
-          avatar_url: perfil?.avatar_url 
-        });
-      } else {
-        setUser(null);
-      }
-    };
-
-    getUser();
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(() => {
-      getUser();
-    });
-    return () => subscription.unsubscribe();
-  }, [supabase]);
-
-  useEffect(() => {
     const onPointerDown = (event: MouseEvent) => {
       if (!languageMenuRef.current?.contains(event.target as Node)) {
         setIsLanguageMenuOpen(false);
       }
     };
-
     const onEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setIsLanguageMenuOpen(false);
-      }
+      if (event.key === "Escape") setIsLanguageMenuOpen(false);
     };
-
     document.addEventListener("mousedown", onPointerDown);
     document.addEventListener("keydown", onEscape);
-
     return () => {
       document.removeEventListener("mousedown", onPointerDown);
       document.removeEventListener("keydown", onEscape);
     };
   }, []);
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (authUser) {
+        const perfil = await getPerfilCompat(supabase, authUser.id);
+        const nombre = perfil?.nombre_completo || authUser.user_metadata?.nombre_completo || authUser.email || "Usuario";
+        const parts = nombre.split(" ");
+        const initials = parts.length >= 2 ? (parts[0][0] + parts[1][0]).toUpperCase() : nombre.substring(0, 2).toUpperCase();
+        setUser({ initials, nombre, avatar_url: perfil?.avatar_url, userId: authUser.id });
+
+        const { data: negocioData } = await supabase
+          .from("negocios")
+          .select("id, nombre")
+          .eq("propietario_id", authUser.id)
+          .eq("activo", true)
+          .limit(1);
+        
+        if (negocioData && negocioData.length > 0) {
+          setNegocio(negocioData[0] as BusinessInfo);
+        } else {
+          setNegocio(null);
+        }
+      } else {
+        setUser(null);
+        setNegocio(null);
+      }
+    };
+    getUser();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => { getUser(); });
+    return () => subscription.unsubscribe();
+  }, [supabase]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -111,11 +117,11 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-2xl border-b border-outline-variant/10 shadow-[0_2px_20px_rgba(0,0,0,0.05)]">
+    <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-neutral-200/50 shadow-[0_4px_20px_rgba(0,18,50,0.03)]">
       <div className="max-w-[1440px] mx-auto h-[80px] px-8 flex items-center justify-between gap-8">
-        {/* Logo Container */}
+        {/* Logo */}
         <div className="flex items-center">
-          <Link href="/" className="text-3xl font-black text-primary italic tracking-tighter leading-none hover:opacity-80 transition-opacity font-headline">
+          <Link href="/" className="text-3xl font-black text-[#003e6f] italic tracking-tighter leading-none hover:opacity-80 transition-opacity font-headline">
             MUUL
           </Link>
         </div>
@@ -128,8 +134,8 @@ export default function Navbar() {
               href={item.href}
               className={`font-headline text-base font-bold tracking-tight transition-all relative py-2 ${
                 isActive(item.href)
-                  ? "text-primary after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-secondary after:rounded-full"
-                  : "text-slate-400 hover:text-primary"
+                  ? "text-[#003e6f] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-[#fed000] after:rounded-full"
+                  : "text-[#003e6f]/60 hover:text-[#003e6f]"
               }`}
             >
               {item.label}
@@ -138,79 +144,80 @@ export default function Navbar() {
         </div>
 
         {/* Right Section */}
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-4">
           {/* Search Bar - Desktop Only */}
           <div className="hidden xl:flex relative w-64 group">
             <input
               type="text"
               placeholder={t("buscarPlaceholder")}
-              className="w-full bg-surface-container-low border border-transparent rounded-full px-6 py-2.5 focus:bg-white focus:border-secondary/30 focus:ring-4 focus:ring-secondary/10 outline-none text-sm transition-all"
+              className="w-full !bg-slate-100 border border-slate-200 rounded-full px-6 py-2.5 focus:bg-white focus:border-[#003e6f]/30 focus:ring-4 focus:ring-[#003e6f]/5 outline-none text-sm transition-all text-[#001c39] placeholder:text-[#003e6f]/60"
             />
-            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg group-focus-within:text-secondary transition-colors">🔎</span>
+            <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#003e6f]/40 text-lg group-focus-within:text-[#003e6f] transition-colors">search</span>
           </div>
 
-          <div className="flex items-center gap-2">
-            {/* Language */}
-            <div className="relative" ref={languageMenuRef}>
-              <button
-                type="button"
-                onClick={() => setIsLanguageMenuOpen((prev) => !prev)}
-                aria-expanded={isLanguageMenuOpen}
-                aria-haspopup="menu"
-                className="flex items-center gap-2 text-primary hover:bg-surface-container-low px-4 py-2 rounded-full transition-all"
-              >
-                <span className="text-xl">🌐</span>
-                <span className="text-xs font-bold uppercase tracking-widest">{getCurrentLanguageLabel()}</span>
-              </button>
-              {isLanguageMenuOpen && (
-              <div className="absolute right-0 top-14 flex flex-col bg-white border border-outline-variant/10 rounded-2xl shadow-2xl overflow-hidden z-50 min-w-[160px] animate-fade-in" role="menu">
+          {/* Language Selector */}
+          <div className="relative" ref={languageMenuRef}>
+            <button
+              type="button"
+              onClick={() => setIsLanguageMenuOpen((prev) => !prev)}
+              className="flex items-center gap-2 text-[#003e6f] hover:bg-[#003e6f]/5 px-5 py-2.5 rounded-full transition-all"
+            >
+              <span className="text-xl">🌐</span>
+              <span className="text-xs font-bold uppercase tracking-widest">{getCurrentLanguageLabel()}</span>
+            </button>
+
+            {isLanguageMenuOpen && (
+              <div className="absolute right-0 top-14 flex flex-col bg-white border border-neutral-200 rounded-2xl shadow-[0_20px_50px_rgba(0,18,50,0.12)] overflow-hidden z-[100] min-w-[180px] animate-fade-in" role="menu">
                 {idiomas.map((idioma) => (
                   <button
                     key={idioma.code}
                     type="button"
                     onClick={() => cambiarIdioma(idioma.code)}
-                    className={`px-6 py-3.5 hover:bg-surface-container-low text-xs font-bold flex items-center justify-between transition-colors border-b border-outline-variant/5 last:border-b-0 ${
-                      locale === idioma.code ? "text-primary bg-surface-container-low" : "text-primary/70"
+                    className={`px-6 py-4 hover:bg-[#003e6f]/5 text-xs font-bold flex items-center justify-between transition-colors border-b border-neutral-100 last:border-b-0 ${
+                      locale === idioma.code ? "text-[#003e6f] bg-[#003e6f]/5" : "text-[#003e6f]/70"
                     }`}
                   >
                     <span className="flex items-center gap-3">
                       <span>{idioma.flag}</span>
                       <span>{idioma.label}</span>
                     </span>
-                    {locale === idioma.code && <span className="w-1.5 h-1.5 bg-secondary rounded-full"></span>}
+                    {locale === idioma.code && <span className="w-1.5 h-1.5 bg-[#fed000] rounded-full"></span>}
                   </button>
                 ))}
               </div>
-              )}
-            </div>
+            )}
           </div>
 
-          <div className="h-8 w-[1px] bg-outline-variant/20 hidden sm:block"></div>
+          <div className="h-8 w-[1px] bg-neutral-200 hidden sm:block"></div>
+
+          {/* Business Button */}
+          {user && negocio && (
+            <Link href="/negocio" className="flex items-center gap-2 px-4 py-2 bg-[#fed000]/10 border border-[#fed000]/20 rounded-full hover:bg-[#fed000]/20 transition-all group">
+              <span className="material-symbols-outlined text-[#fed000]">business</span>
+              <span className="text-xs font-bold text-[#003e6f] max-w-[70px] truncate">{negocio.nombre}</span>
+            </Link>
+          )}
 
           {/* User Avatar or Login */}
           {user ? (
             <div className="relative group font-body">
-              <Link href="/perfil" className="flex items-center gap-3 pl-2 pr-4 py-2 bg-surface-container-low border border-outline-variant/5 rounded-full hover:bg-white hover:shadow-lg transition-all">
-                <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-primary to-primary-container text-white text-[10px] font-black flex items-center justify-center shadow-inner">
-                  {user.avatar_url ? (
-                    <img src={user.avatar_url} alt="Profile" className="w-full h-full object-cover" />
-                  ) : (
-                    user.initials
-                  )}
+              <Link href="/perfil" className="flex items-center gap-3 pl-2 pr-4 py-2 bg-[#003e6f]/5 border border-transparent rounded-full hover:bg-[#003e6f]/10 transition-all">
+                <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-[#003e6f] to-[#005596] text-white text-[10px] font-black flex items-center justify-center">
+                  {user.avatar_url ? <img src={user.avatar_url} alt="Profile" className="w-full h-full object-cover" /> : user.initials}
                 </div>
-                <span className="text-xs font-bold text-primary max-w-[80px] truncate">{user.nombre}</span>
+                <span className="text-xs font-bold text-[#003e6f] max-w-[80px] truncate">{user.nombre}</span>
               </Link>
-              <div className="absolute right-0 top-14 hidden group-hover:flex flex-col bg-white border border-outline-variant/10 rounded-2xl shadow-2xl overflow-hidden z-50 min-w-[200px] animate-fade-in">
-                <Link href="/perfil" className="px-6 py-4 hover:bg-surface-container-low text-sm text-primary font-bold transition-colors flex items-center gap-3">
-                  <span className="text-lg">👤</span>
+              <div className="absolute right-0 top-14 hidden group-hover:flex flex-col bg-white border border-neutral-200 rounded-2xl shadow-[0_20px_50px_rgba(0,18,50,0.12)] overflow-hidden z-50 min-w-[200px] animate-fade-in">
+                <Link href="/perfil" className="px-6 py-4 hover:bg-[#003e6f]/5 text-sm text-[#003e6f] font-bold transition-colors flex items-center gap-3">
+                  <span className="material-symbols-outlined text-lg">person</span>
                   {t("perfil")}
                 </Link>
-                <div className="h-[1px] bg-outline-variant/5 mx-4"></div>
+                <div className="h-[1px] bg-neutral-100 mx-4"></div>
                 <button
                   onClick={handleLogout}
-                  className="px-6 py-4 hover:bg-error/5 text-sm text-error font-bold text-left transition-colors flex items-center gap-3"
+                  className="px-6 py-4 hover:bg-red-500/5 text-sm text-red-600 font-bold text-left transition-colors flex items-center gap-3"
                 >
-                  <span className="text-lg">↩</span>
+                  <span className="material-symbols-outlined text-lg">logout</span>
                   {t("salir")}
                 </button>
               </div>
@@ -218,7 +225,7 @@ export default function Navbar() {
           ) : (
             <Link
               href="/login"
-              className="px-8 py-3 bg-primary text-white rounded-full text-sm font-black uppercase tracking-tighter hover:brightness-110 hover:shadow-glow-primary transition-all shadow-xl shadow-primary/10"
+              className="px-8 py-3 bg-[#003e6f] text-white rounded-full text-sm font-black uppercase tracking-tighter hover:bg-[#005596] hover:shadow-lg transition-all"
             >
               {t("login")}
             </Link>
