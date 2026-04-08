@@ -8,7 +8,6 @@
    ============================================= */
 
 @import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap');
 
 /* --- Base Reset & Defaults --- */
 *,
@@ -35,8 +34,12 @@ body {
   font-family: 'Material Symbols Outlined';
   font-weight: normal;
   font-style: normal;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   line-height: 1;
+  width: 1em;
+  height: 1em;
   text-transform: none;
   letter-spacing: normal;
   word-wrap: normal;
@@ -44,6 +47,7 @@ body {
   direction: ltr;
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
   user-select: none;
+  overflow: hidden;
 }
 
 .material-symbols-outlined.text-sm {
@@ -119,7 +123,7 @@ body {
 }
 
 /* Eyebrow text (metadata/labels) */
-.eyebrow {
+.eyebrow, .font-label {
   font-family: 'Space Grotesk', monospace;
   font-size: 0.6875rem;
   font-weight: 600;
@@ -129,10 +133,14 @@ body {
 }
 
 /* Editorial serif heading */
-.editorial-heading {
+.editorial-heading, .font-headline, h1, h2, h3, h4 {
   font-family: 'Newsreader', Georgia, serif;
   font-weight: 700;
   color: #001c39;
+}
+
+.font-body, p, span, div, button, input {
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 /* --- Scrollbar Styling --- */

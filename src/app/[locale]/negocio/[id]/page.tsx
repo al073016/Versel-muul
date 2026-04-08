@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Link } from "@/i18n/navigation";
-import { Navbar, Footer, MobileNav } from "@/components/layout";
 import { createClient } from "@/lib/supabase/client";
 import { useTranslations } from "next-intl";
 import type { Negocio, Producto } from "@/types/database";
@@ -11,6 +10,17 @@ import type { Negocio, Producto } from "@/types/database";
 const categoryEmojis: Record<string, string> = {
   comida: "🌮", tienda: "🛍️", servicios: "🏨", cultural: "🏛️", deportes: "⚽",
 };
+
+const slugify = (value: string) =>
+  value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
 
 export default function NegocioPerfilPage() {
   const params = useParams();
@@ -34,11 +44,28 @@ export default function NegocioPerfilPage() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data: negocioData, error } = await supabase.from("negocios").select("*").eq("id", id).single();
-      if (error || !negocioData) { setNotFound(true); setLoading(false); return; }
+      const normalizedId = id?.toString() ?? "";
+      let negocioData: Negocio | null = null;
+
+      const { data: directResult } = await supabase.from("negocios").select("*").eq("id", normalizedId).single();
+      if (directResult) {
+        negocioData = directResult;
+      } else {
+        const { data: negociosData } = await supabase.from("negocios").select("*").eq("activo", true);
+        if (negociosData) {
+          negocioData =
+            negociosData.find((item) => slugify(item.nombre) === normalizedId || slugify(`${item.nombre}-${item.id}`) === normalizedId) ?? null;
+        }
+      }
+
+      if (!negocioData) {
+        setNotFound(true);
+        setLoading(false);
+        return;
+      }
       setNegocio(negocioData);
 
-      const { data: productosData } = await supabase.from("productos").select("*").eq("negocio_id", id).eq("activo", true).order("created_at", { ascending: false });
+      const { data: productosData } = await supabase.from("productos").select("*").eq("negocio_id", negocioData.id).eq("activo", true).order("created_at", { ascending: false });
       if (productosData) setProductos(productosData);
 
       const { data: { user } } = await supabase.auth.getUser();
@@ -73,38 +100,29 @@ export default function NegocioPerfilPage() {
 
   if (loading) {
     return (
-      <>
-        <Navbar />
-        <main className="max-w-[1440px] mx-auto min-h-screen px-6 py-24">
-          <div className="animate-pulse space-y-8">
-            <div className="h-[350px] bg-surface-container-high rounded-xl" />
-            <div className="h-8 bg-surface-container-high rounded w-1/3" />
-            <div className="h-4 bg-surface-container-high rounded w-2/3" />
-          </div>
-        </main>
-      </>
+      <main className="max-w-[1440px] mx-auto min-h-screen px-6 py-24">
+        <div className="animate-pulse space-y-8">
+          <div className="h-[350px] bg-surface-container-high rounded-xl" />
+          <div className="h-8 bg-surface-container-high rounded w-1/3" />
+          <div className="h-4 bg-surface-container-high rounded w-2/3" />
+        </div>
+      </main>
     );
   }
 
   if (notFound || !negocio) {
     return (
-      <>
-        <Navbar />
-        <main className="max-w-7xl mx-auto min-h-[60vh] flex flex-col items-center justify-center px-6 py-24 text-center space-y-6">
-          <span className="text-6xl">🏪</span>
-          <h1 className="font-headline font-black text-3xl">{t("noEncontrado")}</h1>
-          <p className="text-on-surface-variant max-w-md">{t("noEncontradoDesc")}</p>
-          <Link href="/tiendas" className="px-8 py-3 bg-primary text-on-primary rounded-xl font-headline font-bold hover:shadow-glow-secondary transition-all">{t("verTiendas")}</Link>
-        </main>
-        <Footer />
-      </>
+      <main className="max-w-7xl mx-auto min-h-[60vh] flex flex-col items-center justify-center px-6 py-24 text-center space-y-6">
+        <span className="text-6xl">🏪</span>
+        <h1 className="font-headline font-black text-3xl">{t("noEncontrado")}</h1>
+        <p className="text-on-surface-variant max-w-md">{t("noEncontradoDesc")}</p>
+        <Link href="/tiendas" className="px-8 py-3 bg-primary text-on-primary rounded-xl font-headline font-bold hover:shadow-glow-secondary transition-all">{t("verTiendas")}</Link>
+      </main>
     );
   }
 
   return (
-    <>
-      <Navbar />
-      <main className="max-w-[1440px] mx-auto min-h-screen pb-28 md:pb-0">
+    <main className="max-w-[1440px] mx-auto min-h-screen pb-28 md:pb-0">
         {/* HERO */}
         <header className="relative h-[350px] md:h-[450px] w-full overflow-hidden">
           <div className="w-full h-full bg-gradient-to-br from-primary-container via-surface-container-high to-secondary-container/50">
@@ -283,8 +301,5 @@ export default function NegocioPerfilPage() {
           </aside>
         </div>
       </main>
-      <Footer />
-      <MobileNav />
-    </>
   );
 }

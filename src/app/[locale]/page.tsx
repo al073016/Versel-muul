@@ -10,10 +10,12 @@ export default function HomePage() {
     <main className="pt-20">
       {/* Hero Section */}
       <section className="relative h-[600px] md:h-[750px] w-full overflow-hidden bg-gradient-to-br from-primary via-primary-container to-primary/80">
-        <div className="absolute inset-0 opacity-40 bg-gradient-to-t from-black to-transparent"></div>
+        <div className="absolute inset-0 opacity-60 bg-gradient-to-t from-black to-transparent"></div>
         <div className="relative z-10 h-full max-w-[1440px] mx-auto px-8 flex flex-col justify-center items-start">
-          <span className="font-label text-secondary-container tracking-[0.3em] uppercase text-xs md:text-sm mb-6">Curaduría de Inteligencia Editorial</span>
-          <h1 className="font-headline text-5xl md:text-7xl lg:text-8xl text-white max-w-4xl leading-[0.9] mb-8">
+          <span className="font-label !text-white uppercase tracking-[0.3em] text-xs md:text-sm mb-6 inline-flex items-center rounded-full bg-white/15 border border-white/20 px-4 py-2 shadow-[0_16px_40px_rgba(0,0,0,0.18)]">
+            Curaduría de Inteligencia Editorial
+          </span>
+          <h1 className="font-headline text-5xl md:text-7xl lg:text-8xl text-white max-w-4xl leading-[0.9] mb-8 drop-shadow-[0_16px_40px_rgba(0,0,0,0.35)]">
             Descubre lo <br className="hidden md:block" /><span className="italic font-light">mejor de México</span>
           </h1>
           <p className="text-white/90 text-lg md:text-xl max-w-xl mb-12 font-body">

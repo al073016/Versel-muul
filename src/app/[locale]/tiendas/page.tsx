@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { Link } from "@/i18n/navigation";
-import { Navbar, Footer, MobileNav } from "@/components/layout";
 import { createClient } from "@/lib/supabase/client";
 import { useTranslations } from "next-intl";
 import type { Negocio } from "@/types/database";
@@ -12,6 +11,17 @@ type BusinessCategory = "comida" | "tienda" | "servicios";
 const categoryEmojis: Record<string, string> = {
   comida: "🌮", tienda: "🛍️", servicios: "🏨", cultural: "🏛️", deportes: "⚽",
 };
+
+const slugify = (value: string) =>
+  value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
 
 export default function TiendasPage() {
   const supabase = createClient();
@@ -113,8 +123,6 @@ export default function TiendasPage() {
   };
 
   return (
-    <>
-      <Navbar />
       <main className="min-h-screen">
         {/* ===== TIENDAS REGISTRADAS ===== */}
         <section className="relative pt-20 pb-16 px-6 overflow-hidden">
@@ -154,7 +162,7 @@ export default function TiendasPage() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 stagger-children">
                 {filteredNegocios.map((negocio) => (
-                  <Link key={negocio.id} href={`/negocio/${negocio.id}`} className="group bg-surface-container-low rounded-xl overflow-hidden relative shadow-lg hover:translate-y-[-4px] transition-transform duration-300">
+                  <Link key={negocio.id} href={`/negocio/${slugify(negocio.nombre) || negocio.id}`} className="group bg-surface-container-low rounded-xl overflow-hidden relative shadow-lg hover:translate-y-[-4px] transition-transform duration-300">
                     <div className="h-64 relative bg-gradient-to-br from-surface-container-high to-surface-container-highest flex items-center justify-center">
                       <div className="absolute inset-0 bg-gradient-to-t from-surface-container-low via-transparent to-transparent z-10" />
                       <span className="text-8xl group-hover:scale-105 transition-transform duration-500">{categoryEmojis[negocio.categoria] || "🏪"}</span>
@@ -275,8 +283,5 @@ export default function TiendasPage() {
           </div>
         </section>
       </main>
-      <Footer />
-      <MobileNav />
-    </>
   );
 }

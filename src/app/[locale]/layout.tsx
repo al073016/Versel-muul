@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import Navbar from "@/components/layout/Navbar";
 import MobileNav from "@/components/layout/MobileNav";
+import Footer from "@/components/layout/Footer";
 
 export default async function LocaleLayout({
   children,
@@ -27,6 +28,7 @@ export default async function LocaleLayout({
       <Navbar />
       <MobileNav />
       {children}
+      <Footer />
     </NextIntlClientProvider>
   );
 }

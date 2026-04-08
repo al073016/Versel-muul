@@ -547,59 +547,7 @@ export default function MapaPage() {
   const isInRoute = (poi: POI) => poisEnRuta.some((p) => p.id === poi.id);
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-surface text-on-surface font-body">
-
-      {/* ═══ NAVBAR ═══ */}
-      <nav className="sticky top-0 z-50 bg-surface-bright/60 backdrop-blur-md shadow-nav">
-        <div className="flex justify-between items-center w-full px-6 py-4">
-          <Link href="/" className="text-2xl font-black text-on-surface uppercase font-headline">Muul</Link>
-          <div className="hidden md:flex items-center space-x-8">
-            <Link href="/" className="text-on-surface-variant hover:text-on-surface transition-colors font-headline font-bold tracking-tight">{tn("explorar")}</Link>
-            <span className="text-on-surface border-b-2 border-tertiary pb-1 font-headline font-bold tracking-tight">{tn("mapa")}</span>
-            <Link href="/tiendas" className="text-on-surface-variant hover:text-on-surface transition-colors font-headline font-bold tracking-tight">{tn("tiendas")}</Link>
-          </div>
-          <div className="flex items-center gap-3">
-            {/* Language switcher */}
-            <div className="relative">
-              <button
-                onClick={() => setLangOpen((v) => !v)}
-                className="text-on-surface hover:bg-white/5 p-2 rounded-full transition-all text-sm font-bold"
-              >
-                🌐
-              </button>
-              {langOpen && (
-                <div className="absolute right-0 top-12 bg-surface-container-low border border-outline-variant/20 rounded-xl shadow-2xl overflow-hidden z-50 animate-fade-in-up">
-                  {[
-                    { code: "es" as const, label: "ES", flag: "🇲🇽" },
-                    { code: "en" as const, label: "EN", flag: "🇺🇸" },
-                    { code: "zh" as const, label: "中文", flag: "🇨🇳" },
-                    { code: "pt" as const, label: "PT", flag: "🇧🇷" },
-                  ].map((lang) => (
-                    <button
-                      key={lang.code}
-                      onClick={() => { router.replace(pathname, { locale: lang.code }); setLangOpen(false); }}
-                      className="flex items-center gap-3 px-5 py-3 hover:bg-surface-container-highest transition-colors w-full text-left text-sm"
-                    >
-                      <span>{lang.flag}</span>
-                      <span className="font-bold text-on-surface">{lang.label}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-            {/* Avatar or login */}
-            {userInfo ? (
-              <Link href="/perfil" className="h-8 w-8 rounded-full bg-primary-container flex items-center justify-center text-xs font-bold border border-outline-variant text-on-primary-container">
-                {userInfo.initials}
-              </Link>
-            ) : (
-              <Link href="/login" className="px-4 py-2 rounded-lg bg-primary-container text-on-primary-container font-headline font-bold text-xs hover:brightness-110 transition-all">
-                {tn("login")}
-              </Link>
-            )}
-          </div>
-        </div>
-      </nav>
+    <div className="h-screen flex flex-col overflow-hidden pt-[80px] bg-surface text-on-surface font-body">
 
       {/* ═══ MAIN ═══ */}
       <main className="flex flex-1 overflow-hidden">
