@@ -14,7 +14,7 @@ export default function HomePage() {
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
-            backgroundImage: 'linear-gradient(135deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.45) 100%), url("https://images.unsplash.com/photo-1518182170546-07661fd94144?q=80&w=1920&h=1080&auto=format&fit=crop")',
+            backgroundImage: 'linear-gradient(135deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.5) 100%), url("https://images.unsplash.com/photo-1585464231875-d9ef1f5ad396?q=80&w=1920&auto=format&fit=crop")',
           }}
         />
         
@@ -72,7 +72,7 @@ export default function HomePage() {
             <div 
               className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
               style={{
-                backgroundImage: 'linear-gradient(135deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.4) 100%), url("https://images.pexels.com/photos/3537903/pexels-photo-3537903.jpeg?auto=compress&cs=tinysrgb&w=600&h=800")'
+                backgroundImage: 'linear-gradient(135deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.4) 100%), url("https://images.unsplash.com/photo-1518101645466-7795885ff8f8?q=80&w=600&auto=format&fit=crop")'
               }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#001c39]/90 via-transparent to-transparent" />
@@ -88,7 +88,7 @@ export default function HomePage() {
             <div 
               className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
               style={{
-                backgroundImage: 'linear-gradient(135deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.4) 100%), url("https://images.pexels.com/photos/1537671/pexels-photo-1537671.jpeg?auto=compress&cs=tinysrgb&w=600&h=800")'
+                backgroundImage: 'linear-gradient(135deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.5) 100%), url("https://images.unsplash.com/photo-1518101645466-7795885ff8f8?q=80&w=600&auto=format&fit=crop")'
               }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#001c39]/90 via-transparent to-transparent" />
@@ -104,7 +104,7 @@ export default function HomePage() {
             <div 
               className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
               style={{
-                backgroundImage: 'linear-gradient(135deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.4) 100%), url("https://images.pexels.com/photos/1092730/pexels-photo-1092730.jpeg?auto=compress&cs=tinysrgb&w=600&h=800")'
+                backgroundImage: 'linear-gradient(135deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.5) 100%), url("https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=600&auto=format&fit=crop")'
               }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#001c39]/90 via-transparent to-transparent" />
@@ -129,10 +129,10 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-8 h-auto md:h-[700px]">
             {/* Main Featured Card */}
             <div className="md:col-span-2 md:row-span-2 relative rounded-[3rem] overflow-hidden shadow-2xl hover:shadow-[0_30px_60px_rgba(0,62,111,0.15)] transition-all duration-500 group cursor-pointer h-80 md:h-full border border-white/20">
-              <div 
+               <div 
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
                 style={{
-                  backgroundImage: 'url("https://images.unsplash.com/photo-1518182170546-07661fd94144?q=80&w=800&h=1000&auto=format&fit=crop")'
+                  backgroundImage: 'url("https://images.unsplash.com/photo-1512813588641-0737a3459ced?q=80&w=800&auto=format&fit=crop")'
                 }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#001c39]/90 via-transparent to-transparent" />
@@ -140,7 +140,7 @@ export default function HomePage() {
                 <div className="inline-flex items-center gap-3 mb-6 w-fit bg-[#fed000] px-5 py-2 rounded-xl shadow-lg">
                   <span className="text-[#003e6f] text-xs font-headline font-black uppercase tracking-widest">🔥 Trending #1</span>
                 </div>
-                <h3 className="font-headline text-5xl md:text-6xl text-white font-black mb-6 leading-tight !text-white">{t("destinoPrincipal")}</h3>
+                <h3 className="font-headline text-5xl md:text-6xl text-white font-black mb-6 leading-tight !text-white text-shadow-lg">Centro Histórico</h3>
                 <div className="flex gap-8">
                   <div className="bg-white/10 backdrop-blur-xl border border-white/20 px-6 py-4 rounded-2xl">
                     <span className="text-white/60 !text-white/60 text-xs uppercase block font-label mb-1">{t("tendencia")}</span>
@@ -155,13 +155,13 @@ export default function HomePage() {
               <div 
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
                 style={{
-                  backgroundImage: 'linear-gradient(rgba(0,62,111,0.2), rgba(0,28,57,0.4)), url("https://images.pexels.com/photos/1624487/pexels-photo-1624487.jpeg?auto=compress&cs=tinysrgb&w=600&h=400")'
+                  backgroundImage: 'linear-gradient(rgba(0,62,111,0.2), rgba(0,28,57,0.4)), url("https://images.unsplash.com/photo-1585464231875-d9ef1f5ad396?q=80&w=800&auto=format&fit=crop")'
                 }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#001c39]/80 to-transparent" />
               <div className="relative z-10 h-full flex flex-col justify-end p-10">
-                <span className="text-cyan-300 !text-cyan-300 font-label text-xs uppercase tracking-widest mb-3 font-bold">{t("mexicoSur")}</span>
-                <h3 className="font-headline text-3xl md:text-4xl text-white font-black mb-4 !text-white">{t("destinoSecundario")}</h3>
+                <span className="text-cyan-300 !text-cyan-300 font-label text-xs uppercase tracking-widest mb-3 font-bold">REFORMA</span>
+                <h3 className="font-headline text-3xl md:text-4xl text-white font-black mb-4 !text-white">Paseo de la Reforma</h3>
                 <button className="bg-white text-[#003e6f] font-headline font-black text-sm flex items-center gap-2 px-6 py-3 rounded-full w-fit hover:bg-[#fed000] transition-all">
                   {t("explorarGuia")} 
                   <span className="material-symbols-outlined text-base">arrow_forward</span>
@@ -214,7 +214,7 @@ export default function HomePage() {
                   type="email" 
                   placeholder={t("newsletterPlaceholder")}
                   className="flex-1 px-8 py-5 bg-white/10 border border-white/20 backdrop-blur-xl rounded-full text-white !text-white placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-[#fed000] transition-all font-body font-medium shadow-inner"/>
-                <button className="px-10 py-5 bg-[#003e6f] text-white !text-white border border-white/20 rounded-full font-headline font-black text-base hover:bg-[#fed000] hover:text-[#003e6f] transition-all shadow-xl whitespace-nowrap">
+                <button className="px-10 py-5 bg-[#fed000] text-[#003e6f] border border-white/20 rounded-full font-headline font-black text-base hover:bg-white transition-all shadow-xl whitespace-nowrap">
                   {t("suscribirme")}
                 </button>
               </div>

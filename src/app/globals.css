@@ -151,16 +151,16 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #0e1628;
+  background: #f8f9ff;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #2a3553;
+  background: #cbd5e1;
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #3d517a;
+  background: #94a3b8;
 }
 
 /* --- Selection Color --- */
@@ -230,9 +230,9 @@ input[type="number"],
 input[type="time"],
 textarea,
 select {
-  background-color: #0e1628;
-  color: #e8eaf0;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background-color: #f1f5f9;
+  color: #001c39;
+  border: 1px solid rgba(0, 62, 111, 0.08);
   outline: none;
   border-radius: 0.75rem;
 }
@@ -244,13 +244,13 @@ input[type="number"]:focus,
 input[type="time"]:focus,
 textarea:focus,
 select:focus {
-  border-color: #93b8e0;
-  box-shadow: 0 0 0 3px rgba(147, 184, 224, 0.15);
+  border-color: #003e6f;
+  box-shadow: 0 0 0 3px rgba(0, 62, 111, 0.08);
 }
 
 input::placeholder,
 textarea::placeholder {
-  color: rgba(232, 234, 240, 0.35);
+  color: rgba(0, 28, 57, 0.4);
 }
 
 /* Mapbox GL Fix */

@@ -10,8 +10,8 @@ const DUMMY_OFFERS = [
     category: "Gastronomía",
     description: "En toda la carta de tacos al pastor y bebidas.",
     distance: "0.5 km",
-    image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=400&h=300&auto=format&fit=crop",
-    brandColor: "bg-orange-500"
+    image: "https://images.unsplash.com/photo-1512813588641-0737a3459ced?q=80&w=400&h=300&auto=format&fit=crop",
+    brandColor: "bg-[#003e6f]"
   },
   {
     id: 2,
@@ -20,8 +20,8 @@ const DUMMY_OFFERS = [
     category: "Tienda",
     description: "Por compras mayores a $2,500 en calzado deportivo.",
     distance: "1.2 km",
-    image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=400&h=300&auto=format&fit=crop",
-    brandColor: "bg-yellow-400"
+    image: "https://images.unsplash.com/photo-1544013919-450f1fbcfa66?q=80&w=400&h=300&auto=format&fit=crop",
+    brandColor: "bg-[#fed000] !text-[#003e6f]"
   },
   {
     id: 3,
@@ -30,8 +30,8 @@ const DUMMY_OFFERS = [
     category: "Cultural",
     description: "Válido todos los jueves de abril 2026.",
     distance: "2.8 km",
-    image: "https://images.unsplash.com/photo-1518182170546-07661fd94144?q=80&w=400&h=300&auto=format&fit=crop",
-    brandColor: "bg-blue-600"
+    image: "https://images.unsplash.com/photo-1620392353723-8685e135e61e?q=80&w=400&h=300&auto=format&fit=crop",
+    brandColor: "bg-[#005596]"
   },
   {
     id: 4,
@@ -40,8 +40,8 @@ const DUMMY_OFFERS = [
     category: "Gastronomía",
     description: "En la compra de cualquier pan artesanal.",
     distance: "0.2 km",
-    image: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=400&h=300&auto=format&fit=crop",
-    brandColor: "bg-emerald-600"
+    image: "https://images.unsplash.com/photo-1444418196534-7705142fbd60?q=80&w=400&h=300&auto=format&fit=crop",
+    brandColor: "bg-[#fed000] !text-[#003e6f]"
   }
 ];
 
@@ -57,10 +57,10 @@ export default function OfertasPage() {
             <h1 className="font-headline text-5xl md:text-6xl text-[#003e6f] font-black">{t("ofertas")} Cercanas</h1>
             <p className="text-neutral-500 mt-4 font-body text-lg max-w-xl">Aprovecha los beneficios exclusivos de la red Muul para disfrutar lo mejor de la ciudad.</p>
           </div>
-          <div className="bg-[#f0f4ff] p-2 rounded-full flex gap-2">
-            <button className="bg-white px-6 py-2 rounded-full text-sm font-headline font-bold text-[#003e6f] shadow-sm">Todas</button>
-            <button className="px-6 py-2 rounded-full text-sm font-headline font-bold text-[#003e6f]/40 hover:text-[#003e6f] transition-all">Gastronomía</button>
-            <button className="px-6 py-2 rounded-full text-sm font-headline font-bold text-[#003e6f]/40 hover:text-[#003e6f] transition-all">Tiendas</button>
+          <div className="bg-slate-100 p-2 rounded-2xl flex gap-2 border border-slate-200">
+            <button className="bg-white px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest text-[#003e6f] shadow-sm">Todas</button>
+            <button className="px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest text-[#003e6f]/40 hover:text-[#003e6f] transition-all">Gastronomía</button>
+            <button className="px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest text-[#003e6f]/40 hover:text-[#003e6f] transition-all">Tiendas</button>
           </div>
         </div>
 

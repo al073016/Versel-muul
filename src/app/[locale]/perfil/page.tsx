@@ -95,10 +95,10 @@ export default function PerfilPage() {
             <button 
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`flex items-center gap-4 px-6 py-4 rounded-full transition-all text-sm font-bold ${
+              className={`flex items-center gap-4 px-6 py-4 rounded-full transition-all text-sm font-black uppercase tracking-widest ${
                 activeTab === item.id 
-                  ? "bg-secondary-container text-on-secondary-container shadow-md" 
-                  : "text-on-surface-variant hover:bg-surface-container-low"
+                  ? "bg-[#fed000] text-[#003e6f] shadow-lg shadow-[#fed000]/20" 
+                  : "text-[#003e6f]/50 hover:bg-slate-50"
               }`}
             >
               {item.icon}
@@ -126,8 +126,8 @@ export default function PerfilPage() {
             {/* Hero Section */}
             <header className="relative w-full aspect-[21/9] md:aspect-[3/1] rounded-[2.5rem] overflow-hidden group shadow-2xl">
               <img 
-                src="https://images.unsplash.com/photo-1518182170546-07661fd94144?q=80&w=1200&h=400&auto=format&fit=crop" 
-                alt="Hero Background" 
+                src="https://images.unsplash.com/photo-1544013919-450f1fbcfa66?q=80&w=1200&h=400&auto=format&fit=crop" 
+                alt="Paseo de la Reforma" 
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-transparent z-10"></div>
@@ -147,12 +147,12 @@ export default function PerfilPage() {
             {/* Stats Grid */}
             <section className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {[
-                { label: "RUTAS COMPLETADAS", value: "24", color: "bg-primary-container/20 text-primary" },
-                { label: "PUNTOS DE INTERÉS", value: "158", color: "bg-secondary-container/20 text-secondary" },
-                { label: "INSIGNIAS OBTENIDAS", value: "12", color: "bg-tertiary-container/20 text-tertiary" },
+                { label: "RUTAS COMPLETADAS", value: "24", color: "bg-[#003e6f] text-white" },
+                { label: "PUNTOS DE INTERÉS", value: "158", color: "bg-[#fed000] text-[#003e6f]" },
+                { label: "INSIGNIAS OBTENIDAS", value: "12", color: "bg-slate-100 text-[#003e6f]" },
               ].map((stat, idx) => (
-                <div key={idx} className={`${stat.color} p-10 rounded-[2rem] flex flex-col items-center justify-center text-center backdrop-blur-sm border border-white transition-transform hover:scale-[1.02] duration-300`}>
-                  <span className="font-label font-bold text-xs tracking-widest mb-4 opacity-70">{stat.label}</span>
+                <div key={idx} className={`${stat.color} p-10 rounded-[2.5rem] flex flex-col items-center justify-center text-center shadow-sm border border-black/5 transition-transform hover:scale-[1.02] duration-300`}>
+                  <span className="font-label font-black text-[10px] tracking-[0.2em] mb-4 opacity-70">{stat.label}</span>
                   <span className="text-6xl md:text-7xl font-headline italic font-light tracking-tighter">{stat.value}</span>
                 </div>
               ))}
@@ -168,8 +168,8 @@ export default function PerfilPage() {
                 <div className="group bg-surface-container-lowest p-6 md:p-10 rounded-[2.5rem] flex flex-col md:flex-row gap-10 transition-all hover:shadow-2xl hover:bg-white border border-outline-variant/10">
                   <div className="w-full md:w-64 aspect-video md:aspect-square rounded-3xl overflow-hidden shrink-0 bg-surface-container-low shadow-inner">
                     <img 
-                      src="https://images.unsplash.com/photo-1518171029055-015096185ca8?q=80&auto=format&fit=crop&w=400&h=400" 
-                      alt="Review Location" 
+                      src="https://images.unsplash.com/photo-1582234372722-50d7ccc30ebd?q=80&auto=format&fit=crop&w=400&h=400" 
+                      alt="Palacio de Bellas Artes" 
                       className="w-full h-full object-cover grayscale-[30%] group-hover:grayscale-0 transition-all duration-500"
                     />
                   </div>
@@ -196,8 +196,8 @@ export default function PerfilPage() {
                 <div className="group bg-surface-container-lowest p-6 md:p-10 rounded-[2.5rem] flex flex-col md:flex-row gap-10 transition-all hover:shadow-2xl hover:bg-white border border-outline-variant/10">
                   <div className="w-full md:w-64 aspect-video md:aspect-square rounded-3xl overflow-hidden shrink-0 bg-surface-container-low shadow-inner">
                     <img 
-                      src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&auto=format&fit=crop&w=400&h=400" 
-                      alt="Review Food" 
+                      src="https://images.unsplash.com/photo-1512813588641-0737a3459ced?q=80&auto=format&fit=crop&w=400&h=400" 
+                      alt="Restaurante en la Roma" 
                       className="w-full h-full object-cover grayscale-[30%] group-hover:grayscale-0 transition-all duration-500"
                     />
                   </div>
@@ -262,14 +262,14 @@ export default function PerfilPage() {
                 { name: "Joyas de San Miguel", date: "10 Feb 2024", stops: 8, time: "6h" },
               ].map((ruta, idx) => (
                 <div key={idx} className="bg-white p-6 md:p-8 rounded-[2rem] border border-outline-variant/10 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row items-center gap-6">
-                  <div className="w-16 h-16 bg-secondary-container/20 rounded-2xl flex items-center justify-center text-secondary">
+                  <div className="w-16 h-16 bg-[#fed000]/10 rounded-2xl flex items-center justify-center text-[#fed000]">
                     <Route size={32} />
                   </div>
                   <div className="flex-1 text-center md:text-left">
-                    <h3 className="font-headline font-bold text-2xl mb-1">{ruta.name}</h3>
-                    <p className="text-sm text-on-surface-variant font-label tracking-widest uppercase">{ruta.date} • {ruta.stops} Paradas • {ruta.time}</p>
+                    <h3 className="font-headline font-bold text-2xl mb-1 text-[#003e6f]">{ruta.name}</h3>
+                    <p className="text-[10px] text-[#003e6f]/40 font-black tracking-widest uppercase">{ruta.date} • {ruta.stops} Paradas • {ruta.time}</p>
                   </div>
-                  <button className="bg-primary text-white px-8 py-3 rounded-full font-bold hover:brightness-110 transition-all">
+                  <button className="bg-[#003e6f] text-white px-8 py-4 rounded-full font-black uppercase tracking-widest text-[11px] hover:brightness-110 transition-all shadow-lg shadow-[#003e6f]/20">
                     Ver en Mapa
                   </button>
                 </div>

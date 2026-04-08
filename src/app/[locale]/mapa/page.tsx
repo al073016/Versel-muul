@@ -553,10 +553,10 @@ export default function MapaPage() {
       <main className="flex flex-1 overflow-hidden">
 
         {/* Desktop sidebar icon rail */}
-        <aside className="hidden md:flex flex-col h-full w-20 bg-surface-container-low space-y-8 py-8 items-center border-r border-outline-variant/10">
-          <Link href="/" className="w-12 h-12 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-surface-container-highest/50 transition-all"><span className="">🔍</span></Link>
-          <button className="w-12 h-12 flex items-center justify-center rounded-xl bg-surface-container-highest text-secondary shadow-lg shadow-secondary/10"><span className="" style={{ fontVariationSettings: "'FILL' 1" }}>🗺️</span></button>
-          <button onClick={cargarRutasGuardadas} className="w-12 h-12 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-surface-container-highest/50 transition-all"><span className="">🔖</span></button>
+        <aside className="hidden md:flex flex-col h-full w-24 bg-white space-y-8 py-10 items-center border-r border-[#003e6f]/5 shadow-sm">
+          <Link href="/" className="w-14 h-14 flex items-center justify-center rounded-2xl text-[#003e6f]/40 hover:bg-slate-50 hover:text-[#003e6f] transition-all"><span className="text-2xl">🔍</span></Link>
+          <button className="w-14 h-14 flex items-center justify-center rounded-2xl bg-[#003e6f]/5 text-[#003e6f] shadow-lg shadow-[#003e6f]/5"><span className="text-2xl">🗺️</span></button>
+          <button onClick={cargarRutasGuardadas} className="w-14 h-14 flex items-center justify-center rounded-2xl text-[#003e6f]/40 hover:bg-slate-50 hover:text-[#003e6f] transition-all"><span className="text-2xl">🔖</span></button>
         </aside>
 
         <div className="flex-1 flex overflow-hidden">
@@ -570,11 +570,11 @@ export default function MapaPage() {
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-secondary transition-colors">🔎</span>
                     <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder={t("buscar")} className="w-full bg-surface-container-highest border-none rounded-xl py-4 pl-12 pr-4 text-on-surface placeholder:text-on-surface-variant focus:ring-2 focus:ring-secondary/40 transition-all" />
                   </div>
-                  <div className="flex gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: "none" }}>
+                  <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide" style={{ scrollbarWidth: "none" }}>
                     {filters.map((f) => (
-                      <button key={f.value} onClick={() => setActiveFilter(f.value)} className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 transition-colors ${activeFilter === f.value ? "bg-secondary text-on-secondary" : "bg-surface-container-high text-on-surface hover:bg-surface-bright"}`}>{f.label} <span className="text-xs">{f.emoji}</span></button>
+                      <button key={f.value} onClick={() => setActiveFilter(f.value)} className={`flex-shrink-0 px-5 py-2.5 rounded-2xl text-[11px] font-black uppercase tracking-widest flex items-center gap-2 transition-all shadow-sm ${activeFilter === f.value ? "bg-[#003e6f] text-white shadow-[#003e6f]/20" : "bg-white text-[#003e6f] hover:bg-slate-50 border border-slate-100"}`}>{f.label} <span className="text-sm">{f.emoji}</span></button>
                     ))}
-                    <button onClick={() => setSoloAbiertos(!soloAbiertos)} className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 transition-colors ${soloAbiertos ? "bg-tertiary text-on-tertiary" : "bg-surface-container-high text-on-surface hover:bg-surface-bright"}`}>
+                    <button onClick={() => setSoloAbiertos(!soloAbiertos)} className={`flex-shrink-0 px-5 py-2.5 rounded-2xl text-[11px] font-black uppercase tracking-widest flex items-center gap-2 transition-all shadow-sm ${soloAbiertos ? "bg-[#fed000] text-[#003e6f] shadow-[#fed000]/20" : "bg-white text-[#003e6f] hover:bg-slate-50 border border-slate-100"}`}>
                       <span className="text-sm">⏰</span>{t("abiertos")}
                     </button>
                   </div>
@@ -590,17 +590,17 @@ export default function MapaPage() {
                       const inRoute = isInRoute(poi);
                       const routeNum = poisEnRuta.findIndex((p) => p.id === poi.id) + 1;
                       return (
-                        <div key={poi.id} className={`p-4 rounded-xl flex items-start gap-4 transition-all ${selectedPoi?.id === poi.id ? "bg-surface-container-high border-l-4 border-secondary" : "hover:bg-surface-container-high"}`}>
-                          <button onClick={() => handleSelectPoi(poi)} className="w-12 h-12 rounded-xl bg-surface-container-highest flex items-center justify-center text-2xl shadow-inner shrink-0">{poi.emoji || "📍"}</button>
+                        <div key={poi.id} className={`p-5 rounded-2xl flex items-start gap-4 transition-all duration-300 ${selectedPoi?.id === poi.id ? "bg-slate-50 border-l-4 border-[#003e6f] shadow-inner" : "hover:bg-slate-50/50"}`}>
+                          <button onClick={() => handleSelectPoi(poi)} className="w-14 h-14 rounded-2xl bg-white border border-slate-100 flex items-center justify-center text-3xl shadow-sm shrink-0 group-hover:scale-105 transition-transform">{poi.emoji || "📍"}</button>
                           <button onClick={() => handleSelectPoi(poi)} className="flex-1 min-w-0 text-left">
                             <div className="flex items-center gap-1.5">
-                              <h3 className="font-headline font-bold text-on-surface truncate">{poi.nombre}</h3>
-                              {poi.verificado && (<span className="text-secondary text-[10px] font-black uppercase tracking-widest flex items-center gap-0.5"><span className="text-xs" style={{ fontVariationSettings: "'FILL' 1" }}>✅</span>Muul</span>)}
+                              <h3 className="font-headline font-black text-lg text-[#003e6f] truncate leading-tight">{poi.nombre}</h3>
+                              {poi.verificado && (<span className="text-[#005596] text-[9px] font-black uppercase tracking-widest flex items-center gap-0.5"><span className="text-xs">🌊</span>MUUL</span>)}
                             </div>
-                            <p className="text-xs text-on-surface-variant mt-0.5"><span className={isOpenNow(poi) ? "text-secondary" : "text-tertiary"}>● </span>{formatHours(poi)}</p>
+                            <p className="text-[10px] text-neutral-500 font-bold uppercase tracking-wider mt-1"><span className={isOpenNow(poi) ? "text-emerald-500" : "text-rose-500"}>● </span>{formatHours(poi)}</p>
                           </button>
-                          <button onClick={() => togglePoiEnRuta(poi)} className={`shrink-0 w-10 h-10 rounded-lg flex items-center justify-center text-xs font-black transition-all ${inRoute ? "bg-secondary text-on-secondary shadow-glow-secondary" : "bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high"}`}>
-                            {inRoute ? routeNum : <span className="text-lg">📍</span>}
+                          <button onClick={() => togglePoiEnRuta(poi)} className={`shrink-0 w-11 h-11 rounded-2xl flex items-center justify-center text-sm font-black transition-all ${inRoute ? "bg-[#003e6f] text-white shadow-lg shadow-[#003e6f]/20" : "bg-slate-100 text-[#003e6f] hover:bg-slate-200"}`}>
+                            {inRoute ? routeNum : <span className="text-xl">📍</span>}
                           </button>
                         </div>
                       );
@@ -617,20 +617,20 @@ export default function MapaPage() {
                   </button>
                   <div className="flex items-center justify-between px-2">
                     <div className="flex items-center gap-2">
-                      <span className={`w-2 h-2 rounded-full ${poisEnRuta.length > 0 ? "bg-secondary animate-pulse" : "bg-on-surface-variant"}`} />
-                      <span className="text-sm font-bold text-on-surface">{poisEnRuta.length === 1 ? t("paradas", { count: 1 }) : t("paradasPlural", { count: poisEnRuta.length })}</span>
+                      <span className={`w-2.5 h-2.5 rounded-full ${poisEnRuta.length > 0 ? "bg-[#fed000] shadow-[0_0_10px_#fed000] animate-pulse" : "bg-slate-300"}`} />
+                      <span className="text-[11px] font-black uppercase tracking-widest text-[#003e6f]">{poisEnRuta.length === 1 ? t("paradas", { count: 1 }) : t("paradasPlural", { count: poisEnRuta.length })}</span>
                     </div>
-                    {poisEnRuta.length > 0 && (<button onClick={limpiarRuta} className="text-xs text-on-surface-variant hover:text-tertiary transition-colors font-bold">{t("limpiar")}</button>)}
+                    {poisEnRuta.length > 0 && (<button onClick={limpiarRuta} className="text-[10px] text-rose-500 hover:text-rose-600 transition-colors font-black uppercase tracking-widest">{t("limpiar")}</button>)}
                   </div>
                   <div className="flex gap-2">
-                    <button onClick={() => setModoAccesible(!modoAccesible)} className={`flex-1 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${modoAccesible ? "bg-[#60a5fa]/20 text-[#60a5fa] border border-[#60a5fa]/30" : "bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high"}`}>
-                      <span className="text-sm">♿</span>{t("accesible")}
+                    <button onClick={() => setModoAccesible(!modoAccesible)} className={`flex-1 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${modoAccesible ? "bg-[#003e6f] text-white shadow-lg shadow-[#003e6f]/20" : "bg-slate-100 text-[#003e6f] hover:bg-slate-200"}`}>
+                      <span className="text-base">♿</span>{t("accesible")}
                     </button>
-                    <button onClick={() => setModoVehiculo(!modoVehiculo)} className={`flex-1 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${modoVehiculo ? "bg-[#facc15]/20 text-[#facc15] border border-[#facc15]/30" : "bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high"}`}>
-                      <span className="text-sm">🚗</span>{t("vehiculo")}
+                    <button onClick={() => setModoVehiculo(!modoVehiculo)} className={`flex-1 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${modoVehiculo ? "bg-[#fed000] text-[#003e6f] shadow-lg shadow-[#fed000]/20" : "bg-slate-100 text-[#003e6f] hover:bg-slate-200"}`}>
+                      <span className="text-base">🚗</span>{t("vehiculo")}
                     </button>
                   </div>
-                  <button onClick={calcularRuta} disabled={poisEnRuta.length < 2 || calculando} className="w-full bg-secondary hover:bg-secondary-fixed text-on-secondary py-4 rounded-xl font-headline font-black uppercase tracking-widest transition-all shadow-lg shadow-secondary/10 disabled:opacity-40 disabled:cursor-not-allowed">
+                  <button onClick={calcularRuta} disabled={poisEnRuta.length < 2 || calculando} className="w-full bg-[#003e6f] text-white !text-white hover:bg-[#005596] py-5 rounded-3xl font-headline font-black uppercase tracking-tighter text-xl transition-all shadow-xl shadow-[#003e6f]/10 disabled:opacity-40 disabled:scale-[0.98] disabled:cursor-not-allowed">
                     {calculando ? t("calculando") : t("calcularRuta")}
                   </button>
                 </div>
@@ -756,36 +756,35 @@ export default function MapaPage() {
 
             {/* POI popup — desktop centered, mobile compact above sheet */}
             {selectedPoi && !mostrarItinerario && (
-              <div className="absolute bottom-[180px] md:bottom-6 left-4 right-4 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-[340px] bg-surface-bright/90 backdrop-blur-xl rounded-2xl shadow-2xl p-4 md:p-5 border border-white/5 z-50 animate-fade-in-up">
-                <div className="flex gap-3 mb-2 md:mb-3">
-                  <div className="w-10 h-10 md:w-14 md:h-14 rounded-xl bg-surface-container-highest flex items-center justify-center text-2xl md:text-3xl shadow-inner shrink-0">{selectedPoi.emoji || "📍"}</div>
+              <div className="absolute bottom-[180px] md:bottom-10 left-4 right-4 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-[380px] bg-white/95 backdrop-blur-2xl rounded-[32px] shadow-2xl p-6 md:p-8 border border-white/20 z-50 animate-fade-in-up">
+                <div className="flex gap-4 mb-5 md:mb-6">
+                  <div className="w-14 h-14 md:w-20 md:h-20 rounded-3xl bg-slate-50 flex items-center justify-center text-3xl md:text-5xl shadow-inner shrink-0">{selectedPoi.emoji || "📍"}</div>
                   <div className="flex-1 overflow-hidden">
-                    <h4 className="font-headline font-extrabold text-on-surface text-base md:text-lg leading-tight truncate">{selectedPoi.nombre}</h4>
-                    <p className="text-secondary text-xs font-bold mt-0.5"><span className={isOpenNow(selectedPoi) ? "text-secondary" : "text-tertiary"}>● </span>{formatHours(selectedPoi)}</p>
-                    <div className="flex gap-1 mt-1">
-                      <span className="text-[9px] bg-surface-container-highest text-on-surface-variant px-1.5 py-0.5 rounded font-black uppercase">{selectedPoi.categoria}</span>
-                      {selectedPoi.precio_rango && <span className="text-[9px] bg-surface-container-highest text-on-surface-variant px-1.5 py-0.5 rounded font-black uppercase">{selectedPoi.precio_rango}</span>}
+                    <h4 className="font-headline font-black text-[#003e6f] text-lg md:text-2xl leading-tight truncate">{selectedPoi.nombre}</h4>
+                    <p className="text-[10px] font-black uppercase tracking-widest mt-1"><span className={isOpenNow(selectedPoi) ? "text-emerald-500" : "text-rose-500"}>● </span>{formatHours(selectedPoi)}</p>
+                    <div className="flex gap-2 mt-2">
+                      <span className="text-[9px] bg-slate-100 text-[#003e6f] px-2 py-1 rounded-lg font-black uppercase tracking-wider">{selectedPoi.categoria}</span>
+                      {selectedPoi.precio_rango && <span className="text-[9px] bg-slate-100 text-[#003e6f] px-2 py-1 rounded-lg font-black uppercase tracking-wider">{selectedPoi.precio_rango}</span>}
                     </div>
                   </div>
-                  <button onClick={() => setSelectedPoi(null)} className="shrink-0 w-8 h-8 flex items-center justify-center rounded-lg bg-surface-container-highest text-on-surface hover:bg-surface-variant transition-colors">
-                    <span className="text-sm">✕</span>
+                  <button onClick={() => setSelectedPoi(null)} className="shrink-0 w-10 h-10 flex items-center justify-center rounded-2xl bg-slate-100 text-[#003e6f] hover:bg-slate-200 transition-colors">
+                    <span className="text-base font-black">✕</span>
                   </button>
                 </div>
-                {selectedPoi.descripcion && <p className="text-xs text-on-surface-variant leading-relaxed mb-3 line-clamp-2 hidden md:block">{selectedPoi.descripcion}</p>}
-                <div className="flex gap-2">
+                {selectedPoi.descripcion && <p className="text-xs text-neutral-500 leading-relaxed mb-6 line-clamp-2 hidden md:block font-medium">{selectedPoi.descripcion}</p>}
+                <div className="flex gap-3">
                   <button
                     onClick={() => togglePoiEnRuta(selectedPoi)}
-                    className={`flex-1 py-2.5 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${isInRoute(selectedPoi) ? "bg-tertiary/20 text-tertiary border border-tertiary/30" : "bg-secondary text-on-secondary"}`}
+                    className={`flex-1 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${isInRoute(selectedPoi) ? "bg-rose-50 text-rose-500 border border-rose-100" : "bg-[#003e6f] text-white !text-white shadow-lg shadow-[#003e6f]/20"}`}
                   >
                     {isInRoute(selectedPoi) ? t("quitarRuta") : t("agregarRuta")}
                   </button>
                   <button
                     onClick={() => { setChatbotAbierto(true); setMobileSheetOpen(false); }}
-                    className="flex-1 py-2.5 rounded-lg text-xs font-black uppercase tracking-wider bg-primary-container/30 text-primary border border-primary/20 flex items-center justify-center gap-1 transition-all hover:bg-primary-container/40"
+                    className="flex-1 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest bg-[#fed000] text-[#003e6f] flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:shadow-[#fed000]/20"
                   >
-                    <span className="text-sm">✨</span>
-                    <span className="hidden sm:inline">{t("muulAi")}</span>
-                    <span className="sm:hidden">AI</span>
+                    <span className="text-base">✨</span>
+                    <span>{t("muulAi")}</span>
                   </button>
                 </div>
               </div>
