@@ -8,147 +8,239 @@ export default function HomePage() {
 
   return (
     <main className="pt-20">
-      {/* Hero Section */}
-      <section className="relative h-[600px] md:h-[750px] w-full overflow-hidden bg-gradient-to-br from-primary via-primary-container to-primary/80">
-        <div className="absolute inset-0 opacity-60 bg-gradient-to-t from-black to-transparent"></div>
-        <div className="relative z-10 h-full max-w-[1440px] mx-auto px-8 flex flex-col justify-center items-start">
-          <span className="font-label !text-white uppercase tracking-[0.3em] text-xs md:text-sm mb-6 inline-flex items-center rounded-full bg-white/15 border border-white/20 px-4 py-2 shadow-[0_16px_40px_rgba(0,0,0,0.18)]">
+      {/* Hero Section - Premium Background */}
+      <section className="relative h-[600px] md:h-[800px] w-full overflow-hidden bg-black">
+        {/* Background Image with Overlay */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: 'linear-gradient(135deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.6) 100%), url("https://images.unsplash.com/photo-1518182170546-07661fd94144?q=80&w=1920&h=1080&auto=format&fit=crop")',
+          }}
+        />
+        
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/50" />
+        
+        {/* Content */}
+        <div className="relative z-10 h-full max-w-[1440px] mx-auto px-6 md:px-12 flex flex-col justify-center items-start">
+          {/* Label */}
+          <div className="inline-flex items-center gap-2 mb-8 text-white/80 font-label text-xs uppercase tracking-[0.2em]">
+            <span className="w-2 h-2 rounded-full bg-yellow-400"></span>
             Curaduría de Inteligencia Editorial
-          </span>
-          <h1 className="font-headline text-5xl md:text-7xl lg:text-8xl text-white max-w-4xl leading-[0.9] mb-8 drop-shadow-[0_16px_40px_rgba(0,0,0,0.35)]">
+          </div>
+          
+          {/* Main Headline */}
+          <h1 className="font-headline text-6xl md:text-7xl lg:text-8xl text-white max-w-5xl leading-[1.1] mb-6 md:mb-8 font-black tracking-tight">
             Descubre lo <br className="hidden md:block" /><span className="italic font-light">mejor de México</span>
           </h1>
-          <p className="text-white/90 text-lg md:text-xl max-w-xl mb-12 font-body">
+          
+          {/* Subheading */}
+          <p className="text-white/85 text-lg md:text-xl max-w-2xl mb-10 md:mb-12 font-body leading-relaxed">
             Una selección curada de destinos, sabores y cultura local impulsada por la inteligencia de datos de Coppel.
           </p>
-          <div className="flex flex-wrap gap-4">
+          
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 pt-4">
             <Link
               href="/mapa"
-              className="bg-secondary-container text-on-secondary-container px-8 md:px-10 py-3 md:py-4 rounded-full font-bold text-base md:text-lg hover:brightness-105 transition-all shadow-lg flex items-center gap-2"
+              className="bg-yellow-400 text-black px-8 md:px-12 py-4 md:py-5 rounded-full font-headline font-black text-base md:text-lg hover:bg-yellow-300 transition-all shadow-2xl shadow-yellow-400/30 flex items-center justify-center gap-2 group"
             >
-              Comenzar Viaje <span className="material-symbols-outlined">arrow_forward</span>
+              Comenzar Viaje 
+              <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
             </Link>
-            <button className="bg-white/10 backdrop-blur-md border border-white/30 text-white px-8 md:px-10 py-3 md:py-4 rounded-full font-bold text-base md:text-lg hover:bg-white/20 transition-all">
+            <button className="bg-white/10 backdrop-blur-md border-2 border-white/30 text-white px-8 md:px-12 py-4 md:py-5 rounded-full font-headline font-bold text-base md:text-lg hover:bg-white/20 hover:border-white/50 transition-all">
               Ver Catálogo
             </button>
           </div>
         </div>
       </section>
 
-      {/* Category Cards */}
-      <section className="py-20 md:py-32 bg-surface px-8 max-w-[1440px] mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+      {/* Category Cards - Explore by Interest */}
+      <section className="py-20 md:py-32 bg-white px-6 md:px-12 max-w-[1440px] mx-auto">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-8">
           <div>
-            <span className="font-label text-primary tracking-widest text-xs uppercase mb-2 block">Categorías</span>
-            <h2 className="font-headline text-4xl md:text-5xl text-on-surface">Explora por Interés</h2>
+            <span className="font-label text-yellow-500 tracking-widest text-xs uppercase mb-3 block font-black">✨ Explora</span>
+            <h2 className="font-headline text-5xl md:text-6xl text-black font-black">Explora por Interés</h2>
           </div>
-          <p className="text-on-surface-variant max-w-xs font-body text-sm">
-            Filtros inteligentes diseñados para encontrar la esencia de cada rincón.
+          <p className="text-gray-600 max-w-sm font-body text-base leading-relaxed">
+            Filtros inteligentes diseñados para encontrar la esencia de cada rincón de México.
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-          {/* Green Card */}
-          <div className="group relative aspect-[4/5] rounded-3xl overflow-hidden bg-tertiary-container cursor-pointer">
-            <div className="absolute inset-0 bg-gradient-to-t from-tertiary-container/90 via-transparent to-transparent"></div>
-            <div className="absolute bottom-8 left-8 right-8">
-              <span className="font-label text-on-tertiary-container text-xs uppercase tracking-widest mb-2 block">Hogar Verde</span>
-              <h3 className="font-headline text-3xl text-white">Refugios locales</h3>
-              <div className="h-0.5 w-0 group-hover:w-12 bg-on-tertiary-container transition-all duration-500 mt-4"></div>
+          {/* Green Card - Nature */}
+          <div className="group relative aspect-[4/5] rounded-3xl overflow-hidden cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-300 h-80 md:h-96">
+            <div 
+              className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
+              style={{
+                backgroundImage: 'url("https://images.unsplash.com/photo-1511632765486-a01980e01a18?q=80&w=600&h=800&auto=format&fit=crop")'
+              }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+              <span className="font-label text-green-300 text-xs uppercase tracking-widest mb-2 block font-bold">🌿 Naturaleza</span>
+              <h3 className="font-headline text-3xl md:text-4xl text-white font-black">Refugios Locales</h3>
+              <div className="h-1 w-12 bg-green-300 mt-4 rounded-full group-hover:w-16 transition-all duration-300" />
             </div>
           </div>
-          {/* Blue Card */}
-          <div className="group relative aspect-[4/5] rounded-3xl overflow-hidden bg-primary-container cursor-pointer">
-            <div className="absolute inset-0 bg-gradient-to-t from-primary-container/90 via-transparent to-transparent"></div>
-            <div className="absolute bottom-8 left-8 right-8">
-              <span className="font-label text-on-primary-container text-xs uppercase tracking-widest mb-2 block">Cultura Viva</span>
-              <h3 className="font-headline text-3xl text-white">Arte y Herencia</h3>
-              <div className="h-0.5 w-0 group-hover:w-12 bg-on-primary-container transition-all duration-500 mt-4"></div>
+          
+          {/* Blue Card - Culture */}
+          <div className="group relative aspect-[4/5] rounded-3xl overflow-hidden cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-300 h-80 md:h-96">
+            <div 
+              className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
+              style={{
+                backgroundImage: 'url("https://images.unsplash.com/photo-1471879832106-c7ab9019e8de?q=80&w=600&h=800&auto=format&fit=crop")'
+              }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+              <span className="font-label text-blue-300 text-xs uppercase tracking-widest mb-2 block font-bold">🎨 Cultura</span>
+              <h3 className="font-headline text-3xl md:text-4xl text-white font-black">Arte y Herencia</h3>
+              <div className="h-1 w-12 bg-blue-300 mt-4 rounded-full group-hover:w-16 transition-all duration-300" />
             </div>
           </div>
-          {/* Red Card - using error color */}
-          <div className="group relative aspect-[4/5] rounded-3xl overflow-hidden bg-error cursor-pointer">
-            <div className="absolute inset-0 bg-gradient-to-t from-error/90 via-transparent to-transparent"></div>
-            <div className="absolute bottom-8 left-8 right-8">
-              <span className="font-label text-error-container text-xs uppercase tracking-widest mb-2 block">Gastronomía</span>
-              <h3 className="font-headline text-3xl text-white">Sabores de Tierra</h3>
-              <div className="h-0.5 w-0 group-hover:w-12 bg-error-container transition-all duration-500 mt-4"></div>
+          
+          {/* Red Card - Gastronomy */}
+          <div className="group relative aspect-[4/5] rounded-3xl overflow-hidden cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-300 h-80 md:h-96">
+            <div 
+              className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
+              style={{
+                backgroundImage: 'url("https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=600&h=800&auto=format&fit=crop")'
+              }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+              <span className="font-label text-red-300 text-xs uppercase tracking-widest mb-2 block font-bold">🍽️ Gastronomía</span>
+              <h3 className="font-headline text-3xl md:text-4xl text-white font-black">Sabores de Tierra</h3>
+              <div className="h-1 w-12 bg-red-300 mt-4 rounded-full group-hover:w-16 transition-all duration-300" />
             </div>
           </div>
         </div>
       </section>
 
-      {/* Trending Destinations - Bento Layout */}
-      <section className="py-20 md:py-32 bg-surface-container-low">
-        <div className="max-w-[1440px] mx-auto px-8">
+      {/* Trending Destinations Section */}
+      <section className="py-20 md:py-32 bg-gray-50">
+        <div className="max-w-[1440px] mx-auto px-6 md:px-12">
+          {/* Section Header */}
           <div className="flex flex-col items-center text-center mb-16">
-            <span className="font-label text-primary tracking-widest text-xs uppercase mb-4">Tendencias de Datos</span>
-            <h2 className="font-headline text-5xl md:text-6xl text-on-surface mb-6">Destinos en Auge</h2>
-            <div className="w-20 h-1 bg-secondary-container mx-auto"></div>
+            <span className="font-label text-yellow-500 tracking-widest text-xs uppercase mb-4 font-black">📊 Tendencias</span>
+            <h2 className="font-headline text-5xl md:text-6xl text-black font-black mb-6">Destinos en Auge</h2>
+            <div className="w-24 h-1 bg-gradient-to-r from-yellow-400 to-orange-400 mx-auto rounded-full" />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-6 h-auto md:h-[600px]">
-            {/* Large Card */}
-            <div className="md:col-span-2 md:row-span-2 bg-white rounded-[2rem] p-8 relative overflow-hidden flex flex-col justify-end group shadow-sm border border-outline-variant/10 h-80 md:h-full">
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-              <div className="relative z-10">
-                <div className="flex items-center gap-3 mb-4">
-                  <span className="bg-secondary-container text-on-secondary-container px-3 py-1 rounded text-xs font-label uppercase tracking-widest font-bold">Trending #1</span>
-                  <span className="text-white/80 font-label text-xs uppercase tracking-widest">Guanajuato</span>
+
+          {/* Bento Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-6 h-auto md:h-[650px]">
+            {/* Large Featured Card - San Miguel de Allende */}
+            <div className="md:col-span-2 md:row-span-2 relative rounded-3xl overflow-hidden shadow-2xl hover:shadow-3xl transition-all duration-300 group cursor-pointer h-80 md:h-full">
+              <div 
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
+                style={{
+                  backgroundImage: 'url("https://images.unsplash.com/photo-1565008576549-bdde9e154310?q=80&w=800&h=1000&auto=format&fit=crop")'
+                }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
+              <div className="relative z-10 h-full flex flex-col justify-end p-6 md:p-8">
+                <div className="inline-flex items-center gap-2 mb-4 w-fit">
+                  <span className="bg-yellow-400 text-black px-3 py-1 rounded-lg text-xs font-headline font-black uppercase tracking-widest">🔥 Trending #1</span>
+                  <span className="text-white/70 font-label text-xs uppercase tracking-widest">Guanajuato</span>
                 </div>
-                <h3 className="font-headline text-3xl md:text-4xl text-white mb-4">San Miguel de Allende</h3>
-                <div className="flex gap-8">
+                <h3 className="font-headline text-4xl md:text-5xl text-white font-black mb-6 leading-tight">San Miguel de Allende</h3>
+                <div className="flex gap-8 md:gap-12">
                   <div>
-                    <span className="text-white/50 text-xs uppercase block font-label">Búsquedas</span>
-                    <span className="text-white font-label text-lg">+124%</span>
+                    <span className="text-white/50 text-xs uppercase block font-label mb-2 font-bold">Búsquedas</span>
+                    <span className="text-yellow-300 font-headline text-2xl font-black">+124%</span>
                   </div>
                   <div>
-                    <span className="text-white/50 text-xs uppercase block font-label">Clima</span>
-                    <span className="text-white font-label text-lg">24°C</span>
+                    <span className="text-white/50 text-xs uppercase block font-label mb-2 font-bold">Clima</span>
+                    <span className="text-white font-headline text-2xl font-black">24°C</span>
                   </div>
                 </div>
               </div>
             </div>
-            {/* Side Card 1 */}
-            <div className="md:col-span-2 bg-white rounded-[2rem] p-6 md:p-8 flex flex-col md:flex-row items-center justify-between shadow-sm border border-outline-variant/10 h-auto md:h-auto">
-              <div className="flex-1">
-                <span className="text-primary font-label text-xs uppercase tracking-widest mb-2 block">Pacífico Sur</span>
-                <h3 className="font-headline text-2xl md:text-3xl text-on-surface mb-2">Puerto Escondido</h3>
-                <p className="text-on-surface-variant text-sm font-body mb-4">Incremento en interés por surf sustentable.</p>
-                <button className="text-primary font-bold text-sm flex items-center gap-2 group">
-                  Explorar Guía <span className="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
+
+            {/* Puerto Escondido Card */}
+            <div className="md:col-span-2 relative rounded-3xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group cursor-pointer h-80 md:h-auto">
+              <div 
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
+                style={{
+                  backgroundImage: 'url("https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=600&h=400&auto=format&fit=crop")'
+                }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+              <div className="relative z-10 h-full flex flex-col justify-end p-6 md:p-8">
+                <span className="text-blue-300 font-label text-xs uppercase tracking-widest mb-2 font-bold">🌊 Pacífico Sur</span>
+                <h3 className="font-headline text-2xl md:text-3xl text-white font-black mb-2">Puerto Escondido</h3>
+                <p className="text-white/80 text-sm font-body mb-4">Incremento en interés por experiencias sustentables.</p>
+                <button className="text-yellow-300 font-headline font-bold text-sm flex items-center gap-2 group/btn">
+                  Explorar Guía 
+                  <span className="material-symbols-outlined text-sm group-hover/btn:translate-x-1 transition-transform">arrow_forward</span>
                 </button>
               </div>
             </div>
-            {/* Stats Small */}
-            <div className="bg-primary-container rounded-[2rem] p-6 md:p-8 text-white flex flex-col justify-between shadow-lg h-auto md:h-full">
-              <span className="material-symbols-outlined text-3xl md:text-4xl">insights</span>
+
+            {/* Stats Card 1 - Digital Resonance */}
+            <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-3xl p-6 md:p-8 text-white flex flex-col justify-between shadow-lg h-80 md:h-auto hover:shadow-xl transition-all duration-300">
+              <span className="material-symbols-outlined text-5xl opacity-80">insights</span>
               <div>
-                <span className="font-label text-3xl md:text-4xl font-bold">8.4k</span>
-                <p className="font-label text-xs uppercase tracking-tighter opacity-70">Resonancia Digital</p>
+                <span className="font-headline text-4xl md:text-5xl font-black block">8.4k</span>
+                <p className="font-label text-xs uppercase tracking-widest opacity-70 mt-2 font-bold">Resonancia Digital</p>
               </div>
             </div>
-            {/* Stats Small */}
-            <div className="bg-secondary-container rounded-[2rem] p-6 md:p-8 text-on-secondary-container flex flex-col justify-between shadow-lg h-auto md:h-full">
-              <span className="material-symbols-outlined text-3xl md:text-4xl">hotel</span>
+
+            {/* Stats Card 2 - Occupancy */}
+            <div className="bg-gradient-to-br from-yellow-400 to-orange-500 rounded-3xl p-6 md:p-8 text-white flex flex-col justify-between shadow-lg h-80 md:h-auto hover:shadow-xl transition-all duration-300">
+              <span className="material-symbols-outlined text-5xl opacity-80">hotel</span>
               <div>
-                <span className="font-label text-3xl md:text-4xl font-bold">92%</span>
-                <p className="font-label text-xs uppercase tracking-tighter opacity-70">Ocupación</p>
+                <span className="font-headline text-4xl md:text-5xl font-black block">92%</span>
+                <p className="font-label text-xs uppercase tracking-widest opacity-70 mt-2 font-bold">Ocupación Hotelera</p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Newsletter CTA */}
-      <section className="py-20 md:py-32 bg-white">
-        <div className="max-w-[1440px] mx-auto px-8 bg-surface-container-high rounded-[3rem] p-12 md:p-16 flex flex-col md:flex-row items-center gap-12">
-          <div className="flex-1">
-            <h2 className="font-headline text-4xl md:text-5xl text-primary mb-6">Únete a la <span className="italic">Inteligencia Editorial</span></h2>
-            <p className="text-on-surface-variant text-lg mb-8 font-body">
-              Recibe cada semana una curaduría profunda de destinos y productos que están definiendo el nuevo México.
+      {/* Newsletter CTA - Premium Section */}
+      <section className="py-20 md:py-32 bg-white px-6 md:px-12">
+        <div className="max-w-[1440px] mx-auto bg-gradient-to-br from-gray-900 via-gray-800 to-black rounded-[3rem] p-8 md:p-16 lg:p-20 flex flex-col lg:flex-row items-center gap-12 lg:gap-16 relative overflow-hidden">
+          {/* Decorative elements */}
+          <div className="absolute top-10 right-10 w-40 h-40 bg-yellow-400/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-10 left-10 w-32 h-32 bg-blue-400/10 rounded-full blur-3xl" />
+          
+          {/* Content */}
+          <div className="flex-1 relative z-10">
+            <h2 className="font-headline text-4xl md:text-5xl lg:text-6xl text-white mb-6 font-black leading-tight">
+              Únete a la <span className="italic font-light text-yellow-400">Inteligencia Editorial</span>
+            </h2>
+            <p className="text-white/80 text-lg md:text-xl mb-8 font-body leading-relaxed max-w-md">
+              Recibe cada semana una curaduría profunda de destinos, productos locales y experiencias auténticas que están definiendo el nuevo México.
             </p>
-            <div className="flex gap-2 p-2 bg-white rounded-full shadow-inner max-w-md">
-              <input type="email" placeholder="tu@email.com" className="flex-1 bg-transparent border-none focus:ring-0 px-4 font-body" />
-              <button className="bg-primary text-white px-8 py-3 rounded-full font-bold hover:brightness-110 transition-all">Suscribirme</button>
+            
+            {/* Email Form */}
+            <div className="flex flex-col sm:flex-row gap-3 max-w-md">
+              <input 
+                type="email" 
+                placeholder="tu@email.com" 
+                className="flex-1 px-6 py-4 bg-white/10 border border-white/20 backdrop-blur-md rounded-full text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-yellow-400/50 transition-all font-body"
+              />
+              <button className="px-8 py-4 bg-yellow-400 text-black rounded-full font-headline font-black text-base hover:bg-yellow-300 transition-all shadow-lg shadow-yellow-400/20 whitespace-nowrap">
+                Suscribirse
+              </button>
+            </div>
+            
+            <p className="text-white/50 text-sm mt-4 font-label">No compartimos tu email. Cancela en cualquier momento.</p>
+          </div>
+          
+          {/* Illustration/Image */}
+          <div className="flex-1 relative z-10 hidden lg:block">
+            <div className="relative">
+              <div className="absolute -inset-4 bg-gradient-to-r from-yellow-400/20 to-blue-400/20 rounded-2xl blur-2xl" />
+              <div 
+                className="relative rounded-2xl overflow-hidden h-80 lg:h-96 bg-cover bg-center shadow-2xl"
+                style={{
+                  backgroundImage: 'url("https://images.unsplash.com/photo-1516321318423-f06f70fafcde?q=80&w=600&h=600&auto=format&fit=crop")'
+                }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-black/40" />
+              </div>
             </div>
           </div>
         </div>
