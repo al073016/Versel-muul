@@ -27,7 +27,7 @@ export default async function LocaleLayout({
     <NextIntlClientProvider locale={locale} messages={messages}>
       <Navbar />
       <MobileNav />
-      {children}
+      <div className="pb-28 md:pb-0">{children}</div>
       <Footer />
     </NextIntlClientProvider>
   );

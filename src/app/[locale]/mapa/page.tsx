@@ -829,7 +829,7 @@ export default function MapaPage() {
 
       {/* ═══ MOBILE BOTTOM SHEET ═══ */}
       <div
-        className={`md:hidden fixed inset-x-0 bottom-[60px] z-40 bg-surface-container-low rounded-t-2xl shadow-2xl border-t border-outline-variant/10 flex flex-col transition-all duration-300 ease-in-out ${
+        className={`md:hidden fixed inset-x-0 bottom-[104px] z-40 bg-surface-container-low rounded-t-2xl shadow-2xl border-t border-outline-variant/10 flex flex-col transition-all duration-300 ease-in-out ${
           mobileSheetOpen ? "h-[72vh]" : "h-[160px]"
         }`}
       >
@@ -1093,22 +1093,34 @@ export default function MapaPage() {
       </div>
 
       {/* ═══ MOBILE BOTTOM NAV ═══ */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-surface-container-low/95 backdrop-blur-md border-t border-outline-variant/10 py-3 z-50">
-        <div className="flex justify-around items-center px-6">
-          <Link href="/" className="flex flex-col items-center gap-1 text-on-surface-variant">
-            <span className="">🔍</span>
-            <span className="text-[10px] font-bold uppercase tracking-tighter">{tn("explorar")}</span>
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-surface-container-low/95 backdrop-blur-md border-t border-outline-variant/10 px-3 py-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] z-50 shadow-[0_-8px_30px_rgba(0,0,0,0.08)]">
+        <div className="grid grid-cols-3 gap-2">
+          <Link href="/" className="flex min-h-[3.5rem] flex-col items-center justify-center rounded-2xl px-2 py-2 text-center text-on-surface-variant transition-colors hover:bg-white/70 hover:text-on-surface">
+            <span className="text-lg leading-none">🔍</span>
+            <span className="mt-1 text-[9px] font-bold uppercase tracking-[0.18em] leading-tight">{tn("explorar")}</span>
+          </Link>
+          <Link href="/tiendas" className="flex min-h-[3.5rem] flex-col items-center justify-center rounded-2xl px-2 py-2 text-center text-on-surface-variant transition-colors hover:bg-white/70 hover:text-on-surface">
+            <span className="text-lg leading-none">🏪</span>
+            <span className="mt-1 text-[9px] font-bold uppercase tracking-[0.18em] leading-tight">{tn("categorias")}</span>
           </Link>
           <button
             onClick={() => setMobileSheetOpen((v) => !v)}
-            className="flex flex-col items-center gap-1 text-secondary"
+            className="flex min-h-[3.5rem] flex-col items-center justify-center rounded-2xl px-2 py-2 text-center text-secondary transition-colors hover:bg-[#003e6f]/5"
           >
-            <span className="" style={{ fontVariationSettings: "'FILL' 1" }}>🗺️</span>
-            <span className="text-[10px] font-bold uppercase tracking-tighter">{tn("mapa")}</span>
+            <span className="text-lg leading-none">🗺️</span>
+            <span className="mt-1 text-[9px] font-bold uppercase tracking-[0.18em] leading-tight">{tn("mapa")}</span>
           </button>
-          <Link href="/perfil" className="flex flex-col items-center gap-1 text-on-surface-variant">
-            <span className="">👤</span>
-            <span className="text-[10px] font-bold uppercase tracking-tighter">{tn("perfil")}</span>
+          <Link href="/amigos" className="flex min-h-[3.5rem] flex-col items-center justify-center rounded-2xl px-2 py-2 text-center text-on-surface-variant transition-colors hover:bg-white/70 hover:text-on-surface">
+            <span className="text-lg leading-none">👥</span>
+            <span className="mt-1 text-[9px] font-bold uppercase tracking-[0.18em] leading-tight">{tn("amigos")}</span>
+          </Link>
+          <Link href="/ofertas" className="flex min-h-[3.5rem] flex-col items-center justify-center rounded-2xl px-2 py-2 text-center text-on-surface-variant transition-colors hover:bg-white/70 hover:text-on-surface">
+            <span className="text-lg leading-none">🏷️</span>
+            <span className="mt-1 text-[9px] font-bold uppercase tracking-[0.18em] leading-tight">{tn("ofertas")}</span>
+          </Link>
+          <Link href="/perfil" className="flex min-h-[3.5rem] flex-col items-center justify-center rounded-2xl px-2 py-2 text-center text-on-surface-variant transition-colors hover:bg-white/70 hover:text-on-surface">
+            <span className="text-lg leading-none">👤</span>
+            <span className="mt-1 text-[9px] font-bold uppercase tracking-[0.18em] leading-tight">{tn("perfil")}</span>
           </Link>
         </div>
       </div>
