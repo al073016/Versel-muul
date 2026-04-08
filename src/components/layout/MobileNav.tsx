@@ -10,10 +10,10 @@ export default function MobileNav() {
   const tm = useTranslations("mobileNav");
 
   const navItems = [
-    { href: "/mapa", icon: "explore", label: t("explorar") },
-    { href: "/mapa", icon: "map", label: t("mapa") },
-    { href: "/perfil", icon: "person", label: t("perfil") },
-    { href: "#tickets", icon: "confirmation_number", label: tm("tickets") },
+    { href: "/", emoji: "🔍", label: t("explorar") },
+    { href: "/mapa", emoji: "🗺️", label: t("mapa") },
+    { href: "/perfil", emoji: "👤", label: t("perfil") },
+    { href: "#tickets", emoji: "🎫", label: tm("tickets") },
   ];
 
   return (
@@ -21,9 +21,9 @@ export default function MobileNav() {
       {navItems.map((item) => {
         const active = pathname === item.href;
         return (
-          <Link key={item.icon} href={item.href}
+          <Link key={item.emoji} href={item.href}
             className={`flex flex-col items-center gap-1 transition-colors ${active ? "text-on-surface" : "text-on-surface-variant"}`}>
-            <span className="material-symbols-outlined" style={active ? { fontVariationSettings: "'FILL' 1" } : undefined}>{item.icon}</span>
+            <span className="text-xl">{item.emoji}</span>
             <span className="text-[10px] uppercase font-bold tracking-widest">{item.label}</span>
           </Link>
         );

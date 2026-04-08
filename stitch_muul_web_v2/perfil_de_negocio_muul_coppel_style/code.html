@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Space+Grotesk:wght@400;500;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .font-serif { font-family: 'Newsreader', serif; }
+        .font-sans { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .font-mono { font-family: 'Space Grotesk', monospace; }
+        .scale-102-on-focus:focus-within { transform: scale(1.02); }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-container": "#096119",
+                        "on-tertiary-container": "#89da83",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed-variant": "#564500",
+                        "on-error-container": "#93000a",
+                        "outline": "#727781",
+                        "on-tertiary-fixed": "#002204",
+                        "tertiary-fixed": "#a3f69c",
+                        "inverse-surface": "#0d3157",
+                        "surface-container-highest": "#d3e3ff",
+                        "on-surface": "#001c39",
+                        "primary-fixed": "#d3e4ff",
+                        "secondary-fixed": "#ffe07f",
+                        "on-background": "#001c39",
+                        "inverse-on-surface": "#ebf1ff",
+                        "primary-container": "#005596",
+                        "on-primary-fixed": "#001c38",
+                        "on-secondary-fixed": "#231b00",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-container": "#6f5900",
+                        "surface-variant": "#d3e3ff",
+                        "on-error": "#ffffff",
+                        "surface-bright": "#f8f9ff",
+                        "inverse-primary": "#a2c9ff",
+                        "surface-container-low": "#eff3ff",
+                        "tertiary": "#00470e",
+                        "secondary": "#725c00",
+                        "on-primary-container": "#a4caff",
+                        "background": "#f8f9ff",
+                        "surface-container": "#e6eeff",
+                        "outline-variant": "#c1c7d2",
+                        "surface-container-high": "#dde9ff",
+                        "primary-fixed-dim": "#a2c9ff",
+                        "primary": "#003e6f",
+                        "on-primary-fixed-variant": "#004881",
+                        "error": "#ba1a1a",
+                        "on-secondary": "#ffffff",
+                        "surface": "#f8f9ff",
+                        "on-tertiary-fixed-variant": "#005312",
+                        "on-surface-variant": "#414750",
+                        "secondary-container": "#fed000",
+                        "surface-dim": "#c5dbff",
+                        "surface-tint": "#1b60a2",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-fixed-dim": "#88d982",
+                        "on-primary": "#ffffff",
+                        "secondary-fixed-dim": "#edc200"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-surface text-on-surface font-sans selection:bg-secondary-container selection:text-on-secondary-container">
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md shadow-sm flex justify-between items-center px-8 py-4 max-w-screen-2xl mx-auto left-1/2 -translate-x-1/2">
+<div class="text-2xl font-black text-blue-800 tracking-tighter font-serif">MUUL</div>
+<nav class="hidden md:flex items-center gap-8">
+<a class="font-serif text-lg tracking-tight font-medium text-slate-500 hover:text-blue-600 transition-colors" href="#">Explorar</a>
+<a class="font-serif text-lg tracking-tight font-medium text-slate-500 hover:text-blue-600 transition-colors" href="#">Categorías</a>
+<a class="font-serif text-lg tracking-tight font-medium text-slate-500 hover:text-blue-600 transition-colors" href="#">Ofertas</a>
+</nav>
+<div class="flex items-center gap-6">
+<div class="relative hidden lg:block scale-102-on-focus transition-transform duration-300">
+<input class="bg-surface-container-low border-none rounded-xl py-2 px-4 w-64 focus:ring-2 focus:ring-primary/20 text-sm font-mono" placeholder="Buscar inteligencia..." type="text"/>
+<span class="material-symbols-outlined absolute right-3 top-2 text-outline">search</span>
+</div>
+<div class="flex gap-4">
+<button class="text-blue-700 hover:text-blue-600 transition-colors">
+<span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
+</button>
+<button class="text-blue-700 hover:text-blue-600 transition-colors">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-20">
+<!-- Profile Header -->
+<section class="max-w-screen-2xl mx-auto px-8 mb-12">
+<div class="relative h-96 w-full rounded-3xl overflow-hidden mb-8">
+<img alt="Local artisan shop interior" class="w-full h-full object-cover" data-alt="Warmly lit interior of a modern artisan botanical shop with wooden shelves and lush indoor plants in morning light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD74rd51rD02ZCsXTBQhKK2b3OXiXMWA9UroKVmaA8iNdzNSHpX1BnXTYsIYFm1xGbZFFsAsRY2X7UJp4x0yYnge9iRN9eKAf-8Vot8RDa4lO8eEczRjX-_HStM_7gH9X5i7hOMUOsvrkY2E6rrMyZ2hzlxJT-LJcVrZ37khCXN3DdSfJti3JzltoRUavkScVVkAMFMBv8oagtyEnJz5LHfiskwp1W1hrHqcSXcsybfZK9sCeO3TuW1ehnBe7s_6h0hsVV5aVX5vEc"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/60 to-transparent"></div>
+<div class="absolute bottom-8 left-8 flex items-end gap-6">
+<div class="w-32 h-32 rounded-2xl bg-white p-1 shadow-2xl">
+<img alt="Business Logo" class="w-full h-full object-cover rounded-xl" data-alt="Minimalist logo design with geometric botanical shapes on a clean white background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCS0soD2WyyPcxydgvNHCsHUyUFr-JG7BYddjQypFbPBVu87BNQI6rzpEOZTp9vd0wmSbX0WhDIATG9kIL5YCZ0BztSQ5cV3YJW2T1Vu_04r5-Mc_uKycj8pVowCIisXONbC_DYcHTJsBzIThGYYxb_o3B7mrsnxRqyGYzinRnbevLOeyjBrFJLuya6YVWdYx4Q4Zeik_8C6Dq7Aa-sPt_Cy49c30LHO-MdYaWRrZusGsst198E7kNs-8lXSKDU44IhwVpH6nF-fM8"/>
+</div>
+<div class="pb-2">
+<h1 class="text-5xl font-serif font-semibold text-white mb-2 tracking-tight">Oasis Botánico</h1>
+<div class="flex gap-3">
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-xs font-mono font-bold tracking-widest uppercase">Pet Friendly</span>
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-xs font-mono font-bold tracking-widest uppercase">Vegano</span>
+</div>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+<div class="md:col-span-2">
+<p class="text-xl font-serif text-on-surface/80 leading-relaxed mb-8">
+                        Curaduría experta de plantas exóticas y productos orgánicos para el hogar. Nuestra misión es conectar la vida urbana con la inteligencia natural a través de productos sostenibles y educación botánica.
+                    </p>
+<!-- Product Grid -->
+<div class="mb-16">
+<div class="flex justify-between items-end mb-8">
+<h2 class="text-3xl font-serif font-medium">Productos Destacados</h2>
+<span class="font-mono text-xs text-primary uppercase tracking-widest">Catálogo Inteligente</span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- Card 1 -->
+<div class="group cursor-pointer">
+<div class="aspect-[4/5] bg-surface-container-low rounded-2xl overflow-hidden mb-4 transition-transform duration-300 group-hover:scale-[1.02]">
+<img alt="Monstera Deliciosa" class="w-full h-full object-cover" data-alt="Vibrant green Monstera Deliciosa plant in a minimalist clay pot against a soft grey background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIN61XeujiROew2haSSE6HWsW661YCBbRw5u-DX_c4ePUTWchxiHEfKkCg3gsJhyYnpTp3a9Lxw9PP0F9QJvoE13K2EFYeaz0AJ6w0baZkbIbCcEwBk9DOYOAL4KRFlvqxkgB4jx4-cUmQo-IFNrwyi62CSsF8VEsmqut6fZ_Ul12DDy9F0tSvNLHVFFn242aRkNZIDh0dhuyHyu4wDa1Ny_WnfKIglVS8BrXFJhJfO1o9hOQxhPszBcgbpFDYOAeSN_QfkKRUKXM"/>
+</div>
+<h3 class="font-sans font-bold text-on-surface">Monstera Deliciosa XL</h3>
+<p class="font-mono text-sm text-primary">$1,250.00 MXN</p>
+</div>
+<!-- Card 2 -->
+<div class="group cursor-pointer">
+<div class="aspect-[4/5] bg-surface-container-low rounded-2xl overflow-hidden mb-4 transition-transform duration-300 group-hover:scale-[1.02]">
+<img alt="Kit Nutrición" class="w-full h-full object-cover" data-alt="Set of amber glass bottles with organic plant fertilizer on a wooden table" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBOTqlrv36Zzzg1fZ_aTb67iQrHOvKSQ7bPR-NOlhQ90hKzoGQECAV9pAW21tZGDl6vVMc1mU1zz51aiu7IEfr5njf8_C0wL3SWvK8wzJGG_HLOOcyhoRe3l4CT_AXhTTX2Z0_m3Hsxl5klNDrwEbm_ByqIOwVZ9MODJ85mCf0s27AOZUmBEU4q9EP47mhpzJOfocSHJg6GkIiEduLSPG_x_ZYN90O7ysulJugwXGg5QHQqg-U1dxi7WYtuKiPz63I7_oXlA8VPM-0"/>
+</div>
+<h3 class="font-sans font-bold text-on-surface">Kit Nutrición Orgánica</h3>
+<p class="font-mono text-sm text-primary">$450.00 MXN</p>
+</div>
+<!-- Card 3 -->
+<div class="group cursor-pointer">
+<div class="aspect-[4/5] bg-surface-container-low rounded-2xl overflow-hidden mb-4 transition-transform duration-300 group-hover:scale-[1.02]">
+<img alt="Vela Aromática" class="w-full h-full object-cover" data-alt="Handcrafted soy wax candle with botanical dried petals on top in a ceramic bowl" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBF2nDvwR9-DH3MrK1DPGMb8kM4wrE1u_WuKYGQCAyTlK_dQtXRqeW071KRRmB7CTfJfmc0rkVVB3JfVzvWusF7iDPL0xMdVcy3J2UJsafEhdyb9MjYV_pxkVZu7ddrwWdkqZMD0DlO10Vgt5hG_HHkQ2lIb3MD7I6kdhwTw2pHDVZKLZYFw85w0Yhbz33a4Uz65cCuZq-iCK79b2euuyD66iq24LDPO1HA1r1Sm30eydlaVkyHwY5KUH-TeQzCrZemx29A4QZ0u0Y"/>
+</div>
+<h3 class="font-sans font-bold text-on-surface">Vela "Bosque de Niebla"</h3>
+<p class="font-mono text-sm text-primary">$320.00 MXN</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Sidebar Info -->
+<div class="space-y-8">
+<div class="bg-surface-container-low p-8 rounded-3xl">
+<h3 class="text-xl font-serif font-medium mb-6">Información</h3>
+<ul class="space-y-4">
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary">location_on</span>
+<span class="text-sm font-sans">Av. Reforma 450, Juárez, CDMX</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary">schedule</span>
+<span class="text-sm font-sans">Lun - Sáb: 10:00 - 19:00</span>
+</li>
+</ul>
+<button class="w-full mt-8 bg-gradient-to-br from-primary to-primary-container text-white font-sans font-bold py-4 rounded-full shadow-lg hover:brightness-105 transition-all">
+                            Reservar / Contactar
+                        </button>
+</div>
+<div class="bg-tertiary-container/5 p-8 rounded-3xl border border-tertiary-container/10">
+<span class="px-2 py-1 bg-tertiary-container text-on-tertiary-container rounded-sm text-[10px] font-mono mb-4 inline-block">HOGAR VERDE</span>
+<h4 class="font-serif text-lg mb-2">Compromiso Sustentable</h4>
+<p class="text-sm text-on-surface-variant leading-relaxed">Este negocio utiliza empaques 100% compostables y apoya a productores locales de sustratos orgánicos.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Recursos para Emprendedores Section -->
+<section class="bg-surface-container-low py-20">
+<div class="max-w-screen-2xl mx-auto px-8">
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
+<div>
+<span class="font-mono text-xs text-primary uppercase tracking-widest mb-2 block">Inteligencia Editorial</span>
+<h2 class="text-4xl font-serif font-semibold">Recursos para Emprendedores</h2>
+</div>
+<a class="font-sans font-bold text-primary flex items-center gap-2 hover:gap-3 transition-all" href="#">
+                        Ver todos los artículos <span class="material-symbols-outlined">arrow_forward</span>
+</a>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Article/Video 1 -->
+<div class="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-300">
+<div class="relative aspect-video">
+<img alt="Video Thumbnail" class="w-full h-full object-cover" data-alt="Close-up of human hands carefully repotting a small plant, soft cinematic lighting, professional photography" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDiCUy1hrRosHmdU1rQkD4tQzOLjXuNCfjTeJ7UtqUv5Q3ckfae8DxyWPAZEAHuP0MqRC8Nhf0rGlR3K_7NCHBUMUgvF5q_8L5wXBAohthX57O1vT4EqhrFdZ5-KpOtXLYt69DVyOUNc1WLZJHZd8fJKTaDQNocIZCsTr9ZSxJ6AYuTWyjVvwk6dePrKfxW7Nh2KH4WrPMmP3nr4BdxIfJ6Yev6YuaHRFyJzmI5QlvSRq8ZIF1_egdtpYJwjD00F2rDbVPMIJAYvsc"/>
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="w-12 h-12 bg-white/90 backdrop-blur rounded-full flex items-center justify-center shadow-lg">
+<span class="material-symbols-outlined text-primary fill-1">play_arrow</span>
+</div>
+</div>
+</div>
+<div class="p-8">
+<p class="font-mono text-[10px] text-primary uppercase tracking-tighter mb-2">Masterclass / 12 min</p>
+<h3 class="text-xl font-serif font-medium mb-3">Cómo escalar tu negocio botánico local</h3>
+<p class="text-sm text-on-surface-variant leading-relaxed">Estrategias logísticas y de inventario para pequeñas tiendas de plantas.</p>
+</div>
+</div>
+<!-- Article 2 -->
+<div class="bg-white rounded-3xl p-8 shadow-sm flex flex-col justify-between hover:shadow-xl transition-shadow duration-300">
+<div>
+<p class="font-mono text-[10px] text-primary uppercase tracking-tighter mb-4">Artículo / Lectura 5 min</p>
+<h3 class="text-2xl font-serif font-medium mb-4">La psicología del color en el retail especializado</h3>
+<p class="text-sm text-on-surface-variant leading-relaxed">Por qué el verde y el madera son tus mejores aliados para la conversión.</p>
+</div>
+<div class="mt-8 pt-8 border-t border-slate-100 flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container"></div>
+<span class="text-xs font-sans font-bold">Por Ana García</span>
+</div>
+</div>
+<!-- Article 3 -->
+<div class="bg-white rounded-3xl p-8 shadow-sm flex flex-col justify-between hover:shadow-xl transition-shadow duration-300">
+<div>
+<p class="font-mono text-[10px] text-primary uppercase tracking-tighter mb-4">Guía Práctica</p>
+<h3 class="text-2xl font-serif font-medium mb-4">Certificaciones Sustentables: Paso a paso</h3>
+<p class="text-sm text-on-surface-variant leading-relaxed">Todo lo que necesitas saber para obtener el sello MUUL de Impacto Positivo.</p>
+</div>
+<div class="mt-8">
+<button class="text-primary font-sans font-bold text-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-lg">download</span> Descargar PDF
+                            </button>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full border-t border-slate-100 bg-white">
+<div class="flex flex-col md:flex-row justify-between items-center px-12 py-8 w-full max-w-screen-2xl mx-auto">
+<div class="mb-6 md:mb-0">
+<div class="text-sm font-bold text-blue-800 mb-2">MUUL</div>
+<p class="font-mono text-[10px] uppercase tracking-tighter text-slate-400">© 2024 MUUL por Coppel. Inteligencia Editorial.</p>
+</div>
+<div class="flex gap-8">
+<a class="font-mono text-[10px] uppercase tracking-tighter text-slate-400 hover:text-blue-600 transition-colors" href="#">Privacidad</a>
+<a class="font-mono text-[10px] uppercase tracking-tighter text-slate-400 hover:text-blue-600 transition-colors" href="#">Términos</a>
+<a class="font-mono text-[10px] uppercase tracking-tighter text-slate-400 hover:text-blue-600 transition-colors" href="#">Contacto</a>
+<a class="font-mono text-[10px] uppercase tracking-tighter text-slate-400 hover:text-blue-600 transition-colors" href="#">Ayuda</a>
+</div>
+</div>
+</footer>
+</body></html>

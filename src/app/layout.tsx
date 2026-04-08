@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Muul — Tu guía inteligente para explorar lo mejor de México",
+  title: "Muul - Tu guia inteligente para explorar lo mejor de Mexico",
   description:
-    "Descubre lo mejor de México durante el Mundial FIFA 2026. Rutas inteligentes, negocios locales, gamificación y soporte multilingüe.",
-  keywords: ["México", "Mundial 2026", "turismo", "mapa", "guía"],
+    "Descubre lo mejor de Mexico durante el Mundial FIFA 2026. Rutas inteligentes, negocios locales, gamificacion y soporte multilingue.",
+  keywords: ["Mexico", "Mundial 2026", "turismo", "mapa", "guia"],
 };
 
 export default function RootLayout({
@@ -14,16 +14,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className="dark">
-      <head>
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
-        />
-      </head>
-      <body className="bg-surface text-on-surface font-body antialiased">
-        {children}
-      </body>
+    <html lang="es">
+      <body className="bg-surface text-on-surface font-body antialiased">{children}</body>
     </html>
   );
 }

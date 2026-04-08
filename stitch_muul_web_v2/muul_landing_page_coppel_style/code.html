@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MUUL | Descubre lo mejor de México</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;family=Plus+Jakarta+Sans:wght@200..800&amp;family=Space+Grotesk:wght@300..700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-container": "#096119",
+                    "on-tertiary-container": "#89da83",
+                    "error-container": "#ffdad6",
+                    "on-secondary-fixed-variant": "#564500",
+                    "on-error-container": "#93000a",
+                    "outline": "#727781",
+                    "on-tertiary-fixed": "#002204",
+                    "tertiary-fixed": "#a3f69c",
+                    "inverse-surface": "#0d3157",
+                    "surface-container-highest": "#d3e3ff",
+                    "on-surface": "#001c39",
+                    "primary-fixed": "#d3e4ff",
+                    "secondary-fixed": "#ffe07f",
+                    "on-background": "#001c39",
+                    "inverse-on-surface": "#ebf1ff",
+                    "primary-container": "#005596",
+                    "on-primary-fixed": "#001c38",
+                    "on-secondary-fixed": "#231b00",
+                    "surface-container-lowest": "#ffffff",
+                    "on-secondary-container": "#6f5900",
+                    "surface-variant": "#d3e3ff",
+                    "on-error": "#ffffff",
+                    "surface-bright": "#f8f9ff",
+                    "inverse-primary": "#a2c9ff",
+                    "surface-container-low": "#eff3ff",
+                    "tertiary": "#00470e",
+                    "secondary": "#725c00",
+                    "on-primary-container": "#a4caff",
+                    "background": "#f8f9ff",
+                    "surface-container": "#e6eeff",
+                    "outline-variant": "#c1c7d2",
+                    "surface-container-high": "#dde9ff",
+                    "primary-fixed-dim": "#a2c9ff",
+                    "primary": "#003e6f",
+                    "on-primary-fixed-variant": "#004881",
+                    "error": "#ba1a1a",
+                    "on-secondary": "#ffffff",
+                    "surface": "#f8f9ff",
+                    "on-tertiary-fixed-variant": "#005312",
+                    "on-surface-variant": "#414750",
+                    "secondary-container": "#fed000",
+                    "surface-dim": "#c5dbff",
+                    "surface-tint": "#1b60a2",
+                    "on-tertiary": "#ffffff",
+                    "tertiary-fixed-dim": "#88d982",
+                    "on-primary": "#ffffff",
+                    "secondary-fixed-dim": "#edc200"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Newsreader", "serif"],
+                    "body": ["Plus Jakarta Sans", "sans-serif"],
+                    "label": ["Space Grotesk", "monospace"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+        }
+        .hero-gradient {
+            background: linear-gradient(135deg, rgba(0, 62, 111, 0.8) 0%, rgba(0, 85, 150, 0.4) 100%);
+        }
+        .asymmetric-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr 1fr;
+            gap: 1.5rem;
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 glass-nav shadow-sm">
+<div class="flex justify-between items-center w-full px-8 py-4 max-w-screen-2xl mx-auto">
+<div class="flex items-center gap-12">
+<a class="text-2xl font-black text-primary dark:text-blue-300 tracking-tighter" href="#">MUUL</a>
+<div class="hidden md:flex gap-8 items-center">
+<a class="font-serif text-lg tracking-tight font-medium text-primary dark:text-blue-200 border-b-2 border-secondary-container pb-1 transition-colors" href="#">Explorar</a>
+<a class="font-serif text-lg tracking-tight font-medium text-slate-500 hover:text-primary transition-colors" href="#">Categorías</a>
+<a class="font-serif text-lg tracking-tight font-medium text-slate-500 hover:text-primary transition-colors" href="#">Ofertas</a>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative hidden lg:block">
+<input class="bg-surface-container-low border-none rounded-xl px-4 py-2 w-64 focus:ring-2 focus:ring-primary focus:scale-105 transition-all outline-none text-sm" placeholder="Buscar experiencias..." type="text"/>
+<span class="material-symbols-outlined absolute right-3 top-2 text-slate-400">search</span>
+</div>
+<div class="flex gap-4">
+<button class="text-primary hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
+</button>
+<button class="text-primary hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</div>
+</div>
+</nav>
+<main class="pt-20">
+<!-- Hero Section -->
+<section class="relative h-[870px] w-full overflow-hidden">
+<img class="absolute inset-0 w-full h-full object-cover" data-alt="Cinematic wide shot of a colonial Mexican town at sunset with warm golden light illuminating cobblestone streets and vibrant bougainvillea flowers" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYZttNWvzow8g_Fgr1nnTRZC7ICfhzFiT6wCHL2y4w7g3g3AErc7_30KUpT82zY38zVZe_CdRexzzTxBLLnPg6X0KQENmacIxbuv_4-GzyXqjJwS3LEzg4ieyXE4ZvIp1bzSazQit4H-sRptk6y_anyD8UFwGTziAgyPykL1_jW_dp7_coZjkC5xNM5oeAlnOpTNV72cIcUejQg9lBuw6Gafokz4kuzdc2OGE8A_zCLVqDHLhxWnlln8i5Qxr-uNM8GT7chrXsJi4"/>
+<div class="absolute inset-0 hero-gradient"></div>
+<div class="relative z-10 h-full max-w-screen-2xl mx-auto px-8 flex flex-col justify-center items-start">
+<span class="font-label text-secondary-container tracking-[0.3em] uppercase text-sm mb-4">Curaduría de Inteligencia Editorial</span>
+<h1 class="font-headline text-7xl md:text-8xl text-white max-w-4xl leading-[0.9] mb-8">
+                    Descubre lo <br/><span class="italic font-light">mejor de México</span>
+</h1>
+<p class="text-white/90 text-xl max-w-xl mb-10 font-body">
+                    Una selección curada de destinos, sabores y cultura local impulsada por la inteligencia de datos de Coppel.
+                </p>
+<div class="flex flex-wrap gap-4">
+<button class="bg-secondary-container text-on-secondary-container px-10 py-4 rounded-full font-bold text-lg hover:brightness-105 transition-all shadow-lg flex items-center gap-2">
+                        Comenzar Viaje <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+<button class="bg-white/10 backdrop-blur-md border border-white/20 text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-white/20 transition-all">
+                        Ver Catálogo
+                    </button>
+</div>
+</div>
+</section>
+<!-- Category Grid Section -->
+<section class="py-24 bg-surface px-8 max-w-screen-2xl mx-auto">
+<div class="flex justify-between items-end mb-12">
+<div>
+<span class="font-label text-primary tracking-widest text-xs uppercase mb-2 block">Categorías</span>
+<h2 class="font-headline text-5xl text-on-surface">Explora por Interés</h2>
+</div>
+<p class="text-on-surface-variant max-w-xs text-sm font-body">
+                    Filtros inteligentes diseñados para encontrar la esencia de cada rincón de nuestro país.
+                </p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Green: Home -->
+<div class="group relative aspect-[4/5] rounded-3xl overflow-hidden bg-tertiary-container cursor-pointer">
+<img class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-700" data-alt="Luxurious eco-friendly boutique hotel interior in Tulum with natural wood textures and lush jungle plants visible through windows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGIGAgfIW9s56MOBCZL6RxThYznnP2C57uraUQxBwr_Cz5K9Kw1dQQG86b0nYMKtLrSsSG-ZsezNBDZXDNwDCIfY7yNycg2y6mxxesQmj3cZIDeTwdLQvWD32Pu4R14Xd4Yina8OVrnIRb4kyUHwIinb0ZCsZL41fEuAbQr-DHD2SquIB_ZIxTXoaxhaIZqNZtyJNERCOCMmoA2vedN-O2n16GLj0IKS9dCJz-VPj7GSeeCg43dRhzfYTksCH2E5KnMNe3u4qDA8Q"/>
+<div class="absolute inset-0 bg-gradient-to-t from-tertiary-container/90 via-transparent to-transparent"></div>
+<div class="absolute bottom-8 left-8 right-8">
+<span class="font-label text-on-tertiary-container text-xs uppercase tracking-widest mb-2 block">Hogar Verde</span>
+<h3 class="font-headline text-3xl text-white">Refugios locales</h3>
+<div class="h-0.5 w-0 group-hover:w-full bg-on-tertiary-container transition-all duration-500 mt-4"></div>
+</div>
+</div>
+<!-- Blue: Culture -->
+<div class="group relative aspect-[4/5] rounded-3xl overflow-hidden bg-primary-container cursor-pointer">
+<img class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-700" data-alt="Detailed close-up of intricate traditional Mexican textiles and embroidery with deep indigo and azure blue patterns" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvcbydz3DOViyiHpI9apOmdFMXOIRxBRNDyU9JJtz-OBZW_J3XwbOl7u8ybdJWYQ5QAD0qdMFd99fgLT_rlKu0K4WNb21FNxTnT6DGSDJQhs6lW8KaEk0AcvA-UGOOVUhZM592ywV_QknPFIqCnrT0tNYSCf_38L2dlZDHeecF_YvZnUrOSBln0kBrvPxl_2NSsDC2UJuJJi1Jwe-66UspKudtkrOqvskZjhTpdnZ3nPCcNJhgTI40q8vvKOSL0gcii4Y9Ca1GW-A"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary-container/90 via-transparent to-transparent"></div>
+<div class="absolute bottom-8 left-8 right-8">
+<span class="font-label text-on-primary-container text-xs uppercase tracking-widest mb-2 block">Cultura Viva</span>
+<h3 class="font-headline text-3xl text-white">Arte y Herencia</h3>
+<div class="h-0.5 w-0 group-hover:w-full bg-on-primary-container transition-all duration-500 mt-4"></div>
+</div>
+</div>
+<!-- Red: Food -->
+<div class="group relative aspect-[4/5] rounded-3xl overflow-hidden bg-error cursor-pointer">
+<img class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-700" data-alt="Top view of gourmet Mexican tacos with vibrant red salsa on a traditional artisanal clay plate with moody side lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDDFmeSH2UizWc8enXQlBS1avosB4S0fv-E731YUJX6KnLweehvV5GN0aKNJoDxLw7k9ahS2aC8ih_2egWD_NzWgW5cVH0zE7nL3Rab3GepDED3JvQoVn8Gp-vcpLpfZiCnaFvmO1CWM3cNnwW-aUgKr4MnC4TIhDoqnC57qaBCC8G2f_DANFjLxer1Iia1Qu_Q4KSlgn-c7-j0CTdM0Iuvsl43PxveC_gtjIlorN418dfvPutvS2bKiz0j7MqOdlNvaxUeqRc5FQ"/>
+<div class="absolute inset-0 bg-gradient-to-t from-error/90 via-transparent to-transparent"></div>
+<div class="absolute bottom-8 left-8 right-8">
+<span class="font-label text-error-container text-xs uppercase tracking-widest mb-2 block">Gastronomía</span>
+<h3 class="font-headline text-3xl text-white">Sabores de Tierra</h3>
+<div class="h-0.5 w-0 group-hover:w-full bg-error-container transition-all duration-500 mt-4"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Trending Destinations (Bento/Data Grid) -->
+<section class="py-24 bg-surface-container-low">
+<div class="max-w-screen-2xl mx-auto px-8">
+<div class="flex flex-col items-center text-center mb-16">
+<span class="font-label text-primary tracking-widest text-xs uppercase mb-4">Tendencias de Datos</span>
+<h2 class="font-headline text-6xl text-on-surface mb-4">Destinos en Auge</h2>
+<div class="w-24 h-1 bg-secondary-container"></div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-6 h-[700px]">
+<!-- Large Feature -->
+<div class="md:col-span-2 md:row-span-2 bg-white rounded-[2rem] p-8 relative overflow-hidden flex flex-col justify-end group shadow-sm border border-outline-variant/10">
+<img class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" data-alt="Aerial view of San Miguel de Allende cathedral surrounded by colorful houses and cobblestone streets at sunrise" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAwlc95LUyOwyWDRMj9zpq5sY3-QVcpTOj0FnyUMEMn5rNb6tm1ZEoNJX8nmw30Bj4BZJI4Uf_u_L32maxKP0Yvt4u5byIYHzryONB4uiCHlsncRZVh-uZFMajkJJSrh8s6DJ4ieMsM_p5FhcCQ2f17gwEQ_No1xavVZdHw413cbGfvkPkSDZyYvsSzeglMFF3imyB3b24ELKYfS85fGNBPr2E5KxEZr77z-qLmS3xKAqvWf0Yr5WT-S89kqGLgSkGheaqfdhMCANg"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+<div class="relative z-10">
+<div class="flex items-center gap-3 mb-4">
+<span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-sm font-label text-[10px] uppercase font-bold">Trending #1</span>
+<span class="text-white/80 font-label text-[10px] uppercase tracking-widest">Guanajuato</span>
+</div>
+<h3 class="font-headline text-5xl text-white mb-4">San Miguel de Allende</h3>
+<div class="flex gap-8">
+<div>
+<span class="text-white/50 text-[10px] uppercase block font-label">Búsquedas</span>
+<span class="text-white font-label text-xl">+124%</span>
+</div>
+<div>
+<span class="text-white/50 text-[10px] uppercase block font-label">Clima</span>
+<span class="text-white font-label text-xl">24°C</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Side Card 1 -->
+<div class="md:col-span-2 bg-white rounded-[2rem] p-8 flex items-center justify-between shadow-sm border border-outline-variant/10 hover:bg-surface-container-lowest transition-colors">
+<div class="flex-1">
+<span class="text-primary font-label text-[10px] uppercase tracking-widest mb-2 block">Pacífico Sur</span>
+<h3 class="font-headline text-3xl text-on-surface mb-2">Puerto Escondido</h3>
+<p class="text-on-surface-variant text-sm font-body mb-4">Incremento en interés por surf sustentable.</p>
+<button class="text-primary font-bold text-sm flex items-center gap-2 group">
+                                Explorar Guía <span class="material-symbols-outlined text-sm transition-transform group-hover:translate-x-1">arrow_forward</span>
+</button>
+</div>
+<div class="w-32 h-32 rounded-2xl overflow-hidden ml-6">
+<img class="w-full h-full object-cover" data-alt="Sunlight sparkling on the turquoise waters of a hidden cove in Oaxaca with golden sand" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCCHxsXOuiN_mYfWHWQNigoR5FbRSFDRy8I6jBMmbF7KWGI4rHvXoZXNY1E0aMVkfDGpAuoUjvKwse28LiqpYQY2YQvIXUCrUSclG03S7hsmDBmYJ1IQ7RfKHjTJWw1qwib3yKAA_xMJeOMS1Y-XTgqvCPv09UbCTobJLQkXYnFf53WSPA1KBVRsk7KlSPU_SGZUZqutMr7mCBoLLWcOl3CFfWl-8GqbhYyywnGNQ4FPKVObHu-xGC0I85dnlH1MsuYzuEMo6jVCZ0"/>
+</div>
+</div>
+<!-- Mini Widget 1 -->
+<div class="bg-primary-container rounded-[2rem] p-8 text-white flex flex-col justify-between shadow-lg">
+<span class="material-symbols-outlined text-4xl text-on-primary-container">insights</span>
+<div>
+<span class="font-label text-5xl font-bold">8.4k</span>
+<p class="font-label text-[10px] uppercase tracking-tighter opacity-70">Resonancia Digital</p>
+</div>
+</div>
+<!-- Mini Widget 2 -->
+<div class="bg-secondary-container rounded-[2rem] p-8 text-on-secondary-container flex flex-col justify-between shadow-lg">
+<span class="material-symbols-outlined text-4xl">hotel</span>
+<div>
+<span class="font-label text-3xl font-bold">92%</span>
+<p class="font-label text-[10px] uppercase tracking-tighter opacity-70">Ocupación Curada</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Newsletter / Editorial Hub -->
+<section class="py-24 bg-white">
+<div class="max-w-screen-xl mx-auto px-8 bg-surface-container-high rounded-[3rem] p-16 flex flex-col md:flex-row items-center gap-12">
+<div class="flex-1">
+<h2 class="font-headline text-5xl text-primary mb-6">Únete a la <span class="italic">Inteligencia Editorial</span></h2>
+<p class="text-on-surface-variant text-lg mb-8 font-body">
+                        Recibe cada semana una curaduría profunda de destinos y productos que están definiendo el nuevo México.
+                    </p>
+<div class="flex gap-4 p-2 bg-white rounded-full shadow-inner max-w-md">
+<input class="flex-1 bg-transparent border-none focus:ring-0 px-6 font-body" placeholder="tu@email.com" type="email"/>
+<button class="bg-primary text-white px-8 py-3 rounded-full font-bold hover:bg-primary-container transition-all">Suscribirme</button>
+</div>
+</div>
+<div class="flex-1 relative">
+<div class="aspect-square rounded-2xl overflow-hidden rotate-3 shadow-2xl">
+<img class="w-full h-full object-cover" data-alt="An open high-end travel magazine lying on a table next to a cup of Mexican coffee and sunlight streaming in" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJN5ICIiV0qMem2SCkziLNtR2Xox4bbskXASTI1zFTuOiVmh95_aFr0EXFD9ZJyKeYbgQFwCE-0476MXE3PrIWRs6HxKI7yd5Rw6kFqMmtYtlAP4GzeRJ6NJUmlfRemy6r5iKRcqXywJjuW8BI1NJWF-N8IIV77Nz44xCfvT6Il1YrUy2nZYs3N4MlGh7F_u6BbI5axv2lmKugscYkQnQS0GKegw_-KkkgCnHjKFS0PPeX_KOvYV0uFHE7FIEnMMqkoj8elQkvUcE"/>
+</div>
+<div class="absolute -bottom-8 -left-8 aspect-square w-48 rounded-2xl overflow-hidden -rotate-6 shadow-2xl border-4 border-white">
+<img class="w-full h-full object-cover" data-alt="Close up of a hand holding a Leica camera in a colorful colonial courtyard" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAovUsxvgHW_f8R4hgxKxbH7qf61LDusQ3fEWBpBSsVs8mW3EFBqJ7hNwvU6PFgGmQqNJs7D65pt07TwgeesiUwLGLHq8_yBB0kjVGGmD0gO5AkYkb7UgxsGPzrJgD19wd7JSUoLdXtKBKv4yCYWiWMwAUlRMeqhj4SPc2FI3KxEbjaLr_1dIpIpN2RVWPoU4rqgh7bkqOrNRiwxNxKa7DV2mbblvjtAU4GeuIG9SjWV6_yMSFK5lnACQBiTbyWFBk-Qe44JiI9xdg"/>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-white dark:bg-slate-900 w-full border-t border-slate-100 dark:border-slate-800">
+<div class="flex flex-col md:flex-row justify-between items-center px-12 py-12 w-full max-w-screen-2xl mx-auto">
+<div class="mb-8 md:mb-0">
+<span class="text-sm font-bold text-primary mb-2 block tracking-tighter">MUUL</span>
+<p class="font-mono text-[10px] uppercase tracking-tighter text-slate-400">© 2024 MUUL por Coppel. Inteligencia Editorial.</p>
+</div>
+<div class="flex flex-wrap justify-center gap-12">
+<div class="flex flex-col gap-3">
+<span class="font-label text-[10px] font-bold text-primary tracking-widest uppercase">Ecosistema</span>
+<a class="font-mono text-[10px] uppercase tracking-tighter text-slate-400 hover:text-primary transition-colors" href="#">Privacidad</a>
+<a class="font-mono text-[10px] uppercase tracking-tighter text-slate-400 hover:text-primary transition-colors" href="#">Términos</a>
+</div>
+<div class="flex flex-col gap-3">
+<span class="font-label text-[10px] font-bold text-primary tracking-widest uppercase">Soporte</span>
+<a class="font-mono text-[10px] uppercase tracking-tighter text-slate-400 hover:text-primary transition-colors" href="#">Contacto</a>
+<a class="font-mono text-[10px] uppercase tracking-tighter text-slate-400 hover:text-primary transition-colors" href="#">Ayuda</a>
+</div>
+</div>
+<div class="mt-8 md:mt-0 flex gap-4">
+<a class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center text-primary hover:bg-secondary-container transition-colors" href="#">
+<span class="material-symbols-outlined text-lg">share</span>
+</a>
+<a class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center text-primary hover:bg-secondary-container transition-colors" href="#">
+<span class="material-symbols-outlined text-lg">public</span>
+</a>
+</div>
+</div>
+</footer>
+</body></html>

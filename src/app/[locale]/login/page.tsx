@@ -1,197 +1,175 @@
 "use client";
 
-import { useState } from "react";
-import { Link } from "@/i18n/navigation";
-import { createClient } from "@/lib/supabase/client";
-import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import { useLocale } from "next-intl";
-
-type AccountType = "turista" | "negocio";
+import { createClient } from "@/lib/supabase/client";
+import { useState } from "react";
 
 export default function LoginPage() {
+  const router = useRouter();
+  const locale = useLocale();
   const supabase = createClient();
-  const t = useTranslations("login");
-  // Agrega dentro del componente:
-const locale = useLocale();
+  const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const [loginEmail, setLoginEmail] = useState("");
-  const [loginPassword, setLoginPassword] = useState("");
-  const [loginError, setLoginError] = useState("");
-  const [loginLoading, setLoginLoading] = useState(false);
-
-  const [accountType, setAccountType] = useState<AccountType>("turista");
-  const [regName, setRegName] = useState("");
-  const [regEmail, setRegEmail] = useState("");
-  const [regPassword, setRegPassword] = useState("");
-  const [regError, setRegError] = useState("");
-  const [regSuccess, setRegSuccess] = useState(false);
-  const [regLoading, setRegLoading] = useState(false);
-
-  // Reemplaza handleLogin completo:
-const handleLogin = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setLoginError("");
-  setLoginLoading(true);
-  const { error } = await supabase.auth.signInWithPassword({ 
-    email: loginEmail, 
-    password: loginPassword 
-  });
-  setLoginLoading(false);
-  if (error) { setLoginError(t("errorCredenciales")); return; }
-  // Hard redirect para que el servidor lea las cookies de sesión correctamente
-  window.location.href = `/${locale}/perfil`;
-};
-
-  const handleRegister = async (e: React.FormEvent) => {
+  const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setRegError("");
-    setRegLoading(true);
-    if (regPassword.length < 8) { setRegError(t("errorMinContrasena")); setRegLoading(false); return; }
-    const { error } = await supabase.auth.signUp({
-      email: regEmail, password: regPassword,
-      options: { data: { nombre_completo: regName, tipo_cuenta: accountType } },
-    });
-    setRegLoading(false);
-    if (error) { setRegError(error.message); return; }
-    setRegSuccess(true);
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (!error) {
+        router.push("/perfil");
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${typeof window !== "undefined" ? window.location.origin : ""}/${locale}/auth/callback?next=/perfil`,
+        },
+      });
+      if (error) console.error(error);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background text-on-surface font-body relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 blur-[150px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-secondary/5 blur-[150px] rounded-full pointer-events-none" />
+    <main className="min-h-screen flex items-center justify-center pt-20 px-6 md:px-0 bg-surface">
+      <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        {/* Left: Editorial Content */}\n        <div className="hidden lg:flex lg:col-span-6 flex-col space-y-8 pr-12">
+          <div className="space-y-4">
+            <span className="font-label text-primary text-sm font-bold tracking-tighter uppercase">Inteligencia en Movimiento</span>
+            <h1 className="text-5xl md:text-6xl font-headline italic text-primary leading-tight">Bienvenido a MUUL</h1>
+            <p className="text-on-surface-variant text-lg max-w-md leading-relaxed font-body">
+              Explora una nueva era de movilidad diseñada para el viajero inteligente. Datos precisos, experiencias curadas.
+            </p>
+          </div>
+          {/* Bento Highlights */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-surface-container-low p-6 rounded-xl space-y-2 border border-outline-variant/10">
+              <span className="material-symbols-outlined text-primary">explore</span>
+              <h3 className="font-headline italic text-xl text-primary">Rutas Curadas</h3>
+              <p className="text-sm text-on-surface-variant font-body">Inteligencia artificial en tu destino.</p>
+            </div>
+            <div className="bg-primary text-white p-6 rounded-xl space-y-2">
+              <span className="material-symbols-outlined">verified_user</span>
+              <h3 className="font-headline italic text-xl">Viaje Seguro</h3>
+              <p className="text-sm opacity-80 font-body">Respaldo de Coppel en cada km.</p>
+            </div>
+          </div>
+        </div>
 
-      <main className="flex-1 flex flex-col xl:flex-row items-center justify-center gap-12 xl:gap-16 p-6 py-16 relative z-10">
-        {/* ===== LOGIN ===== */}
-        <div className="w-full max-w-md animate-fade-in-up">
-          <div className="glass-card p-8 md:p-10 rounded-xl shadow-card">
-            <div className="flex flex-col items-center mb-10">
-              <div className="w-14 h-14 bg-primary rounded-xl flex items-center justify-center mb-6 shadow-glow-primary">
-                <span className="material-symbols-outlined text-on-primary text-3xl font-bold">water_drop</span>
-              </div>
-              <h1 className="font-headline font-black text-3xl tracking-tight text-center">{t("bienvenido")}</h1>
-              <p className="text-on-surface-variant text-sm mt-2 text-center">{t("exploraMsg")}</p>
+        {/* Right: Login Card */}
+        <div className="lg:col-span-6 flex justify-center">
+          <div className="w-full max-w-md bg-surface-container-lowest p-10 md:p-12 rounded-[2rem] shadow-sm border border-outline-variant/10">
+            {/* Mobile Branding */}
+            <div className="lg:hidden mb-8 flex justify-center">
+              <span className="text-3xl font-black tracking-tight text-primary font-headline italic">MUUL</span>
             </div>
 
-            <form className="space-y-6" onSubmit={handleLogin}>
+            <div className="text-center mb-10">
+              <h2 className="text-3xl font-headline italic text-primary mb-2">Ingresar</h2>
+              <p className="font-label text-xs text-on-surface-variant uppercase tracking-widest">Gestiona tus beneficios</p>
+            </div>
+
+            {/* Form */}
+            <form className="space-y-6" onSubmit={handleEmailLogin}>
               <div className="space-y-1.5">
-                <label className="text-[10px] uppercase tracking-widest font-bold text-on-surface-variant ml-1">{t("correo")}</label>
-                <input type="email" required value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} placeholder={t("correoPlaceholder")} className="w-full bg-surface-container-highest border-none rounded-md px-4 py-3 text-on-surface placeholder:text-outline/50 focus:ring-2 focus:ring-secondary/40 transition-all outline-none" />
+                <label className="font-label text-xs font-bold text-primary px-1" htmlFor="email">
+                  CORREO ELECTRÓNICO
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  placeholder="nombre@ejemplo.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full h-14 px-4 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-secondary-container transition-all text-on-surface placeholder:text-outline-variant"
+                />
               </div>
+
               <div className="space-y-1.5">
-                <label className="text-[10px] uppercase tracking-widest font-bold text-on-surface-variant ml-1">{t("contrasena")}</label>
-                <input type="password" required value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} placeholder="••••••••" className="w-full bg-surface-container-highest border-none rounded-md px-4 py-3 text-on-surface placeholder:text-outline/50 focus:ring-2 focus:ring-secondary/40 transition-all outline-none" />
+                <div className="flex justify-between items-center px-1">
+                  <label className="font-label text-xs font-bold text-primary" htmlFor="password">
+                    CONTRASEÑA
+                  </label>
+                  <a href="#" className="font-label text-xs text-primary-container font-bold hover:underline">
+                    ¿OLVIDASTE TU CONTRASEÑA?
+                  </a>
+                </div>
+                <input
+                  id="password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full h-14 px-4 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-secondary-container transition-all text-on-surface"
+                />
               </div>
-              <div className="flex justify-end">
-                <Link href="#" className="text-xs text-primary-fixed-dim hover:text-primary transition-colors">{t("olvidaste")}</Link>
-              </div>
-              {loginError && (<div className="p-3 rounded-lg bg-error-container/20 border border-error/20 text-error text-xs font-medium animate-fade-in-up">{loginError}</div>)}
-              <button type="submit" disabled={loginLoading} className="w-full bg-primary py-4 rounded-md font-headline font-bold text-on-primary hover:shadow-glow-secondary transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed">
-                {loginLoading ? t("iniciando") : t("iniciarSesion")}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full h-14 bg-gradient-to-br from-primary to-primary-container text-white font-bold rounded-full shadow-lg shadow-primary/10 hover:brightness-105 active:scale-95 transition-all flex items-center justify-center space-x-2 disabled:opacity-50"
+              >
+                <span className="font-body">{loading ? "Cargando..." : "Continuar"}</span>
+                {!loading && <span className="material-symbols-outlined text-lg">arrow_forward</span>}
               </button>
             </form>
 
-            <div className="relative my-8">
-              <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-outline-variant/30" /></div>
-              <div className="relative flex justify-center text-xs"><span className="bg-[#1C1C1E] px-4 text-on-surface-variant font-medium">{t("o")}</span></div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <button type="button" className="flex items-center justify-center py-3 px-4 rounded-md bg-surface-container-low border border-outline-variant/20 hover:bg-surface-container-high transition-colors opacity-50 cursor-not-allowed" disabled>
-                <span className="material-symbols-outlined text-lg mr-2">g_translate</span><span className="text-xs font-semibold">{t("google")}</span>
-              </button>
-              <button type="button" className="flex items-center justify-center py-3 px-4 rounded-md bg-surface-container-low border border-outline-variant/20 hover:bg-surface-container-high transition-colors opacity-50 cursor-not-allowed" disabled>
-                <span className="material-symbols-outlined text-lg mr-2">phone_iphone</span><span className="text-xs font-semibold">{t("apple")}</span>
-              </button>
-            </div>
-
-            <p className="mt-10 text-center text-sm text-on-surface-variant">
-              {t("sinCuenta")}{" "}
-              <Link href="#registro" className="text-secondary font-bold ml-1 hover:underline">{t("registrate")}</Link>
-            </p>
-          </div>
-        </div>
-
-        <div className="hidden xl:block w-px h-64 bg-outline-variant/20" />
-
-        {/* ===== REGISTER ===== */}
-        <div className="w-full max-w-md animate-fade-in-up" id="registro" style={{ animationDelay: "0.15s" }}>
-          <div className="glass-card p-8 md:p-10 rounded-xl shadow-card">
-            {regSuccess ? (
-              <div className="flex flex-col items-center text-center py-8 space-y-6">
-                <div className="w-20 h-20 rounded-full bg-secondary/20 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-secondary text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-                </div>
-                <h2 className="font-headline font-black text-2xl">{t("cuentaCreada")}</h2>
-                <p className="text-on-surface-variant text-sm max-w-xs">{t("revisaCorreo")}</p>
-                <button onClick={() => setRegSuccess(false)} className="px-8 py-3 bg-primary text-on-primary rounded-md font-headline font-bold hover:shadow-glow-secondary transition-all">{t("volverRegistro")}</button>
+            {/* Divider */}
+            <div className="relative my-10">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-outline-variant/20"></div>
               </div>
-            ) : (
-              <>
-                <div className="flex flex-col items-center mb-8">
-                  <h2 className="font-headline font-black text-3xl tracking-tight text-center">{t("crearCuenta")}</h2>
-                  <p className="text-on-surface-variant text-sm mt-2 text-center">{t("unete")}</p>
-                </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-surface-container-lowest px-4 text-outline-variant font-label">O accede con</span>
+              </div>
+            </div>
 
-                <div className="bg-surface-container-lowest p-1 rounded-full flex mb-8">
-                  <button type="button" onClick={() => setAccountType("turista")} className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full text-xs font-bold transition-all ${accountType === "turista" ? "bg-surface-container-highest text-on-surface shadow-sm" : "text-on-surface-variant hover:text-on-surface"}`}>
-                    <span className="material-symbols-outlined text-sm" style={accountType === "turista" ? { fontVariationSettings: "'FILL' 1" } : undefined}>person</span>
-                    {t("turista")}
-                  </button>
-                  <button type="button" onClick={() => setAccountType("negocio")} className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full text-xs font-bold transition-all ${accountType === "negocio" ? "bg-surface-container-highest text-on-surface shadow-sm" : "text-on-surface-variant hover:text-on-surface"}`}>
-                    <span className="material-symbols-outlined text-sm">storefront</span>
-                    {t("negocio")}
-                  </button>
-                </div>
+            {/* Social Logins */}
+            <div className="grid grid-cols-2 gap-4">
+              <button
+                onClick={handleGoogleLogin}
+                disabled={loading}
+                className="flex items-center justify-center space-x-2 h-14 bg-surface-container-low rounded-full border border-outline-variant/10 hover:bg-surface-container transition-colors active:scale-95 disabled:opacity-50"
+              >
+                <span className="text-2xl">🔤</span>
+                <span className="font-body font-bold text-sm">Google</span>
+              </button>
+              <button className="flex items-center justify-center space-x-2 h-14 bg-surface-container-low rounded-full border border-outline-variant/10 hover:bg-surface-container transition-colors active:scale-95">
+                <span className="material-symbols-outlined text-2xl">apple</span>
+                <span className="font-body font-bold text-sm">Apple</span>
+              </button>
+            </div>
 
-                <form className="space-y-5" onSubmit={handleRegister}>
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] uppercase tracking-widest font-bold text-on-surface-variant ml-1">{t("nombre")}</label>
-                    <input type="text" required value={regName} onChange={(e) => setRegName(e.target.value)} placeholder={t("nombrePlaceholder")} className="w-full bg-surface-container-highest border-none rounded-md px-4 py-3 text-on-surface placeholder:text-outline/50 focus:ring-2 focus:ring-secondary/40 transition-all outline-none" />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] uppercase tracking-widest font-bold text-on-surface-variant ml-1">{t("correo")}</label>
-                    <input type="email" required value={regEmail} onChange={(e) => setRegEmail(e.target.value)} placeholder={t("correoRegistroPlaceholder")} className="w-full bg-surface-container-highest border-none rounded-md px-4 py-3 text-on-surface placeholder:text-outline/50 focus:ring-2 focus:ring-secondary/40 transition-all outline-none" />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] uppercase tracking-widest font-bold text-on-surface-variant ml-1">{t("contrasena")}</label>
-                    <input type="password" required value={regPassword} onChange={(e) => setRegPassword(e.target.value)} placeholder={t("minCaracteres")} className="w-full bg-surface-container-highest border-none rounded-md px-4 py-3 text-on-surface placeholder:text-outline/50 focus:ring-2 focus:ring-secondary/40 transition-all outline-none" />
-                  </div>
-
-                  {accountType === "negocio" && (
-                    <div className="p-4 rounded-xl bg-secondary-container/10 border border-secondary/20 flex gap-3 animate-fade-in-up">
-                      <span className="material-symbols-outlined text-secondary shrink-0">info</span>
-                      <p className="text-[11px] text-on-secondary-container leading-relaxed">{t("avisoNegocio")}</p>
-                    </div>
-                  )}
-
-                  {regError && (<div className="p-3 rounded-lg bg-error-container/20 border border-error/20 text-error text-xs font-medium animate-fade-in-up">{regError}</div>)}
-
-                  <button type="submit" disabled={regLoading} className="w-full bg-primary py-4 rounded-md font-headline font-bold text-on-primary hover:shadow-glow-secondary transition-all mt-4 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed">
-                    {regLoading ? t("creando") : t("crearBtn")}
-                  </button>
-                </form>
-
-                <p className="mt-8 text-center text-xs text-on-surface-variant leading-relaxed">
-                  {t("terminosMsg")}{" "}
-                  <Link href="#" className="text-on-surface font-medium hover:underline">{t("terminos")}</Link>
-                  {" & "}
-                  <Link href="#" className="text-on-surface font-medium hover:underline">{t("politica")}</Link>
-                </p>
-
-                <p className="mt-6 text-center text-sm text-on-surface-variant">
-                  {t("yaTienesCuenta")}{" "}
-                  <Link href="#" className="text-secondary font-bold ml-1 hover:underline">{t("iniciaSesion")}</Link>
-                </p>
-              </>
-            )}
+            {/* Footer Link */}
+            <div className="mt-10 text-center">
+              <p className="text-sm text-on-surface-variant font-body">
+                ¿Nuevo en MUUL?{" "}
+                <a href="#" className="text-primary font-bold hover:text-secondary transition-colors underline decoration-secondary-container decoration-2 underline-offset-4">
+                  Crea una cuenta
+                </a>
+              </p>
+            </div>
           </div>
         </div>
-      </main>
-
-      <footer className="relative z-10 text-center py-6 opacity-40">
-        <p className="text-[10px] uppercase tracking-[0.2em] font-headline font-bold">{t("ciudades")}</p>
-      </footer>
-    </div>
+      </div>
+    </main>
   );
 }

@@ -45,79 +45,20 @@ const DURACION_VISITA: Record<string, number> = {
   cultural: 60, comida: 45, tienda: 30, deportes: 90, servicio: 20,
 };
 
-const MAPBOX_PROFILES: Record<"caminando" | "accesible" | "vehiculo", string> = {
-  caminando: "mapbox/walking",
-  accesible: "mapbox/cycling",
-  vehiculo: "mapbox/driving",
-};
-
-function formatearDistancia(metros: number): string {
-  if (metros >= 1000) return `${(metros / 1000).toFixed(1)} km`;
-  return `${Math.round(metros)} m`;
-}
-
-function formatearDuracion(segundos: number): string {
-  const minutos = Math.round(segundos / 60);
-  if (minutos >= 60) {
-    const horas = Math.floor(minutos / 60);
-    const mins = minutos % 60;
-    return mins > 0 ? `${horas}h ${mins} min` : `${horas}h`;
-  }
-  return `${minutos} min`;
-}
-
 async function obtenerRutasMapbox(
   puntos: PuntoRuta[],
   idioma: string,
   perfil: "caminando" | "accesible" | "vehiculo"
 ): Promise<RutaGeo[]> {
-  const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
-  if (!token) throw new Error("Missing NEXT_PUBLIC_MAPBOX_TOKEN");
-
-  const idiomaMap: Record<string, string> = {
-    "es-MX": "es",
-    "en-US": "en",
-    "zh-CN": "zh-Hans",
-    "pt-BR": "pt-BR",
-    es: "es",
-    en: "en",
-  };
-
-  const lang = idiomaMap[idioma] || "es";
-  const coordenadas = puntos.map((p) => `${p.longitud},${p.latitud}`).join(";");
-  const mapboxProfile = MAPBOX_PROFILES[perfil] || MAPBOX_PROFILES.caminando;
-  const url = `https://api.mapbox.com/directions/v5/${mapboxProfile}/${coordenadas}?alternatives=true&geometries=geojson&steps=true&language=${lang}&access_token=${token}`;
-
-  const response = await fetch(url);
-  if (!response.ok) throw new Error(`Mapbox error ${response.status}`);
+  const response = await fetch("/api/ruta", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ puntos, idioma, perfil }),
+  });
 
   const data = await response.json();
-  if (!data.routes || data.routes.length === 0) return [];
-
-  return data.routes.slice(0, 3).map((route: any, idx: number) => {
-    const pasos: { instruccion: string; distancia: number; duracion: number }[] = [];
-    route.legs.forEach((leg: any) => {
-      leg.steps.forEach((step: any) => {
-        if (step.maneuver?.instruction) {
-          pasos.push({
-            instruccion: step.maneuver.instruction,
-            distancia: Math.round(step.distance),
-            duracion: Math.round(step.duration),
-          });
-        }
-      });
-    });
-
-    return {
-      indice: idx,
-      geometry: route.geometry,
-      distancia_texto: formatearDistancia(route.distance),
-      duracion_texto: formatearDuracion(route.duration),
-      distancia_metros: Math.round(route.distance),
-      duracion_segundos: Math.round(route.duration),
-      pasos,
-    };
-  });
+  if (!response.ok) throw new Error(data?.error || `Route API error ${response.status}`);
+  return data?.rutas || [];
 }
 
 /* ── Calculate estimated arrival times ── */

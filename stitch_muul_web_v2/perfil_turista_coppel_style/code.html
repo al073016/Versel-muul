@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;family=Space+Grotesk:wght@300..700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary": "#ffffff",
+                    "tertiary": "#00470e",
+                    "on-error": "#ffffff",
+                    "secondary": "#725c00",
+                    "secondary-container": "#fed000",
+                    "surface-dim": "#c5dbff",
+                    "on-secondary": "#ffffff",
+                    "inverse-primary": "#a2c9ff",
+                    "on-primary-fixed": "#001c38",
+                    "primary-fixed-dim": "#a2c9ff",
+                    "primary": "#003e6f",
+                    "tertiary-container": "#096119",
+                    "outline": "#727781",
+                    "on-secondary-fixed-variant": "#564500",
+                    "secondary-fixed": "#ffe07f",
+                    "surface": "#f8f9ff",
+                    "tertiary-fixed-dim": "#88d982",
+                    "secondary-fixed-dim": "#edc200",
+                    "on-secondary-fixed": "#231b00",
+                    "on-primary-fixed-variant": "#004881",
+                    "primary-fixed": "#d3e4ff",
+                    "on-tertiary-container": "#89da83",
+                    "tertiary-fixed": "#a3f69c",
+                    "surface-container": "#e6eeff",
+                    "surface-container-high": "#dde9ff",
+                    "on-surface": "#001c39",
+                    "surface-container-highest": "#d3e3ff",
+                    "surface-bright": "#f8f9ff",
+                    "surface-container-lowest": "#ffffff",
+                    "error": "#ba1a1a",
+                    "surface-container-low": "#eff3ff",
+                    "outline-variant": "#c1c7d2",
+                    "on-primary-container": "#a4caff",
+                    "on-tertiary-fixed": "#002204",
+                    "surface-tint": "#1b60a2",
+                    "on-error-container": "#93000a",
+                    "primary-container": "#005596",
+                    "on-surface-variant": "#414750",
+                    "background": "#f8f9ff",
+                    "on-primary": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "on-secondary-container": "#6f5900",
+                    "inverse-on-surface": "#ebf1ff",
+                    "on-tertiary-fixed-variant": "#005312",
+                    "inverse-surface": "#0d3157",
+                    "on-background": "#001c39",
+                    "surface-variant": "#d3e3ff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Newsreader", "serif"],
+                    "body": ["Plus Jakarta Sans", "sans-serif"],
+                    "label": ["Space Grotesk", "monospace"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .font-headline { font-family: 'Newsreader', serif; }
+        .font-label { font-family: 'Space Grotesk', monospace; }
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(24px);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl shadow-sm shadow-blue-900/5">
+<div class="flex justify-between items-center px-6 py-4 max-w-7xl mx-auto w-full">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-black tracking-tight text-blue-900 dark:text-white">MUUL</span>
+<div class="hidden md:flex gap-6">
+<a class="text-slate-600 dark:text-slate-400 font-medium hover:text-blue-700 transition-colors" href="#">Beneficios</a>
+<a class="text-slate-600 dark:text-slate-400 font-medium hover:text-blue-700 transition-colors" href="#">Ayuda</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-blue-900" data-icon="shopping_cart">shopping_cart</button>
+<button class="px-6 py-2 bg-primary-container text-white rounded-full font-bold transition-transform active:scale-95 duration-200">Iniciar Sesión</button>
+</div>
+</div>
+</nav>
+<div class="flex max-w-7xl mx-auto pt-20">
+<!-- SideNavBar -->
+<aside class="hidden md:flex flex-col h-screen sticky top-20 p-6 bg-slate-50 dark:bg-slate-950 h-full w-72 border-r-0">
+<div class="mb-8 flex items-center gap-4">
+<div class="w-12 h-12 rounded-full overflow-hidden bg-primary-fixed">
+<img alt="Usuario MUUL" data-alt="close-up portrait of a friendly man with a warm smile and professional appearance in soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDpMy144IpypcNDMHV6K5queMsRn7lsatTXMa6r40VwFfJzin6iEFxn-3oud_FsMi3S3OwxqMW7toBM-I9IaevJaCUK6o-xPT0R6BzWcjK8WENhrGxidbNNkXyNjvi5hXZBNaVB9gyu9-1JJiMRcNp2FIJfXrEZxBmokAfmDdDstwFPTiKAmBhNA5dXn5o7UAzhES15En4sqVRwpiKINu35OTda3nTnsXjDBgZeXnrD_LZbHuW0YUYFyalenUGfRBOsZw47_W6IanE"/>
+</div>
+<div>
+<h3 class="font-headline italic text-lg text-blue-900">Hola, Usuario</h3>
+<p class="text-xs font-label text-slate-500">Miembro desde 2023</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-blue-900 font-bold bg-yellow-400/10 rounded-r-full transition-transform hover:translate-x-1" href="#">
+<span class="material-symbols-outlined" data-icon="person" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-label text-sm">Mi Cuenta</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-100 transition-transform hover:translate-x-1" href="#">
+<span class="material-symbols-outlined" data-icon="package_2">package_2</span>
+<span class="font-label text-sm">Mis Pedidos</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-100 transition-transform hover:translate-x-1" href="#">
+<span class="material-symbols-outlined" data-icon="map">map</span>
+<span class="font-label text-sm">Direcciones</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-100 transition-transform hover:translate-x-1" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="font-label text-sm">Métodos de Pago</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-100 transition-transform hover:translate-x-1" href="#">
+<span class="material-symbols-outlined" data-icon="shield">shield</span>
+<span class="font-label text-sm">Seguridad</span>
+</a>
+</nav>
+<div class="mt-auto pt-6 border-t border-slate-200">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-100 transition-transform hover:translate-x-1 mb-4" href="#">
+<span class="material-symbols-outlined" data-icon="policy">policy</span>
+<span class="font-label text-sm">Privacidad</span>
+</a>
+<button class="w-full text-left px-4 py-2 text-error font-bold font-label hover:opacity-80 transition-opacity">Cerrar Sesión</button>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 p-8 lg:p-12">
+<!-- Header Profile Section -->
+<header class="mb-12 relative overflow-hidden rounded-xl p-10 bg-primary-container text-white">
+<div class="absolute inset-0 z-0 opacity-40">
+<img class="w-full h-full object-cover" data-alt="breathtaking landscape of Tulum beach at sunrise with turquoise water and palm trees in soft morning light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBR7hBU9wxOGCTNKO1GTFYL8L_VrVNHHA2q5yQJUiXYDmlH4MskBe8r1oP-3VGwCNtZ3jccYMit84_fMF1tTotmOtjD6JhSZO6ZmDW3hWmpLO5sb1nHIMUVgBpT9ILmP8UoaUwx37io1tc781bdY4bR7Pn-uWQwLDQxJ9gP1PkKizznZXx6WrZfkg_gopMOAptykHij_b9XXu6xXKuK0upIGC0vRm9W7mWLsiqpPukngOmm0zgqmgWjD95qq6VeFa9upE9CLA28yaw"/>
+</div>
+<div class="relative z-10">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div>
+<span class="inline-block px-3 py-1 bg-secondary-container text-on-secondary-container text-xs font-label rounded mb-4">EXPLORADOR DIAMANTE</span>
+<h1 class="text-5xl md:text-6xl font-headline italic font-medium tracking-tight">Eduardo Mondragón</h1>
+<p class="mt-2 text-primary-fixed font-body">Descubriendo los rincones mágicos de México.</p>
+</div>
+<button class="px-8 py-3 bg-secondary-container text-on-secondary-container rounded-full font-bold shadow-lg hover:brightness-105 transition-all">
+                            Escribir nueva reseña
+                        </button>
+</div>
+</div>
+</header>
+<!-- Stats Grid -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+<div class="bg-surface-container-low p-8 rounded-xl flex flex-col items-center justify-center text-center">
+<span class="font-label text-primary font-bold text-sm mb-2">RUTAS COMPLETADAS</span>
+<span class="text-6xl font-headline italic text-on-surface">24</span>
+</div>
+<div class="bg-surface-container-low p-8 rounded-xl flex flex-col items-center justify-center text-center">
+<span class="font-label text-primary font-bold text-sm mb-2">PUNTOS DE INTERÉS</span>
+<span class="text-6xl font-headline italic text-on-surface">158</span>
+</div>
+<div class="bg-surface-container-low p-8 rounded-xl flex flex-col items-center justify-center text-center">
+<span class="font-label text-primary font-bold text-sm mb-2">INSIGNIAS OBTENIDAS</span>
+<span class="text-6xl font-headline italic text-on-surface">12</span>
+</div>
+</section>
+<!-- Reviews Section -->
+<section>
+<div class="flex items-center justify-between mb-8">
+<h2 class="text-3xl font-headline italic text-blue-900">Mis Reseñas</h2>
+<a class="font-label text-sm font-bold text-primary hover:underline underline-offset-4" href="#">Ver todas las reseñas</a>
+</div>
+<div class="space-y-6">
+<!-- Review Card 1 -->
+<div class="group bg-surface-container-lowest p-6 rounded-xl flex flex-col md:flex-row gap-8 transition-all hover:bg-surface-container-low">
+<div class="w-full md:w-48 h-32 rounded-lg overflow-hidden shrink-0">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="vibrant colorful street in San Miguel de Allende with historic architecture and blooming bougainvillea flowers" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDyPWJTSqegjnM9wqqQc4xGg6Aj-z-7Q8_yB-M-X3CBjKEU9Kj9WXBLPLTSedOdMEGngAxZPxu1IV5dSJBoNbhS-2VvwdaIkzQU4Sx4A_hTxjVoYa9p7XrYcrISpKmgWycVr01hySZzgbumNM77ItfH0wlr8SzncqJcx8QyJv1CmeMNVac2oCC36WB4KODmUy3gDKB3bA5WQw18MXroiPEIhuW89ccggXZ8gsQQ6OpoNOlBP7XoKFskvPTroh3GDet-g14oYizJHfo"/>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-2">
+<div>
+<h4 class="text-xl font-headline font-bold text-on-surface">Casa del Mayorazgo de la Canal</h4>
+<p class="text-sm font-label text-slate-500">San Miguel de Allende, Gto.</p>
+</div>
+<span class="font-label text-xs text-slate-400">14 MAR 2024</span>
+</div>
+<div class="flex gap-0.5 mb-4 text-secondary-container">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<p class="text-on-surface-variant leading-relaxed">Una joya arquitectónica que te transporta en el tiempo. La curaduría de la exposición actual es impecable. Un imperdible si buscas entender la historia local.</p>
+</div>
+</div>
+<!-- Review Card 2 -->
+<div class="group bg-surface-container-lowest p-6 rounded-xl flex flex-col md:flex-row gap-8 transition-all hover:bg-surface-container-low">
+<div class="w-full md:w-48 h-32 rounded-lg overflow-hidden shrink-0">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="gourmet mexican dish with colorful mole and fresh herbs on a handcrafted ceramic plate with warm lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfEq__M2zxoUrZrTwCp5qidsjxKRpOfuGm_2XZm2KbyFvfiYXvLnSm2B27SWNHWDThcnHTemX0Kme9dRgpaLVSF8aC-uyGs3UW1to8c_yxTptt3jFJ531shLj5HlRcvTmpK1moVt9Lc8WGG0SLKRKynGb4MGzJBR0YlY-lgKOy7TgskXaFkbbXYiwmBjAFL3z4kB0LOSRXDOca4ni1QDjwgoVapGZXrNpPfy5DdJbsfvQi5pEqWukVQVnCrV5w_QHEewNeKakIWmg"/>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-2">
+<div>
+<h4 class="text-xl font-headline font-bold text-on-surface">Restaurante Los Danzantes</h4>
+<p class="text-sm font-label text-slate-500">Oaxaca de Juárez, Oax.</p>
+</div>
+<span class="font-label text-xs text-slate-400">02 FEB 2024</span>
+</div>
+<div class="flex gap-0.5 mb-4 text-secondary-container">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">star</span>
+</div>
+<p class="text-on-surface-variant leading-relaxed">El mole negro es de otro planeta. El ambiente en el patio central es muy acogedor. Recomiendo reservar con antelación para la cena.</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+</div>
+<!-- Footer -->
+<footer class="bg-white dark:bg-slate-900 w-full py-12 border-t border-slate-100 dark:border-slate-800">
+<div class="flex flex-col md:flex-row justify-between items-center px-8 w-full max-w-7xl mx-auto">
+<div class="mb-6 md:mb-0">
+<span class="text-lg font-bold text-blue-900">MUUL</span>
+<p class="text-slate-500 text-sm mt-2 font-sans">© 2024 MUUL by Coppel. Todos los derechos reservados.</p>
+</div>
+<div class="flex gap-8">
+<a class="text-slate-500 font-sans text-sm hover:text-yellow-500 transition-colors" href="#">Privacidad</a>
+<a class="text-slate-500 font-sans text-sm hover:text-yellow-500 transition-colors" href="#">Términos</a>
+<a class="text-slate-500 font-sans text-sm hover:text-yellow-500 transition-colors" href="#">Contacto</a>
+</div>
+</div>
+</footer>
+</body></html>

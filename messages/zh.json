@@ -1,6 +1,9 @@
 {
   "nav": {
     "explorar": "探索",
+    "categorias": "分类",
+    "ofertas": "优惠",
+    "buscarPlaceholder": "搜索路线或目的地...",
     "tiendas": "商店",
     "mapa": "地图",
     "perfil": "个人资料",

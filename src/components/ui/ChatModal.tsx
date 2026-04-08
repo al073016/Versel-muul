@@ -2,8 +2,6 @@
 
 import { useState, useEffect, useRef } from "react";
 import type { POI } from "@/types/database";
-import { getPreguntasParaPOI, getIdiomaKey } from "@/lib/preguntasChatbot";
-import { useTranslations } from "next-intl";
 
 interface Mensaje {
   tipo: "pregunta" | "respuesta" | "error";
@@ -18,170 +16,227 @@ interface ChatModalProps {
 }
 
 const MAX_PREGUNTAS_SESION = 15;
-const COOLDOWN_MS = 2000;
-
-function generarRespuestaLocal(poi: POI, idioma: string, pregunta: string): string {
-  const horario =
-    poi.horario_apertura && poi.horario_cierre
-      ? `${poi.horario_apertura} - ${poi.horario_cierre}`
-      : null;
-
-  if (idioma.startsWith("en")) {
-    return `${poi.emoji || "📍"} ${poi.nombre} is a ${poi.categoria} spot.${horario ? ` Open hours: ${horario}.` : ""}${poi.precio_rango ? ` Price range: ${poi.precio_rango}.` : ""} Based on your question ("${pregunta}"), I recommend checking details on-site for the latest updates.`;
-  }
-
-  if (idioma.startsWith("pt")) {
-    return `${poi.emoji || "📍"} ${poi.nombre} é um lugar de categoria ${poi.categoria}.${horario ? ` Horário: ${horario}.` : ""}${poi.precio_rango ? ` Faixa de preço: ${poi.precio_rango}.` : ""} Com base na sua pergunta ("${pregunta}"), recomendo confirmar detalhes no local para informações atualizadas.`;
-  }
-
-  if (idioma.startsWith("zh")) {
-    return `${poi.emoji || "📍"}${poi.nombre} 属于 ${poi.categoria} 类别。${horario ? `营业时间：${horario}。` : ""}${poi.precio_rango ? `价格范围：${poi.precio_rango}。` : ""}根据你的问题（“${pregunta}”），建议到现场确认最新信息。`;
-  }
-
-  return `${poi.emoji || "📍"} ${poi.nombre} es un lugar de categoría ${poi.categoria}.${horario ? ` Horario: ${horario}.` : ""}${poi.precio_rango ? ` Rango de precio: ${poi.precio_rango}.` : ""} Sobre tu pregunta ("${pregunta}"), te recomiendo validar los detalles directamente en el lugar para información actualizada.`;
-}
 
 export default function ChatModal({ isOpen, onClose, poi, idioma = "es-MX" }: ChatModalProps) {
   const [mensajes, setMensajes] = useState<Mensaje[]>([]);
+  const [input, setInput] = useState("");
   const [cargando, setCargando] = useState(false);
-  const [ultimaPregunta, setUltimaPregunta] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const prevPoiId = useRef<string | null>(null);
-  const t = useTranslations("chatbot");
 
-  const idiomaKey = getIdiomaKey(idioma);
-  const preguntas = poi ? getPreguntasParaPOI(poi.categoria) : [];
   const preguntasEnviadas = mensajes.filter((m) => m.tipo === "pregunta").length;
   const limitAlcanzado = preguntasEnviadas >= MAX_PREGUNTAS_SESION;
 
   useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [mensajes]);
+
+  useEffect(() => {
     if (!poi || !isOpen) return;
-    if (prevPoiId.current !== poi.id) {
-      prevPoiId.current = poi.id;
-      try {
-        const saved = localStorage.getItem(`muul_chat_${poi.id}`);
-        if (saved) { setMensajes(JSON.parse(saved)); } else { setMensajes([]); }
-      } catch { setMensajes([]); }
+    try {
+      const saved = localStorage.getItem(`muul_chat_${poi.id}`);
+      if (saved) {
+        setMensajes(JSON.parse(saved));
+      } else {
+        setMensajes([]);
+      }
+    } catch {
+      setMensajes([]);
     }
   }, [poi, isOpen]);
 
   useEffect(() => {
     if (!poi || mensajes.length === 0) return;
-    try { localStorage.setItem(`muul_chat_${poi.id}`, JSON.stringify(mensajes)); } catch {}
-  }, [mensajes, poi]);
+    try {
+      localStorage.setItem(`muul_chat_${poi.id}`, JSON.stringify(mensajes));
+    } catch {}
+  }, [poi, mensajes]);
 
-  useEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-  }, [mensajes, cargando]);
+  const enviarPregunta = async () => {
+    if (!input.trim() || !poi || cargando || limitAlcanzado) return;
 
-  const enviarPregunta = async (texto: string) => {
-    if (!poi || cargando || limitAlcanzado) return;
-    const ahora = Date.now();
-    if (ahora - ultimaPregunta < COOLDOWN_MS) return;
-    setUltimaPregunta(ahora);
+    const nuevaMensaje: Mensaje = {
+      tipo: "pregunta",
+      contenido: input.trim(),
+    };
 
-    const nuevosMensajes: Mensaje[] = [...mensajes, { tipo: "pregunta", contenido: texto }];
-    setMensajes(nuevosMensajes);
+    setMensajes((prev) => [...prev, nuevaMensaje]);
+    setInput("");
     setCargando(true);
 
     try {
-      const respuesta = generarRespuestaLocal(poi, idioma, texto);
-      await new Promise((resolve) => setTimeout(resolve, 350));
-      setMensajes((prev) => [...prev, { tipo: "respuesta", contenido: respuesta }]);
-    } catch {
-      setMensajes((prev) => [...prev, { tipo: "error", contenido: t("genericError") }]);
-    }
-    setCargando(false);
-  };
+      const response = await fetch("/api/chatbot", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: input.trim(),
+          locale: idioma,
+          context: poi,
+          history: mensajes,
+        }),
+      });
 
-  const limpiarHistorial = () => {
-    setMensajes([]);
-    if (poi) { try { localStorage.removeItem(`muul_chat_${poi.id}`); } catch {} }
+      if (response.ok) {
+        const data = await response.json();
+        const respuesta: Mensaje = {
+          tipo: "respuesta",
+          contenido: data.response || data.respuesta || "No pude generar una respuesta.",
+        };
+        setMensajes((prev) => [...prev, respuesta]);
+      } else {
+        const error: Mensaje = {
+          tipo: "error",
+          contenido: "Error al conectar con MUUL AI. Intenta de nuevo.",
+        };
+        setMensajes((prev) => [...prev, error]);
+      }
+    } catch (err) {
+      console.error(err);
+      const error: Mensaje = {
+        tipo: "error",
+        contenido: "Error de conexión. Por favor intenta de nuevo.",
+      };
+      setMensajes((prev) => [...prev, error]);
+    } finally {
+      setCargando(false);
+    }
   };
 
   if (!isOpen || !poi) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center sm:p-4">
-      <div className="absolute inset-0 bg-surface-dim/80 backdrop-blur-sm" onClick={onClose} />
-
-      <div className="relative w-full max-w-lg bg-surface-container-lowest rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[85svh] sm:h-[720px] sm:max-h-[90vh] border border-outline-variant/10 animate-fade-in-up">        {/* Header */}
-        <div className="p-5 bg-surface-container-low flex items-center justify-between border-b border-outline-variant/10">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-              <span className="material-symbols-outlined">smart_toy</span>
+    <div className="fixed inset-0 z-50 flex items-end md:items-center justify-end md:justify-center p-4 md:p-6 bg-black/20 backdrop-blur-sm">
+      <div className="w-full md:max-w-2xl h-[600px] md:h-[750px] bg-surface-container-lowest rounded-t-3xl md:rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-white/40 relative">
+        <header className="px-6 md:px-8 py-4 md:py-6 flex items-center justify-between border-b border-surface-container-low bg-white">
+          <div className="flex items-center gap-3 md:gap-4">
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-primary-container flex items-center justify-center text-white">
+              <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: '"FILL" 1' }}>
+                smart_toy
+              </span>
             </div>
-            <div className="min-w-0">
-              <h2 className="text-base font-black font-headline text-on-surface leading-tight flex items-center gap-1.5">🤖 {t("titulo")}</h2>
-              <p className="text-[11px] text-on-surface-variant font-medium truncate">{poi.emoji} {poi.nombre}</p>
+            <div>
+              <h2 className="font-headline italic text-xl md:text-3xl text-primary tracking-tight">🤖 Muul AI</h2>
+              <span className="font-label text-xs uppercase tracking-widest text-tertiary-container font-bold flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-tertiary-container animate-pulse"></span>
+                Asistente Inteligente
+              </span>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            {mensajes.length > 0 && (
-              <button onClick={limpiarHistorial} className="p-2 hover:bg-surface-variant rounded-full transition-colors">
-                <span className="material-symbols-outlined text-on-surface-variant text-sm">delete_sweep</span>
-              </button>
-            )}
-            <button onClick={onClose} className="p-2 hover:bg-surface-variant rounded-full transition-colors">
-              <span className="material-symbols-outlined text-on-surface-variant">close</span>
-            </button>
-          </div>
-        </div>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-surface-container-low rounded-full transition-colors text-on-surface-variant"
+          >
+            <span className="material-symbols-outlined">close</span>
+          </button>
+        </header>
 
-        {/* Messages */}
-        <div ref={scrollRef} className="flex-1 overflow-y-auto p-5 space-y-4" style={{ scrollbarWidth: "none" }}>
-          {mensajes.length === 0 && (
-            <div className="flex items-end gap-3 max-w-[85%]">
-              <div className="p-4 rounded-2xl rounded-bl-none bg-[#1C1C1E] text-on-surface text-sm leading-relaxed border border-outline-variant/5">
-                {t("bienvenida", { nombre: poi.nombre })}
+        <div
+          ref={scrollRef}
+          className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6 md:space-y-8 bg-gradient-to-b from-surface-container-lowest to-surface-container-low"
+        >
+          {mensajes.length === 0 ? (
+            <div className="flex flex-col gap-3 max-w-[80%]">
+              <div className="bg-surface-container-low text-on-surface p-4 md:p-5 rounded-2xl rounded-tl-none shadow-sm">
+                <p className="font-body text-sm md:text-base leading-relaxed">
+                  Hola! Soy tu asistente inteligente de MUUL. Estoy aqui para ayudarte a conocer mejor {poi?.nombre || "este lugar"} y responder todas tus dudas. En que puedo ayudarte?
+                </p>
               </div>
+              <span className="font-label text-[10px] text-outline px-1">MUUL AI • AHORA</span>
             </div>
+          ) : (
+            mensajes.map((msg, idx) => (
+              <div key={idx} className={`flex flex-col gap-2 max-w-[85%] ${msg.tipo === "pregunta" ? "ml-auto items-end" : ""}`}>
+                <div
+                  className={`p-4 md:p-5 rounded-2xl shadow-sm ${
+                    msg.tipo === "pregunta"
+                      ? "bg-primary text-white rounded-tr-none"
+                      : msg.tipo === "error"
+                        ? "bg-error/20 text-error rounded-tl-none"
+                        : "bg-surface-container-low text-on-surface rounded-tl-none border-l-4 border-secondary-container"
+                  }`}
+                >
+                  <p className="font-body text-sm md:text-base leading-relaxed">{msg.contenido}</p>
+                </div>
+                <span className="font-label text-[10px] text-outline px-1">{msg.tipo === "pregunta" ? "TU" : "MUUL AI"} • AHORA</span>
+              </div>
+            ))
           )}
-
-          {mensajes.map((msg, i) => (
-            <div key={i} className={`flex items-end gap-3 ${msg.tipo === "pregunta" ? "justify-end" : ""} max-w-[85%] ${msg.tipo === "pregunta" ? "ml-auto" : ""}`}>
-              <div className={`p-4 rounded-2xl text-sm leading-relaxed ${
-                msg.tipo === "pregunta" ? "rounded-br-none bg-primary text-on-primary font-medium shadow-lg"
-                : msg.tipo === "error" ? "rounded-bl-none bg-error-container/20 text-error border border-error/20"
-                : "rounded-bl-none bg-[#1C1C1E] text-on-surface border border-outline-variant/5"
-              }`}>{msg.contenido}</div>
-            </div>
-          ))}
 
           {cargando && (
-            <div className="flex items-end gap-3 max-w-[85%]">
-              <div className="p-4 rounded-2xl rounded-bl-none bg-[#1C1C1E] border border-outline-variant/5 flex gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-secondary animate-bounce" style={{ animationDelay: "0ms" }} />
-                <span className="w-2 h-2 rounded-full bg-secondary animate-bounce" style={{ animationDelay: "150ms" }} />
-                <span className="w-2 h-2 rounded-full bg-secondary animate-bounce" style={{ animationDelay: "300ms" }} />
+            <div className="flex flex-col gap-2 max-w-[80%]">
+              <div className="bg-surface-container-low text-on-surface p-4 md:p-5 rounded-2xl rounded-tl-none animate-pulse">
+                <p className="font-body text-sm md:text-base">Escribiendo...</p>
               </div>
             </div>
           )}
         </div>
 
-        {/* Questions */}
-        <div className="p-5 bg-surface-container-low border-t border-outline-variant/10 space-y-4">
-          {limitAlcanzado && (
-            <div className="p-3 rounded-lg bg-tertiary/10 border border-tertiary/20 text-tertiary text-xs font-medium text-center">
-              {t("limiteAlcanzado", { max: MAX_PREGUNTAS_SESION })}
-            </div>
-          )}
-
-          {!limitAlcanzado && (
-            <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
-              {preguntas.map((p) => (
-                <button key={p.id} onClick={() => enviarPregunta(p[idiomaKey] as string)} disabled={cargando}
-                  className="whitespace-nowrap px-4 py-2 rounded-full border border-primary/30 text-primary text-xs font-bold hover:bg-primary/5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0">
-                  {p[idiomaKey] as string}
+        {mensajes.length === 0 && !cargando && (
+          <div className="px-6 md:px-8 py-4 border-t border-surface-container-low bg-white">
+            <p className="font-label text-xs text-outline mb-3 uppercase tracking-wider">Preguntas Sugeridas</p>
+            <div className="flex flex-wrap gap-2">
+              {["Cuales son los horarios?", "Que categoria tiene?", "Hay estacionamiento?"].map((sugerencia, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setInput(sugerencia)}
+                  className="px-3 md:px-4 py-2 rounded-full border-2 border-primary/20 text-primary text-xs md:text-sm font-label hover:bg-primary hover:text-white transition-all duration-300"
+                >
+                  {sugerencia}
                 </button>
               ))}
             </div>
-          )}
+          </div>
+        )}
 
-          <p className="text-[10px] text-on-surface-variant text-center">
-            {preguntasEnviadas}/{MAX_PREGUNTAS_SESION} {t("preguntas")} · {t("powered")}
+        <footer className="p-4 md:p-6 bg-white border-t border-surface-container-low">
+          {limitAlcanzado ? (
+            <div className="text-center p-3 bg-error/10 rounded-xl text-error font-body text-sm">
+              Alcanzaste el limite de {MAX_PREGUNTAS_SESION} preguntas en esta sesion.
+            </div>
+          ) : (
+            <div className="relative group">
+              <div className="absolute inset-0 bg-secondary-container/10 rounded-2xl blur-xl group-focus-within:blur-2xl transition-all opacity-0 group-focus-within:opacity-100 -z-10"></div>
+              <div className="flex items-center gap-2 bg-surface-container-lowest rounded-2xl p-2 shadow-inner border border-outline-variant/20 focus-within:border-primary/40 transition-all">
+                <button className="p-3 text-outline hover:text-primary transition-colors">
+                  <span className="material-symbols-outlined text-[20px]">attach_file</span>
+                </button>
+                <input
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      enviarPregunta();
+                    }
+                  }}
+                  placeholder="Escribe tu pregunta aqui..."
+                  disabled={cargando}
+                  className="flex-1 bg-transparent border-none focus:ring-0 font-body text-on-surface px-2 md:px-4 placeholder:text-outline/60 disabled:opacity-50 text-sm md:text-base"
+                />
+                <button
+                  onClick={enviarPregunta}
+                  disabled={cargando || !input.trim()}
+                  className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-primary to-primary-container text-white rounded-xl shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-transform flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <span className="material-symbols-outlined" style={{ fontVariationSettings: '"FILL" 1' }}>
+                    send
+                  </span>
+                </button>
+              </div>
+            </div>
+          )}
+          <div className="mt-3 flex justify-center">
+            <p className="font-label text-[10px] text-outline/60 flex items-center gap-1">
+              <span className="material-symbols-outlined text-[12px]">security</span>
+              Tu informacion esta protegida por MUUL.
+            </p>
+          </div>
+          <p className="font-label text-[9px] text-outline/50 text-center mt-2">
+            {preguntasEnviadas}/{MAX_PREGUNTAS_SESION} preguntas • Powered by Muul AI
           </p>
-        </div>
+        </footer>
       </div>
     </div>
   );

@@ -1,6 +1,9 @@
 {
   "nav": {
     "explorar": "Explore",
+    "categorias": "Categories",
+    "ofertas": "Offers",
+    "buscarPlaceholder": "Search routes or destinations...",
     "tiendas": "Shops",
     "mapa": "Map",
     "perfil": "Profile",
