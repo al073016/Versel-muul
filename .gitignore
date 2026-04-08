@@ -34,3 +34,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# documentation
+DATABASE.md
+Planeacion.txt
+query1.sql
+query2.sql

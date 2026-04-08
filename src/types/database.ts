@@ -12,16 +12,22 @@ export type NivelInsignia = "bronce" | "plata" | "oro" | "platino";
 
 export interface Perfil {
   id: string;
+  tipo_cuenta: TipoCuenta;
+  username: string;
+  nombre: string;
+  apellido: string;
+  correo: string;
+  telefono?: string | null;
   nombre_completo?: string;
-  nombre?: string;
-  tipo_cuenta?: TipoCuenta;
-  tipo?: "usuario" | "empresa";
+  nombre_original?: string;
   idioma?: string;
   language?: string;
   avatar_url?: string | null;
   foto_url?: string | null;
-  ciudad: string | null;
+  banner_url?: string | null;
+  ciudad?: string | null;
   created_at: string;
+  updated_at?: string;
 }
 
 export interface Negocio {
