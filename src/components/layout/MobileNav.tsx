@@ -7,12 +7,13 @@ import { useTranslations } from "next-intl";
 export default function MobileNav() {
   const pathname = usePathname();
   const t = useTranslations("nav");
+  const tm = useTranslations("mobileNav");
 
   const navItems = [
     { href: "/mapa", icon: "explore", label: t("explorar") },
     { href: "/mapa", icon: "map", label: t("mapa") },
     { href: "/perfil", icon: "person", label: t("perfil") },
-    { href: "#tickets", icon: "confirmation_number", label: "Tickets" },
+    { href: "#tickets", icon: "confirmation_number", label: tm("tickets") },
   ];
 
   return (

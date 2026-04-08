@@ -25,7 +25,28 @@
     "fanZone": "Fan Zone: Cidade do México",
     "fanZoneDesc": "Garanta seu lugar nas celebrações oficiais. Telões, música ao vivo e a melhor atmosfera futebolística.",
     "registrarseAhora": "REGISTRE-SE AGORA",
-    "enVivo": "Ao Vivo"
+    "enVivo": "Ao Vivo",
+    "exploraInteresTitulo": "Explore por interesse",
+    "exploraInteresDesc": "Filtros inteligentes para encontrar a essência de cada canto do país.",
+    "tagHogarVerde": "LAR VERDE",
+    "tagCulturaViva": "CULTURA VIVA",
+    "tagGastronomia": "GASTRONOMIA",
+    "tendenciasTag": "TENDÊNCIAS DE DADOS",
+    "destinosTitulo": "Destinos em alta",
+    "tendencia": "Tendência",
+    "subidaDato": "Alta/Dado",
+    "destinoPrincipal": "San Miguel de Allende",
+    "mexicoSur": "SUL DO MÉXICO",
+    "destinoSecundario": "Puerto Escondido",
+    "destinoSecundarioDesc": "Aumento no interesse por surf sustentável",
+    "explorarGuia": "Explorar guia",
+    "recomendacionesDigitales": "Recomendações digitais",
+    "impactoPositivo": "Impacto positivo",
+    "uneteA": "Junte-se à",
+    "inteligenciaEditorial": "Inteligência Editorial",
+    "newsletterDesc": "Receba toda semana uma curadoria profunda de destinos e produtos que definem o novo México.",
+    "newsletterPlaceholder": "seuemail.com",
+    "suscribirme": "Inscrever-me"
   },
   "mapa": {
     "cerrar": "Fechar",
@@ -87,7 +108,13 @@
     "copiadoPortapapeles": "Copiado para a área de transferência!",
     "imagenDescargada": "Imagem baixada!",
     "generandoImagen": "Gerando imagem...",
-    "loginParaGuardar": "Faça login para salvar rotas."
+    "loginParaGuardar": "Faça login para salvar rotas.",
+    "usuarioAnonimo": "Usuário",
+    "errorGeneric": "Erro",
+    "marcaEvento": "Copa do Mundo 2026",
+    "muulAi": "Muul AI",
+    "cerrarPanel": "Fechar painel",
+    "abrirPanel": "Abrir painel"
   },
   "tiendas": {
     "titulo": "Lojas",
@@ -126,7 +153,13 @@
     "errorGPS": "Você deve capturar sua localização GPS.",
     "errorTerminos": "Você deve aceitar os termos de participação.",
     "errorLogin": "Você deve fazer login para registrar um negócio.",
-    "errorRegistro": "Erro ao registrar negócio. Tente novamente."
+    "errorRegistro": "Erro ao registrar negócio. Tente novamente.",
+    "errorGpsNoSoportado": "Seu dispositivo não suporta GPS.",
+    "horarioNoDisponible": "Horário não disponível",
+    "nombreNegocioPlaceholder": "Ex. El Tizon Plateado",
+    "rfcPlaceholder": "ABC123456XYZ",
+    "direccionPlaceholder": "Ex. Av. Paseo de la Reforma 2026, Cidade do México",
+    "gpsActivo": "Ativo"
   },
   "perfil": {
     "turista": "Turista",
@@ -153,7 +186,40 @@
     "escribirResena": "Escrever nova avaliação",
     "sinResenas": "Sem avaliações ainda",
     "sinResenasDesc": "Quando você visitar um lugar através do Muul, poderá deixar sua avaliação aqui.",
-    "cargando": "Carregando perfil..."
+    "cargando": "Carregando perfil...",
+    "catCultural": "Cultural",
+    "catComida": "Comida",
+    "catTiendas": "Lojas",
+    "catTienda": "Loja",
+    "badgeHistoriador": "Historiador",
+    "badgeAntropologo": "Antropólogo",
+    "badgeTacoLover": "Taco Lover",
+    "badgePicanteMaster": "Mestre Picante",
+    "badgeBuscadorJoyas": "Caçador de Joias",
+    "badgeColeccionista": "Colecionador",
+    "rangoPlata": "Prata",
+    "rangoBronce": "Bronze",
+    "rangoOro": "Ouro",
+    "rangoPlatino": "Platina",
+    "rangoLegendario": "Nível: Lendário",
+    "errorGeneric": "Erro",
+    "langEs": "Espanhol (México)",
+    "langEn": "Inglês (EUA)",
+    "langPt": "Português",
+    "langZh": "Chinês",
+    "avanceLogros": "Você completou 45% das conquistas disponíveis.",
+    "eventoEspecial": "Evento especial",
+    "insigniaEspecialNombre": "OlaMuul 2026",
+    "insigniaEspecialDesc": "Você completou o tour inaugural da FIFA México 2026.",
+    "resena1Lugar": "Cenote Moderno Bistro",
+    "resena1Fecha": "15 Mar 2026",
+    "resena1Texto": "Uma experiência culinária incrível. O polvo grelhado é perfeito e o ambiente é ideal para uma noite especial.",
+    "resena2Lugar": "Museu Soumaya",
+    "resena2Fecha": "2 Mar 2026",
+    "resena2Texto": "A coleção de Rodin é impressionante. O prédio por si só já é uma obra de arte.",
+    "resena3Lugar": "Mãos do México",
+    "resena3Fecha": "28 Fev 2026",
+    "resena3Texto": "Grande variedade de artesanato autêntico. Os preços são um pouco altos, mas a qualidade compensa."
   },
   "login": {
     "bienvenido": "Bem-vindo ao Muul",
@@ -183,7 +249,14 @@
     "volverRegistro": "Voltar ao registro",
     "errorCredenciales": "Email ou senha incorretos.",
     "errorMinContrasena": "A senha deve ter pelo menos 8 caracteres.",
-    "ciudades": "Muul 2026 • Cidade do México / Monterrey / Guadalajara"
+    "ciudades": "Muul 2026 • Cidade do México / Monterrey / Guadalajara",
+    "correoPlaceholder": "voce@email.com",
+    "correoRegistroPlaceholder": "ola@muul.com",
+    "nombrePlaceholder": "Joao Silva",
+    "google": "Google",
+    "apple": "Apple",
+    "turista": "Turista",
+    "negocio": "Negócio"
   },
   "negocio": {
     "verificado": "Verificado Muul",
@@ -215,20 +288,30 @@
     "noEncontradoDesc": "Este negócio não existe ou foi desativado.",
     "verTiendas": "Ver todas as lojas",
     "direccionNoEspecificada": "Endereço não especificado",
-    "horarioNoEspecificado": "Horário não especificado"
+    "horarioNoEspecificado": "Horário não especificado",
+    "rfc": "CNPJ"
   },
   "chatbot": {
     "titulo": "Muul AI",
     "bienvenida": "Olá! Sou seu guia Muul AI. Posso te ajudar com tudo sobre {nombre}. Escolha uma pergunta! 🗺️",
     "limiteAlcanzado": "Você atingiu o limite de {max} perguntas nesta sessão.",
     "preguntas": "perguntas",
-    "powered": "Desenvolvido por Muul AI"
+    "powered": "Desenvolvido por Muul AI",
+    "genericError": "Erro",
+    "connectionError": "Sem conexão."
   },
   "footer": {
     "privacidad": "Privacidade",
     "soporte": "Suporte",
     "fifa": "FIFA 2026",
     "copyright": "© 2026 Muul World Cup Experience. Todos os direitos reservados."
+  },
+  "mobileNav": {
+    "tickets": "Ingressos"
+  },
+  "matchPulse": {
+    "live": "Ao vivo",
+    "defaultMatch": "México vs Alemanha"
   },
   "common": {
     "cargando": "Carregando...",

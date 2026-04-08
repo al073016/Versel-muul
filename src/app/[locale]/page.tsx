@@ -56,11 +56,11 @@ export default function HomePage() {
             <div>
               <p className="eyebrow mb-3">{t("badge")}</p>
               <h2 className="font-headline text-4xl md:text-5xl font-bold text-on-surface">
-                Explora por Interés
+                {t("exploraInteresTitulo")}
               </h2>
             </div>
             <p className="text-on-surface-variant max-w-sm text-sm leading-relaxed font-body">
-              Filtros inteligentes diseñados para encontrar la esencia de cada rincón de nuestro país.
+              {t("exploraInteresDesc")}
             </p>
           </div>
 
@@ -70,7 +70,7 @@ export default function HomePage() {
               <div className="absolute inset-0 bg-gradient-to-br from-tertiary to-tertiary/80" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
               <div className="relative z-10 h-full flex flex-col justify-end p-8">
-                <p className="eyebrow text-white/60 mb-2">HOGAR VERDE</p>
+                <p className="eyebrow text-white/60 mb-2">{t("tagHogarVerde")}</p>
                 <h3 className="font-headline text-2xl md:text-3xl font-bold text-white">
                   {t("comida")}
                 </h3>
@@ -83,7 +83,7 @@ export default function HomePage() {
               <div className="absolute inset-0 bg-gradient-to-br from-primary to-primary-container" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
               <div className="relative z-10 h-full flex flex-col justify-end p-8">
-                <p className="eyebrow text-white/60 mb-2">CULTURA VIVA</p>
+                <p className="eyebrow text-white/60 mb-2">{t("tagCulturaViva")}</p>
                 <h3 className="font-headline text-2xl md:text-3xl font-bold text-white">
                   {t("cultural")}
                 </h3>
@@ -96,7 +96,7 @@ export default function HomePage() {
               <div className="absolute inset-0 bg-gradient-to-br from-[#8B2014] to-[#C4392D]" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
               <div className="relative z-10 h-full flex flex-col justify-end p-8">
-                <p className="eyebrow text-white/60 mb-2">GASTRONOMÍA</p>
+                <p className="eyebrow text-white/60 mb-2">{t("tagGastronomia")}</p>
                 <h3 className="font-headline text-2xl md:text-3xl font-bold text-white">
                   {t("tiendas")}
                 </h3>
@@ -109,9 +109,9 @@ export default function HomePage() {
         {/* ===== DESTINOS EN AUGE — Data Section ===== */}
         <section className="max-w-7xl mx-auto px-6 py-24">
           <div className="text-center mb-16">
-            <p className="eyebrow mb-3">TENDENCIAS DE DATOS</p>
+            <p className="eyebrow mb-3">{t("tendenciasTag")}</p>
             <h2 className="font-headline text-4xl md:text-5xl font-bold text-on-surface">
-              Destinos en Auge
+              {t("destinosTitulo")}
             </h2>
             <div className="w-12 h-1 bg-secondary-container mx-auto mt-4 rounded-full" />
           </div>
@@ -124,11 +124,11 @@ export default function HomePage() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
               <div className="relative z-10 h-full flex flex-col justify-end p-8">
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="px-2 py-0.5 rounded bg-secondary-container text-on-secondary-container text-[10px] font-label font-bold uppercase">Tendencia</span>
-                  <span className="text-white/50 text-[10px] font-label uppercase">Subida/Dato</span>
+                  <span className="px-2 py-0.5 rounded bg-secondary-container text-on-secondary-container text-[10px] font-label font-bold uppercase">{t("tendencia")}</span>
+                  <span className="text-white/50 text-[10px] font-label uppercase">{t("subidaDato")}</span>
                 </div>
                 <h3 className="font-headline text-3xl md:text-4xl font-bold text-white mb-2">
-                  San Miguel de Allende
+                  {t("destinoPrincipal")}
                 </h3>
                 <div className="flex gap-6 text-white/70 text-sm font-label">
                   <span className="flex items-center gap-1">
@@ -145,11 +145,11 @@ export default function HomePage() {
               {/* Top row — destination card */}
               <div className="bg-surface-container-low rounded-xl p-8 flex items-center gap-6">
                 <div className="flex-1">
-                  <p className="eyebrow mb-1">MÉXICO SUR</p>
-                  <h3 className="font-headline text-2xl font-bold text-on-surface mb-2">Puerto Escondido</h3>
-                  <p className="text-on-surface-variant text-sm font-body mb-3">Incremento en interés por surf sustentable</p>
+                  <p className="eyebrow mb-1">{t("mexicoSur")}</p>
+                  <h3 className="font-headline text-2xl font-bold text-on-surface mb-2">{t("destinoSecundario")}</h3>
+                  <p className="text-on-surface-variant text-sm font-body mb-3">{t("destinoSecundarioDesc")}</p>
                   <Link href="/mapa" className="inline-flex items-center gap-1 text-primary font-body font-bold text-sm hover:underline">
-                    Explorar Guía <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                    {t("explorarGuia")} <span className="material-symbols-outlined text-sm">arrow_forward</span>
                   </Link>
                 </div>
                 <div className="w-20 h-20 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center shrink-0">
@@ -162,12 +162,12 @@ export default function HomePage() {
                 <div className="bg-secondary-container rounded-xl p-8 flex flex-col justify-end">
                   <span className="material-symbols-outlined text-primary mb-4">star</span>
                   <span className="font-headline text-4xl font-bold text-on-surface">8.4k</span>
-                  <span className="text-on-surface-variant text-xs font-label uppercase tracking-widest mt-1">Recomendaciones Digitales</span>
+                  <span className="text-on-surface-variant text-xs font-label uppercase tracking-widest mt-1">{t("recomendacionesDigitales")}</span>
                 </div>
                 <div className="bg-secondary-container rounded-xl p-8 flex flex-col justify-end">
                   <span className="material-symbols-outlined text-primary mb-4">eco</span>
                   <span className="font-headline text-4xl font-bold text-on-surface">92%</span>
-                  <span className="text-on-surface-variant text-xs font-label uppercase tracking-widest mt-1">Impacto Positivo</span>
+                  <span className="text-on-surface-variant text-xs font-label uppercase tracking-widest mt-1">{t("impactoPositivo")}</span>
                 </div>
               </div>
             </div>
@@ -180,20 +180,19 @@ export default function HomePage() {
             {/* Left content */}
             <div className="flex-1 p-12 md:p-16 flex flex-col justify-center">
               <h2 className="font-headline text-3xl md:text-4xl font-bold text-on-surface leading-tight mb-4">
-                Únete a la{" "}
-                <em className="text-primary">Inteligencia Editorial</em>
+                {t("uneteA")} <em className="text-primary">{t("inteligenciaEditorial")}</em>
               </h2>
               <p className="text-on-surface-variant font-body mb-8 max-w-md leading-relaxed">
-                Recibe cada semana una curaduría profunda de destinos y productos que están definiendo el nuevo México.
+                {t("newsletterDesc")}
               </p>
               <div className="flex flex-col sm:flex-row gap-3 max-w-md">
                 <input
                   type="email"
-                  placeholder="tuemail.com"
+                  placeholder={t("newsletterPlaceholder")}
                   className="flex-1 px-5 py-3 rounded-full bg-white text-on-surface text-sm font-body focus:ring-2 focus:ring-primary/20"
                 />
                 <button className="btn-pill px-6 py-3 bg-primary text-on-primary text-sm hover:shadow-glow-primary">
-                  Suscribirme
+                  {t("suscribirme")}
                 </button>
               </div>
             </div>

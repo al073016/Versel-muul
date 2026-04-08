@@ -1,14 +1,18 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 interface MatchPulseProps {
   matchText?: string;
   show?: boolean;
 }
 
 export default function MatchPulse({
-  matchText = "México vs Alemania",
+  matchText,
   show = true,
 }: MatchPulseProps) {
+  const t = useTranslations("matchPulse");
+
   if (!show) return null;
 
   return (
@@ -28,10 +32,10 @@ export default function MatchPulse({
         {/* Match Info */}
         <div className="pr-6">
           <p className="text-[10px] font-bold text-secondary tracking-widest uppercase">
-            En Vivo
+            {t("live")}
           </p>
           <p className="text-xs font-headline font-bold text-on-surface">
-            {matchText}
+            {matchText || t("defaultMatch")}
           </p>
         </div>
       </div>

@@ -25,7 +25,28 @@
     "fanZone": "Fan Zone: Mexico City",
     "fanZoneDesc": "Secure your spot at the official celebrations. Giant screens, live music and the best football atmosphere.",
     "registrarseAhora": "REGISTER NOW",
-    "enVivo": "Live"
+    "enVivo": "Live",
+    "exploraInteresTitulo": "Explore by Interest",
+    "exploraInteresDesc": "Smart filters designed to find the essence of every corner of our country.",
+    "tagHogarVerde": "GREEN HOME",
+    "tagCulturaViva": "LIVING CULTURE",
+    "tagGastronomia": "GASTRONOMY",
+    "tendenciasTag": "DATA TRENDS",
+    "destinosTitulo": "Rising Destinations",
+    "tendencia": "Trend",
+    "subidaDato": "Rise/Data",
+    "destinoPrincipal": "San Miguel de Allende",
+    "mexicoSur": "SOUTH MEXICO",
+    "destinoSecundario": "Puerto Escondido",
+    "destinoSecundarioDesc": "Increase in interest for sustainable surfing",
+    "explorarGuia": "Explore Guide",
+    "recomendacionesDigitales": "Digital Recommendations",
+    "impactoPositivo": "Positive Impact",
+    "uneteA": "Join the",
+    "inteligenciaEditorial": "Editorial Intelligence",
+    "newsletterDesc": "Receive every week a deep curation of destinations and products defining the new Mexico.",
+    "newsletterPlaceholder": "youremail.com",
+    "suscribirme": "Subscribe"
   },
   "mapa": {
     "cerrar": "Close",
@@ -87,7 +108,13 @@
     "copiadoPortapapeles": "Copied to clipboard!",
     "imagenDescargada": "Image downloaded!",
     "generandoImagen": "Generating image...",
-    "loginParaGuardar": "Log in to save routes."
+    "loginParaGuardar": "Log in to save routes.",
+    "usuarioAnonimo": "User",
+    "errorGeneric": "Error",
+    "marcaEvento": "World Cup 2026",
+    "muulAi": "Muul AI",
+    "cerrarPanel": "Close panel",
+    "abrirPanel": "Open panel"
   },
   "tiendas": {
     "titulo": "Registered",
@@ -126,7 +153,13 @@
     "errorGPS": "You must capture your GPS location.",
     "errorTerminos": "You must accept the participation terms.",
     "errorLogin": "You must log in to register a business.",
-    "errorRegistro": "Error registering business. Try again."
+    "errorRegistro": "Error registering business. Try again.",
+    "errorGpsNoSoportado": "Your device does not support GPS.",
+    "horarioNoDisponible": "Hours not available",
+    "nombreNegocioPlaceholder": "e.g. El Tizon Plateado",
+    "rfcPlaceholder": "ABC123456XYZ",
+    "direccionPlaceholder": "e.g. Reforma Avenue 2026, Mexico City",
+    "gpsActivo": "Active"
   },
   "perfil": {
     "turista": "Tourist",
@@ -153,7 +186,40 @@
     "escribirResena": "Write a new review",
     "sinResenas": "No reviews yet",
     "sinResenasDesc": "When you visit a place through Muul, you can leave your review here.",
-    "cargando": "Loading profile..."
+    "cargando": "Loading profile...",
+    "catCultural": "Culture",
+    "catComida": "Food",
+    "catTiendas": "Shops",
+    "catTienda": "Shop",
+    "badgeHistoriador": "Historian",
+    "badgeAntropologo": "Anthropologist",
+    "badgeTacoLover": "Taco Lover",
+    "badgePicanteMaster": "Spice Master",
+    "badgeBuscadorJoyas": "Gem Hunter",
+    "badgeColeccionista": "Collector",
+    "rangoPlata": "Silver",
+    "rangoBronce": "Bronze",
+    "rangoOro": "Gold",
+    "rangoPlatino": "Platinum",
+    "rangoLegendario": "Rank: Legendary",
+    "errorGeneric": "Error",
+    "langEs": "Spanish (Mexico)",
+    "langEn": "English (US)",
+    "langPt": "Portuguese",
+    "langZh": "Chinese",
+    "avanceLogros": "You have completed 45% of available achievements.",
+    "eventoEspecial": "Special Event",
+    "insigniaEspecialNombre": "OlaMuul 2026",
+    "insigniaEspecialDesc": "You completed the inaugural FIFA Mexico 2026 tour.",
+    "resena1Lugar": "Cenote Moderno Bistro",
+    "resena1Fecha": "Mar 15, 2026",
+    "resena1Texto": "An incredible culinary experience. The grilled octopus is simply perfect, and the atmosphere is ideal for a special night. Definitely one of the best restaurants I have visited in Mexico City.",
+    "resena2Lugar": "Soumaya Museum",
+    "resena2Fecha": "Mar 2, 2026",
+    "resena2Texto": "Rodin collection is impressive. The building itself is a work of art. I recommend arriving early to avoid weekend lines. The view from the top floor is spectacular.",
+    "resena3Lugar": "Hands of Mexico",
+    "resena3Fecha": "Feb 28, 2026",
+    "resena3Texto": "Great variety of authentic crafts. Prices are a bit high but quality justifies it. I took home a beautiful alebrije and silver jewelry. Staff is very friendly and knows their products well."
   },
   "login": {
     "bienvenido": "Welcome to Muul",
@@ -183,7 +249,14 @@
     "volverRegistro": "Back to registration",
     "errorCredenciales": "Incorrect email or password.",
     "errorMinContrasena": "Password must be at least 8 characters.",
-    "ciudades": "Muul 2026 • Mexico City / Monterrey / Guadalajara"
+    "ciudades": "Muul 2026 • Mexico City / Monterrey / Guadalajara",
+    "correoPlaceholder": "you@email.com",
+    "correoRegistroPlaceholder": "hello@muul.com",
+    "nombrePlaceholder": "John Doe",
+    "google": "Google",
+    "apple": "Apple",
+    "turista": "Tourist",
+    "negocio": "Business"
   },
   "negocio": {
     "verificado": "Muul Verified",
@@ -215,20 +288,30 @@
     "noEncontradoDesc": "This business doesn't exist or has been deactivated.",
     "verTiendas": "View all shops",
     "direccionNoEspecificada": "Address not specified",
-    "horarioNoEspecificado": "Hours not specified"
+    "horarioNoEspecificado": "Hours not specified",
+    "rfc": "Tax ID"
   },
   "chatbot": {
     "titulo": "Muul AI",
     "bienvenida": "Hi! I'm your Muul AI guide. I can help you with everything about {nombre}. Choose a question! 🗺️",
     "limiteAlcanzado": "You've reached the limit of {max} questions in this session.",
     "preguntas": "questions",
-    "powered": "Powered by Muul AI"
+    "powered": "Powered by Muul AI",
+    "genericError": "Error",
+    "connectionError": "No connection."
   },
   "footer": {
     "privacidad": "Privacy",
     "soporte": "Support",
     "fifa": "FIFA 2026",
     "copyright": "© 2026 Muul World Cup Experience. All rights reserved."
+  },
+  "mobileNav": {
+    "tickets": "Tickets"
+  },
+  "matchPulse": {
+    "live": "Live",
+    "defaultMatch": "Mexico vs Germany"
   },
   "common": {
     "cargando": "Loading...",

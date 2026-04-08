@@ -25,7 +25,28 @@
     "fanZone": "球迷区：墨西哥城",
     "fanZoneDesc": "在官方庆祝活动中预留你的位置。巨型屏幕、现场音乐和最佳足球氛围。",
     "registrarseAhora": "立即注册",
-    "enVivo": "直播"
+    "enVivo": "直播",
+    "exploraInteresTitulo": "按兴趣探索",
+    "exploraInteresDesc": "用智能筛选找到这个国家每个角落的精华。",
+    "tagHogarVerde": "绿色家园",
+    "tagCulturaViva": "活力文化",
+    "tagGastronomia": "美食",
+    "tendenciasTag": "数据趋势",
+    "destinosTitulo": "热门目的地",
+    "tendencia": "趋势",
+    "subidaDato": "增长/数据",
+    "destinoPrincipal": "圣米格尔德阿连德",
+    "mexicoSur": "墨西哥南部",
+    "destinoSecundario": "埃斯孔迪多港",
+    "destinoSecundarioDesc": "可持续冲浪热度上升",
+    "explorarGuia": "探索指南",
+    "recomendacionesDigitales": "数字推荐",
+    "impactoPositivo": "积极影响",
+    "uneteA": "加入",
+    "inteligenciaEditorial": "精选情报",
+    "newsletterDesc": "每周获取深度目的地与产品精选，了解新墨西哥。",
+    "newsletterPlaceholder": "you@email.com",
+    "suscribirme": "订阅"
   },
   "mapa": {
     "cerrar": "关闭",
@@ -87,7 +108,13 @@
     "copiadoPortapapeles": "已复制到剪贴板！",
     "imagenDescargada": "图片已下载！",
     "generandoImagen": "正在生成图片...",
-    "loginParaGuardar": "请登录以保存路线。"
+    "loginParaGuardar": "请登录以保存路线。",
+    "usuarioAnonimo": "用户",
+    "errorGeneric": "错误",
+    "marcaEvento": "2026 世界杯",
+    "muulAi": "Muul AI",
+    "cerrarPanel": "关闭面板",
+    "abrirPanel": "打开面板"
   },
   "tiendas": {
     "titulo": "注册",
@@ -126,7 +153,13 @@
     "errorGPS": "你必须捕获GPS位置。",
     "errorTerminos": "你必须接受参与条款。",
     "errorLogin": "你必须登录才能注册商户。",
-    "errorRegistro": "注册商户时出错。请重试。"
+    "errorRegistro": "注册商户时出错。请重试。",
+    "errorGpsNoSoportado": "你的设备不支持 GPS。",
+    "horarioNoDisponible": "营业时间不可用",
+    "nombreNegocioPlaceholder": "例如：El Tizon Plateado",
+    "rfcPlaceholder": "ABC123456XYZ",
+    "direccionPlaceholder": "例如：Reforma 大道 2026，墨西哥城",
+    "gpsActivo": "已启用"
   },
   "perfil": {
     "turista": "游客",
@@ -153,7 +186,40 @@
     "escribirResena": "写新评论",
     "sinResenas": "还没有评论",
     "sinResenasDesc": "当你通过 Muul 访问一个地方时，你可以在这里留下评论。",
-    "cargando": "加载个人资料..."
+    "cargando": "加载个人资料...",
+    "catCultural": "文化",
+    "catComida": "美食",
+    "catTiendas": "商店",
+    "catTienda": "商店",
+    "badgeHistoriador": "历史学家",
+    "badgeAntropologo": "人类学家",
+    "badgeTacoLover": "塔可爱好者",
+    "badgePicanteMaster": "辣味大师",
+    "badgeBuscadorJoyas": "宝藏猎人",
+    "badgeColeccionista": "收藏家",
+    "rangoPlata": "银",
+    "rangoBronce": "铜",
+    "rangoOro": "金",
+    "rangoPlatino": "铂金",
+    "rangoLegendario": "等级：传奇",
+    "errorGeneric": "错误",
+    "langEs": "西班牙语（墨西哥）",
+    "langEn": "英语（美国）",
+    "langPt": "葡萄牙语",
+    "langZh": "中文",
+    "avanceLogros": "你已完成可用成就的 45%。",
+    "eventoEspecial": "特别活动",
+    "insigniaEspecialNombre": "OlaMuul 2026",
+    "insigniaEspecialDesc": "你完成了 FIFA 墨西哥 2026 首发巡游。",
+    "resena1Lugar": "Cenote Moderno Bistro",
+    "resena1Fecha": "2026年3月15日",
+    "resena1Texto": "一次很棒的美食体验。炭烤章鱼非常出色，氛围也很适合特别的夜晚。",
+    "resena2Lugar": "索玛雅博物馆",
+    "resena2Fecha": "2026年3月2日",
+    "resena2Texto": "罗丹收藏令人惊叹，建筑本身就是艺术品。建议早点到以避免周末排队。",
+    "resena3Lugar": "墨西哥之手",
+    "resena3Fecha": "2026年2月28日",
+    "resena3Texto": "手工艺品种类丰富且正宗。价格略高但质量很好，服务人员也非常友善。"
   },
   "login": {
     "bienvenido": "欢迎来到 Muul",
@@ -183,7 +249,14 @@
     "volverRegistro": "返回注册",
     "errorCredenciales": "邮箱或密码不正确。",
     "errorMinContrasena": "密码至少需要8个字符。",
-    "ciudades": "Muul 2026 · 墨西哥城 / 蒙特雷 / 瓜达拉哈拉"
+    "ciudades": "Muul 2026 · 墨西哥城 / 蒙特雷 / 瓜达拉哈拉",
+    "correoPlaceholder": "you@email.com",
+    "correoRegistroPlaceholder": "hello@muul.com",
+    "nombrePlaceholder": "张伟",
+    "google": "Google",
+    "apple": "Apple",
+    "turista": "游客",
+    "negocio": "商户"
   },
   "negocio": {
     "verificado": "Muul 认证",
@@ -215,20 +288,30 @@
     "noEncontradoDesc": "该商户不存在或已被停用。",
     "verTiendas": "查看所有商店",
     "direccionNoEspecificada": "地址未指定",
-    "horarioNoEspecificado": "营业时间未指定"
+    "horarioNoEspecificado": "营业时间未指定",
+    "rfc": "税号"
   },
   "chatbot": {
     "titulo": "Muul AI",
     "bienvenida": "你好！我是你的 Muul AI 导游。我可以帮你了解关于 {nombre} 的一切。选择一个问题！🗺️",
     "limiteAlcanzado": "你已达到本次会话 {max} 个问题的限制。",
     "preguntas": "个问题",
-    "powered": "由 Muul AI 提供"
+    "powered": "由 Muul AI 提供",
+    "genericError": "错误",
+    "connectionError": "无网络连接。"
   },
   "footer": {
     "privacidad": "隐私",
     "soporte": "支持",
     "fifa": "FIFA 2026",
     "copyright": "© 2026 Muul 世界杯体验。保留所有权利。"
+  },
+  "mobileNav": {
+    "tickets": "门票"
+  },
+  "matchPulse": {
+    "live": "直播",
+    "defaultMatch": "墨西哥 vs 德国"
   },
   "common": {
     "cargando": "加载中...",

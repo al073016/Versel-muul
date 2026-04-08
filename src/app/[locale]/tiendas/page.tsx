@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import { Navbar, Footer, MobileNav } from "@/components/layout";
 import { createClient } from "@/lib/supabase/client";
@@ -16,7 +15,6 @@ const categoryEmojis: Record<string, string> = {
 
 export default function TiendasPage() {
   const supabase = createClient();
-  const router = useRouter();
   const t = useTranslations("tiendas");
   const tc = useTranslations("common");
 
@@ -78,7 +76,7 @@ export default function TiendasPage() {
   }, [activeFilter, searchQuery, negocios]);
 
   const capturarGPS = () => {
-    if (!navigator.geolocation) { setRegError("GPS not supported"); return; }
+    if (!navigator.geolocation) { setRegError(t("errorGpsNoSoportado")); return; }
     navigator.geolocation.getCurrentPosition(
       (pos) => { setLatitud(pos.coords.latitude); setLongitud(pos.coords.longitude); setGpsActive(true); },
       () => { setRegError(t("errorGPS")); },
@@ -165,7 +163,7 @@ export default function TiendasPage() {
                     </div>
                     <div className="p-6 relative">
                       <h3 className="text-2xl font-bold font-headline mb-1 text-on-surface">{negocio.nombre}</h3>
-                      <p className="text-secondary font-semibold text-sm mb-2">{negocio.horario_apertura && negocio.horario_cierre ? `${negocio.horario_apertura} - ${negocio.horario_cierre}` : t("sinResultadosDesc")}</p>
+                      <p className="text-secondary font-semibold text-sm mb-2">{negocio.horario_apertura && negocio.horario_cierre ? `${negocio.horario_apertura} - ${negocio.horario_cierre}` : t("horarioNoDisponible")}</p>
                       {negocio.descripcion && (<p className="text-on-surface-variant text-sm line-clamp-2 mb-4">{negocio.descripcion}</p>)}
                       <div className="w-full bg-surface-container-highest text-on-surface py-3 rounded-lg font-bold text-center group-hover:bg-secondary group-hover:text-on-secondary transition-all duration-300">{t("verProductos")}</div>
                     </div>
@@ -201,11 +199,11 @@ export default function TiendasPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-1">{t("nombreNegocio")} *</label>
-                      <input type="text" required value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej. El Tizón Plateado" className="w-full bg-surface-container-highest border-none rounded-xl py-4 px-6 text-on-surface focus:ring-2 focus:ring-secondary/40 placeholder:text-on-surface-variant/40" />
+                      <input type="text" required value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder={t("nombreNegocioPlaceholder")} className="w-full bg-surface-container-highest border-none rounded-xl py-4 px-6 text-on-surface focus:ring-2 focus:ring-secondary/40 placeholder:text-on-surface-variant/40" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-1">{t("rfc")}</label>
-                      <input type="text" value={rfc} onChange={(e) => setRfc(e.target.value)} placeholder="ABC123456XYZ" className="w-full bg-surface-container-highest border-none rounded-xl py-4 px-6 text-on-surface focus:ring-2 focus:ring-secondary/40 placeholder:text-on-surface-variant/40" />
+                      <input type="text" value={rfc} onChange={(e) => setRfc(e.target.value)} placeholder={t("rfcPlaceholder")} className="w-full bg-surface-container-highest border-none rounded-xl py-4 px-6 text-on-surface focus:ring-2 focus:ring-secondary/40 placeholder:text-on-surface-variant/40" />
                     </div>
                   </div>
 
@@ -239,7 +237,7 @@ export default function TiendasPage() {
 
                   <div className="space-y-2">
                     <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-1">{t("direccion")}</label>
-                    <input type="text" value={direccion} onChange={(e) => setDireccion(e.target.value)} placeholder="Ej. Av. Paseo de la Reforma 2026, CDMX" className="w-full bg-surface-container-highest border-none rounded-xl py-4 px-6 text-on-surface focus:ring-2 focus:ring-secondary/40 placeholder:text-on-surface-variant/40" />
+                    <input type="text" value={direccion} onChange={(e) => setDireccion(e.target.value)} placeholder={t("direccionPlaceholder")} className="w-full bg-surface-container-highest border-none rounded-xl py-4 px-6 text-on-surface focus:ring-2 focus:ring-secondary/40 placeholder:text-on-surface-variant/40" />
                   </div>
 
                   <div className="space-y-4">
@@ -252,7 +250,7 @@ export default function TiendasPage() {
                         <span className="material-symbols-outlined" style={gpsActive ? { fontVariationSettings: "'FILL' 1" } : undefined}>check_circle</span>
                       </button>
                     </div>
-                    {gpsActive && latitud && longitud && (<div className="text-[10px] text-secondary font-mono text-right uppercase tracking-widest animate-fade-in-up">GPS: {latitud.toFixed(4)}° N, {longitud.toFixed(4)}° W (Active)</div>)}
+                    {gpsActive && latitud && longitud && (<div className="text-[10px] text-secondary font-mono text-right uppercase tracking-widest animate-fade-in-up">GPS: {latitud.toFixed(4)}° N, {longitud.toFixed(4)}° W ({t("gpsActivo")})</div>)}
                   </div>
 
                   <div className="space-y-4">

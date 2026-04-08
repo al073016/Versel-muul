@@ -54,7 +54,7 @@ export default function NegocioPerfilPage() {
     setProdGuardando(true); setProdMsg("");
     const { data, error } = await supabase.from("productos").insert({ negocio_id: negocio.id, nombre: prodNombre.trim(), descripcion: prodDescripcion.trim() || null, precio: prodPrecio ? parseFloat(prodPrecio) : null, activo: true }).select().single();
     setProdGuardando(false);
-    if (error) { setProdMsg("Error"); return; }
+    if (error) { setProdMsg(tc("error")); return; }
     if (data) setProductos((prev) => [data, ...prev]);
     setProdNombre(""); setProdDescripcion(""); setProdPrecio("");
     setShowProductForm(false);
@@ -162,7 +162,7 @@ export default function NegocioPerfilPage() {
                     <div className="flex items-start gap-4">
                       <span className="material-symbols-outlined text-secondary" style={{ fontVariationSettings: "'FILL' 1" }}>receipt_long</span>
                       <div>
-                        <h4 className="font-headline font-bold text-sm uppercase text-on-surface-variant">RFC</h4>
+                        <h4 className="font-headline font-bold text-sm uppercase text-on-surface-variant">{t("rfc")}</h4>
                         <p className="text-on-surface mt-1 font-mono text-sm">{negocio.rfc}</p>
                       </div>
                     </div>

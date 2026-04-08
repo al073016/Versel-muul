@@ -13,68 +13,6 @@ interface UserStats {
   insignias: number;
 }
 
-/* ── Mock badges ── */
-const MOCK_INSIGNIAS = [
-  {
-    categoria: "Cultural",
-    icon: "museum",
-    color: "text-primary",
-    badges: [
-      { emoji: "🏛️", nombre: "Historiador", rango: "Plata", rangoColor: "text-primary", progreso: 65, bloqueado: false },
-      { emoji: "🏺", nombre: "Antropólogo", rango: "Bronce", rangoColor: "text-on-surface-variant", progreso: 0, bloqueado: true },
-    ],
-  },
-  {
-    categoria: "Comida",
-    icon: "restaurant",
-    color: "text-secondary",
-    badges: [
-      { emoji: "🌮", nombre: "Taco Lover", rango: "Oro", rangoColor: "text-secondary", progreso: 90, bloqueado: false },
-      { emoji: "🌶️", nombre: "Picante Master", rango: "Bronce", rangoColor: "text-secondary", progreso: 20, bloqueado: false },
-    ],
-  },
-  {
-    categoria: "Tiendas",
-    icon: "shopping_bag",
-    color: "text-tertiary",
-    badges: [
-      { emoji: "🛍️", nombre: "Buscador de Joyas", rango: "Platino", rangoColor: "text-tertiary", progreso: 100, bloqueado: false },
-      { emoji: "🎨", nombre: "Coleccionista", rango: "Oro", rangoColor: "text-tertiary", progreso: 0, bloqueado: true },
-    ],
-  },
-];
-
-/* ── Mock reviews ── */
-const MOCK_RESENAS = [
-  {
-    id: "r1",
-    lugar: "Cenote Moderno Bistro",
-    emoji: "🦐",
-    categoria: "Comida",
-    rating: 5,
-    fecha: "15 Mar 2026",
-    texto: "Una experiencia culinaria increíble. El pulpo a las brasas es simplemente perfecto, y el ambiente es ideal para una noche especial. Definitivamente uno de los mejores restaurantes que he visitado en la CDMX.",
-  },
-  {
-    id: "r2",
-    lugar: "Museo Soumaya",
-    emoji: "🏛️",
-    categoria: "Cultural",
-    rating: 5,
-    fecha: "2 Mar 2026",
-    texto: "La colección de Rodin es impresionante. El edificio en sí ya es una obra de arte. Recomiendo llegar temprano para evitar las filas del fin de semana. La vista desde el último piso es espectacular.",
-  },
-  {
-    id: "r3",
-    lugar: "Manos de México",
-    emoji: "🛍️",
-    categoria: "Tienda",
-    rating: 4,
-    fecha: "28 Feb 2026",
-    texto: "Gran variedad de artesanías auténticas. Los precios son un poco altos pero la calidad lo justifica. Me llevé un alebrije hermoso y una joyería de plata. El personal es muy amable y conoce bien sus productos.",
-  },
-];
-
 export default function PerfilPage() {
   const router = useRouter();
   const pathname = usePathname();
@@ -89,6 +27,66 @@ export default function PerfilPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState("");
+
+  const mockInsignias = [
+    {
+      categoria: t("catCultural"),
+      icon: "museum",
+      color: "text-primary",
+      badges: [
+        { emoji: "🏛️", nombre: t("badgeHistoriador"), rango: t("rangoPlata"), rangoColor: "text-primary", progreso: 65, bloqueado: false },
+        { emoji: "🏺", nombre: t("badgeAntropologo"), rango: t("rangoBronce"), rangoColor: "text-on-surface-variant", progreso: 0, bloqueado: true },
+      ],
+    },
+    {
+      categoria: t("catComida"),
+      icon: "restaurant",
+      color: "text-secondary",
+      badges: [
+        { emoji: "🌮", nombre: t("badgeTacoLover"), rango: t("rangoOro"), rangoColor: "text-secondary", progreso: 90, bloqueado: false },
+        { emoji: "🌶️", nombre: t("badgePicanteMaster"), rango: t("rangoBronce"), rangoColor: "text-secondary", progreso: 20, bloqueado: false },
+      ],
+    },
+    {
+      categoria: t("catTiendas"),
+      icon: "shopping_bag",
+      color: "text-tertiary",
+      badges: [
+        { emoji: "🛍️", nombre: t("badgeBuscadorJoyas"), rango: t("rangoPlatino"), rangoColor: "text-tertiary", progreso: 100, bloqueado: false },
+        { emoji: "🎨", nombre: t("badgeColeccionista"), rango: t("rangoOro"), rangoColor: "text-tertiary", progreso: 0, bloqueado: true },
+      ],
+    },
+  ];
+
+  const mockResenas = [
+    {
+      id: "r1",
+      lugar: t("resena1Lugar"),
+      emoji: "🦐",
+      categoria: t("catComida"),
+      rating: 5,
+      fecha: t("resena1Fecha"),
+      texto: t("resena1Texto"),
+    },
+    {
+      id: "r2",
+      lugar: t("resena2Lugar"),
+      emoji: "🏛️",
+      categoria: t("catCultural"),
+      rating: 5,
+      fecha: t("resena2Fecha"),
+      texto: t("resena2Texto"),
+    },
+    {
+      id: "r3",
+      lugar: t("resena3Lugar"),
+      emoji: "🛍️",
+      categoria: t("catTienda"),
+      rating: 4,
+      fecha: t("resena3Fecha"),
+      texto: t("resena3Texto"),
+    },
+  ];
 
   useEffect(() => {
     const fetchData = async () => {
@@ -107,7 +105,7 @@ export default function PerfilPage() {
     setSaving(true); setSaveMsg("");
     const { error } = await supabase.from("perfiles").update({ idioma }).eq("id", perfil.id);
     if (error) {
-      setSaveMsg("Error");
+      setSaveMsg(t("errorGeneric"));
     } else {
       setSaveMsg(t("cambiosGuardados"));
       setTimeout(() => setSaveMsg(""), 3000);
@@ -200,10 +198,10 @@ export default function PerfilPage() {
                 <label className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">{t("idioma")}</label>
                 <div className="relative">
                   <select value={idioma} onChange={(e) => setIdioma(e.target.value)} className="w-full bg-surface-container-highest border-none rounded-lg py-4 px-4 text-on-surface focus:ring-2 focus:ring-secondary/40 transition-all appearance-none">
-                    <option value="es-MX">🇲🇽 Español (México)</option>
-                    <option value="en-US">🇺🇸 English (US)</option>
-                    <option value="pt-BR">🇧🇷 Português</option>
-                    <option value="zh-CN">🇨🇳 中文</option>
+                    <option value="es-MX">🇲🇽 {t("langEs")}</option>
+                    <option value="en-US">🇺🇸 {t("langEn")}</option>
+                    <option value="pt-BR">🇧🇷 {t("langPt")}</option>
+                    <option value="zh-CN">🇨🇳 {t("langZh")}</option>
                   </select>
                   <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">expand_more</span>
                 </div>
@@ -214,7 +212,7 @@ export default function PerfilPage() {
                 <input type="email" value={editEmail} readOnly className="w-full bg-surface-container-highest border-none rounded-lg py-4 px-4 text-on-surface-variant focus:ring-2 focus:ring-secondary/40 cursor-not-allowed opacity-70" />
               </div>
 
-              {saveMsg && (<p className={`text-xs font-bold text-center animate-fade-in-up ${saveMsg.includes("Error") ? "text-error" : "text-secondary"}`}>{saveMsg}</p>)}
+              {saveMsg && (<p className={`text-xs font-bold text-center animate-fade-in-up ${saveMsg === t("errorGeneric") ? "text-error" : "text-secondary"}`}>{saveMsg}</p>)}
 
               <div className="pt-6 space-y-3">
                 <button onClick={handleSave} disabled={saving} className="w-full bg-primary-container text-on-primary-container font-headline font-bold py-4 rounded-xl hover:bg-primary hover:text-on-primary transition-all duration-300 disabled:opacity-50">
@@ -235,7 +233,7 @@ export default function PerfilPage() {
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-outline-variant/10 pb-8">
             <div className="space-y-2">
               <h2 className="text-4xl font-black font-headline tracking-tighter uppercase">{t("tusInsignias")}</h2>
-              <p className="text-on-surface-variant font-medium">Has completado el 45% de los logros disponibles.</p>
+              <p className="text-on-surface-variant font-medium">{t("avanceLogros")}</p>
             </div>
             <div className="w-full md:w-64">
               <div className="h-2 w-full bg-surface-container-highest rounded-full overflow-hidden">
@@ -252,20 +250,20 @@ export default function PerfilPage() {
               </div>
               <div className="w-24 h-24 bg-surface-container-highest rounded-2xl flex items-center justify-center text-5xl shadow-inner border border-outline-variant/20">🌊</div>
               <div className="flex-1 text-center md:text-left">
-                <div className="inline-block px-2 py-0.5 bg-tertiary/20 text-tertiary text-[10px] font-black uppercase tracking-widest rounded-md mb-2">Evento Especial</div>
-                <h3 className="text-2xl font-black font-headline uppercase tracking-tight">OlaMuul 2026</h3>
-                <p className="text-on-surface-variant text-sm font-medium">Completaste el tour inaugural FIFA Mexico 2026.</p>
+                <div className="inline-block px-2 py-0.5 bg-tertiary/20 text-tertiary text-[10px] font-black uppercase tracking-widest rounded-md mb-2">{t("eventoEspecial")}</div>
+                <h3 className="text-2xl font-black font-headline uppercase tracking-tight">{t("insigniaEspecialNombre")}</h3>
+                <p className="text-on-surface-variant text-sm font-medium">{t("insigniaEspecialDesc")}</p>
               </div>
               <div className="bg-secondary/10 px-6 py-3 rounded-xl border border-secondary/20 flex items-center gap-2">
                 <span className="material-symbols-outlined text-secondary" style={{ fontVariationSettings: "'FILL' 1" }}>stars</span>
-                <span className="text-secondary font-bold font-headline uppercase tracking-wider text-sm">Rango: Legendario</span>
+                <span className="text-secondary font-bold font-headline uppercase tracking-wider text-sm">{t("rangoLegendario")}</span>
               </div>
             </div>
           </div>
 
           {/* Badge categories */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            {MOCK_INSIGNIAS.map((cat) => (
+            {mockInsignias.map((cat) => (
               <div key={cat.categoria} className="space-y-6">
                 <div className="flex items-center gap-3">
                   <span className={`material-symbols-outlined ${cat.color}`}>{cat.icon}</span>
@@ -310,7 +308,7 @@ export default function PerfilPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {MOCK_RESENAS.map((resena) => (
+            {mockResenas.map((resena) => (
               <div key={resena.id} className="bg-surface-container-low p-6 rounded-2xl border border-outline-variant/10 space-y-4 hover:-translate-y-1 transition-transform">
                 {/* Place */}
                 <div className="flex items-center gap-3">

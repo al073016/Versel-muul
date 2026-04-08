@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, usePathname } from "@/i18n/navigation";
 import { Link } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useTranslations } from "next-intl";
@@ -10,8 +9,6 @@ import { useLocale } from "next-intl";
 type AccountType = "turista" | "negocio";
 
 export default function LoginPage() {
-  const router = useRouter();
-  const pathname = usePathname();
   const supabase = createClient();
   const t = useTranslations("login");
   // Agrega dentro del componente:
@@ -79,7 +76,7 @@ const handleLogin = async (e: React.FormEvent) => {
             <form className="space-y-6" onSubmit={handleLogin}>
               <div className="space-y-1.5">
                 <label className="text-[10px] uppercase tracking-widest font-bold text-on-surface-variant ml-1">{t("correo")}</label>
-                <input type="email" required value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} placeholder="tu@email.com" className="w-full bg-surface-container-highest border-none rounded-md px-4 py-3 text-on-surface placeholder:text-outline/50 focus:ring-2 focus:ring-secondary/40 transition-all outline-none" />
+                <input type="email" required value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} placeholder={t("correoPlaceholder")} className="w-full bg-surface-container-highest border-none rounded-md px-4 py-3 text-on-surface placeholder:text-outline/50 focus:ring-2 focus:ring-secondary/40 transition-all outline-none" />
               </div>
               <div className="space-y-1.5">
                 <label className="text-[10px] uppercase tracking-widest font-bold text-on-surface-variant ml-1">{t("contrasena")}</label>
@@ -101,10 +98,10 @@ const handleLogin = async (e: React.FormEvent) => {
 
             <div className="grid grid-cols-2 gap-4">
               <button type="button" className="flex items-center justify-center py-3 px-4 rounded-md bg-surface-container-low border border-outline-variant/20 hover:bg-surface-container-high transition-colors opacity-50 cursor-not-allowed" disabled>
-                <span className="material-symbols-outlined text-lg mr-2">g_translate</span><span className="text-xs font-semibold">Google</span>
+                <span className="material-symbols-outlined text-lg mr-2">g_translate</span><span className="text-xs font-semibold">{t("google")}</span>
               </button>
               <button type="button" className="flex items-center justify-center py-3 px-4 rounded-md bg-surface-container-low border border-outline-variant/20 hover:bg-surface-container-high transition-colors opacity-50 cursor-not-allowed" disabled>
-                <span className="material-symbols-outlined text-lg mr-2">phone_iphone</span><span className="text-xs font-semibold">Apple</span>
+                <span className="material-symbols-outlined text-lg mr-2">phone_iphone</span><span className="text-xs font-semibold">{t("apple")}</span>
               </button>
             </div>
 
@@ -139,22 +136,22 @@ const handleLogin = async (e: React.FormEvent) => {
                 <div className="bg-surface-container-lowest p-1 rounded-full flex mb-8">
                   <button type="button" onClick={() => setAccountType("turista")} className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full text-xs font-bold transition-all ${accountType === "turista" ? "bg-surface-container-highest text-on-surface shadow-sm" : "text-on-surface-variant hover:text-on-surface"}`}>
                     <span className="material-symbols-outlined text-sm" style={accountType === "turista" ? { fontVariationSettings: "'FILL' 1" } : undefined}>person</span>
-                    {t("nombre") === "Full Name" ? "Tourist" : "Turista"}
+                    {t("turista")}
                   </button>
                   <button type="button" onClick={() => setAccountType("negocio")} className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full text-xs font-bold transition-all ${accountType === "negocio" ? "bg-surface-container-highest text-on-surface shadow-sm" : "text-on-surface-variant hover:text-on-surface"}`}>
                     <span className="material-symbols-outlined text-sm">storefront</span>
-                    {t("nombre") === "Full Name" ? "Business" : "Negocio"}
+                    {t("negocio")}
                   </button>
                 </div>
 
                 <form className="space-y-5" onSubmit={handleRegister}>
                   <div className="space-y-1.5">
                     <label className="text-[10px] uppercase tracking-widest font-bold text-on-surface-variant ml-1">{t("nombre")}</label>
-                    <input type="text" required value={regName} onChange={(e) => setRegName(e.target.value)} placeholder="Juan Pérez" className="w-full bg-surface-container-highest border-none rounded-md px-4 py-3 text-on-surface placeholder:text-outline/50 focus:ring-2 focus:ring-secondary/40 transition-all outline-none" />
+                    <input type="text" required value={regName} onChange={(e) => setRegName(e.target.value)} placeholder={t("nombrePlaceholder")} className="w-full bg-surface-container-highest border-none rounded-md px-4 py-3 text-on-surface placeholder:text-outline/50 focus:ring-2 focus:ring-secondary/40 transition-all outline-none" />
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[10px] uppercase tracking-widest font-bold text-on-surface-variant ml-1">{t("correo")}</label>
-                    <input type="email" required value={regEmail} onChange={(e) => setRegEmail(e.target.value)} placeholder="hola@muul.com" className="w-full bg-surface-container-highest border-none rounded-md px-4 py-3 text-on-surface placeholder:text-outline/50 focus:ring-2 focus:ring-secondary/40 transition-all outline-none" />
+                    <input type="email" required value={regEmail} onChange={(e) => setRegEmail(e.target.value)} placeholder={t("correoRegistroPlaceholder")} className="w-full bg-surface-container-highest border-none rounded-md px-4 py-3 text-on-surface placeholder:text-outline/50 focus:ring-2 focus:ring-secondary/40 transition-all outline-none" />
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[10px] uppercase tracking-widest font-bold text-on-surface-variant ml-1">{t("contrasena")}</label>

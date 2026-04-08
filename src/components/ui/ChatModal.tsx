@@ -82,12 +82,12 @@ export default function ChatModal({ isOpen, onClose, poi, idioma = "es-MX" }: Ch
       });
       const data = await res.json();
       if (!res.ok) {
-        setMensajes((prev) => [...prev, { tipo: "error", contenido: data.error || "Error" }]);
+        setMensajes((prev) => [...prev, { tipo: "error", contenido: data.error || t("genericError") }]);
       } else {
         setMensajes((prev) => [...prev, { tipo: "respuesta", contenido: data.respuesta }]);
       }
     } catch {
-      setMensajes((prev) => [...prev, { tipo: "error", contenido: "Sin conexión." }]);
+      setMensajes((prev) => [...prev, { tipo: "error", contenido: t("connectionError") }]);
     }
     setCargando(false);
   };

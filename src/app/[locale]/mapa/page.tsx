@@ -158,7 +158,7 @@ export default function MapaPage() {
       if (user) {
         const { data: perfil } = await supabase
           .from("perfiles").select("nombre_completo").eq("id", user.id).single();
-        const nombre = perfil?.nombre_completo || "Usuario";
+        const nombre = perfil?.nombre_completo || t("usuarioAnonimo");
         const parts = nombre.split(" ");
         const initials = parts.length >= 2
           ? (parts[0][0] + parts[1][0]).toUpperCase()
@@ -287,7 +287,7 @@ export default function MapaPage() {
       distancia_texto: rutaActiva.distancia_texto, duracion_texto: rutaActiva.duracion_texto,
     });
     setGuardando(false);
-    if (error) { setGuardadoMsg("Error"); } else { setGuardadoMsg(t("rutaGuardada")); setTimeout(() => setGuardadoMsg(""), 3000); }
+    if (error) { setGuardadoMsg(t("errorGeneric")); } else { setGuardadoMsg(t("rutaGuardada")); setTimeout(() => setGuardadoMsg(""), 3000); }
   };
 
   const cargarRutasGuardadas = async () => {
@@ -306,7 +306,7 @@ export default function MapaPage() {
   const cargarRutaEnMapa = (ruta: any) => {
     const poisIds: string[] = ruta.pois_ids;
     const poisParaRuta = poisIds.map((id: string) => pois.find((p) => p.id === id)).filter(Boolean) as POI[];
-    if (poisParaRuta.length < 2) { setRutaError("Error"); return; }
+    if (poisParaRuta.length < 2) { setRutaError(t("errorGeneric")); return; }
     setPoisEnRuta(poisParaRuta); setRutas([]); setMostrarItinerario(false); setMostrarGuardadas(false);
   };
 
@@ -314,11 +314,11 @@ export default function MapaPage() {
     if (poisEnRuta.length === 0 || rutas.length === 0) return;
     const rutaActiva = rutas[rutaSeleccionada];
     const horas = calcularHorasLlegada(poisEnRuta, rutaActiva);
-    let texto = `🗺️ MUUL — Itinerary\n📏 ${rutaActiva.distancia_texto} · ⏱ ${rutaActiva.duracion_texto}\n\n`;
+    let texto = `🗺️ MUUL — ${t("itinerario")}\n📏 ${rutaActiva.distancia_texto} · ⏱ ${rutaActiva.duracion_texto}\n\n`;
     poisEnRuta.forEach((poi, i) => {
       texto += `${i + 1}. ${poi.emoji || "📍"} ${poi.nombre}\n   🕐 ~${horas[i]} · ⏱ ${DURACION_VISITA[poi.categoria] || 30} min\n`;
     });
-    texto += `\n🏟️ Muul — World Cup 2026`;
+    texto += `\n🏟️ Muul — ${t("marcaEvento")}`;
     navigator.clipboard.writeText(texto).then(() => { setGuardadoMsg(t("copiadoPortapapeles")); setTimeout(() => setGuardadoMsg(""), 3000); });
   };
 
@@ -332,7 +332,7 @@ export default function MapaPage() {
       link.href = canvas.toDataURL("image/png");
       link.click();
       setGuardadoMsg(t("imagenDescargada")); setTimeout(() => setGuardadoMsg(""), 3000);
-    } catch { setGuardadoMsg("Error"); setTimeout(() => setGuardadoMsg(""), 3000); }
+    } catch { setGuardadoMsg(t("errorGeneric")); setTimeout(() => setGuardadoMsg(""), 3000); }
   };
 
   const compartirRuta = async () => {
@@ -814,7 +814,7 @@ export default function MapaPage() {
                     className="flex-1 py-2.5 rounded-lg text-xs font-black uppercase tracking-wider bg-primary-container/30 text-primary border border-primary/20 flex items-center justify-center gap-1 transition-all hover:bg-primary-container/40"
                   >
                     <span className="material-symbols-outlined text-sm">auto_awesome</span>
-                    <span className="hidden sm:inline">Muul AI</span>
+                    <span className="hidden sm:inline">{t("muulAi")}</span>
                     <span className="sm:hidden">AI</span>
                   </button>
                 </div>
@@ -868,7 +868,7 @@ export default function MapaPage() {
         <button
           onClick={() => setMobileSheetOpen((v) => !v)}
           className="flex flex-col items-center pt-3 pb-2 w-full shrink-0"
-          aria-label={mobileSheetOpen ? "Cerrar panel" : "Abrir panel"}
+          aria-label={mobileSheetOpen ? t("cerrarPanel") : t("abrirPanel")}
         >
           <div className="w-10 h-1 rounded-full bg-outline-variant mb-2" />
           <div className="flex items-center gap-2">
