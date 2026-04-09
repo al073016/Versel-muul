@@ -323,17 +323,20 @@ export default function MapaPage() {
             return {
               id: n.id,
               nombre: n.nombre,
-              categoria: n.categoria as any,
+              descripcion: n.descripcion ?? null,
+              categoria: n.categoria as POI["categoria"],
               latitud: lat,
               longitud: lng,
               direccion: isTino ? "Santa Fe (Puesto Muul)" : (n.direccion || ""),
               emoji: n.categoria === "comida" ? "🌮" : n.categoria === "tienda" ? "🛍️" : "📍",
-              foto_url: n.foto_url || "",
+              foto_url: n.foto_url || null,
               verificado: n.verificado,
-              activo: n.activo,
+              precio_rango: n.precio_rango ?? null,
+              negocio_id: n.negocio_id ?? n.id,
               horario_apertura: n.horario_apertura || "09:00",
               horario_cierre: n.horario_cierre || "21:00",
-            } as POI;
+              created_at: n.created_at || new Date().toISOString(),
+            } satisfies POI;
           });
 
           setAllPois(prev => {
@@ -916,7 +919,7 @@ export default function MapaPage() {
     let texto = `🗺️ MUUL — ${t("itinerario")}${isAccessibleMode ? " ♿ ACCESIBLE" : ""}\n`;
     texto += `📏 ${activeRoute.distancia_texto} · ⏱ ${activeRoute.duracion_texto}\n\n`;
     if (isMetroMode && metroRoute.route?.instructions.length) {
-      texto += `🚇 ${t("metroMode")}\n`;
+      texto += `${t("metroMode")}\n`;
       metroRoute.route.instructions.forEach((ins) => {
         if (ins.type === "walk_to_board") {
           texto += `- ${t("metroWalkToBoard", { station: ins.station || "", min: ins.minutes || 0 })}\n`;
@@ -1392,7 +1395,7 @@ export default function MapaPage() {
                     <h3 className="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-4">{t("paradasTitulo")}</h3>
                     {isMetroMode && metroRoute.route?.instructions.length ? (
                       <div className="mb-4 p-3 rounded-xl border border-[#e11d8a]/30 bg-[#e11d8a]/10 space-y-2">
-                        <p className="text-[11px] font-black uppercase tracking-wider text-[#9d174d]">🚇 {t("metroMode")}</p>
+                        <p className="text-[11px] font-black uppercase tracking-wider text-[#9d174d]">{t("metroMode")}</p>
                         <div className="space-y-1.5">
                           {metroRoute.route.instructions.map((ins, i) => {
                             if (ins.type === "walk_to_board") {
@@ -1632,7 +1635,7 @@ export default function MapaPage() {
                   })}
                   {isMetroMode && metroRoute.route?.instructions.length ? (
                     <div className="p-2 rounded-lg border border-[#e11d8a]/30 bg-[#e11d8a]/10">
-                      <p className="text-[10px] font-black uppercase tracking-wider text-[#9d174d]">🚇 {t("metroMode")}</p>
+                      <p className="text-[10px] font-black uppercase tracking-wider text-[#9d174d]">{t("metroMode")}</p>
                     </div>
                   ) : null}
                   <div className="space-y-3 relative pt-1">
