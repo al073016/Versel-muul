@@ -36,18 +36,22 @@ export const SocialService = {
   async getFeedPosts(): Promise<SocialPost[]> {
     let posts: SocialPost[] = [];
     
-    try {
-      const { createClient } = await import("../supabase/client");
-      const supabase = createClient();
-      const { data, error } = await supabase.rpc("get_feed_publicaciones", { p_limit: 50 });
+    const supabaseTimeout = new Promise<SocialPost[]>((_, reject) => 
+      setTimeout(() => reject(new Error("Supabase Timeout")), 3000)
+    );
 
-      if (!error && data && data.length > 0) {
-        posts = data.map(SUPABASE_POST_TO_SOCIAL_POST);
-      } else if (error) {
-        console.warn("[SocialService] Supabase RPC error, using local/dummy only", error);
-      }
+    try {
+      const fetchFromSupabase = async (): Promise<SocialPost[]> => {
+        const { createClient } = await import("../supabase/client");
+        const supabase = createClient();
+        const { data, error } = await supabase.rpc("get_feed_publicaciones", { p_limit: 50 });
+        if (!error && data) return data.map(SUPABASE_POST_TO_SOCIAL_POST);
+        return [];
+      };
+
+      posts = await Promise.race([fetchFromSupabase(), supabaseTimeout]);
     } catch (e) {
-      console.warn("[SocialService] Supabase unavailable, using local/dummy only", e);
+      console.warn("[SocialService] Supabase unavailable or timeout, using local/dummy only", e);
     }
 
     // Merge with local posts from localStorage
@@ -81,40 +85,35 @@ export const SocialService = {
   },
 
   async createPost(userId: string, content: string, imageUrls: string[] = []): Promise<SocialPost> {
-    const { createClient } = await import("../supabase/client");
-    const supabase = createClient();
-
-    const { data: { user: authUser } } = await supabase.auth.getUser();
-    
     try {
-      if (!authUser) throw new Error("Not authenticated");
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 6000));
+      const createAction = async () => {
+        const { createClient } = await import("../supabase/client");
+        const supabase = createClient();
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        if (!authUser) throw new Error("Not authenticated");
 
-      const { data, error } = await supabase
-        .from("publicaciones")
-        .insert({ usuario_id: authUser.id, contenido: content, imagen_urls: imageUrls })
-        .select()
-        .single();
+        const { data, error } = await supabase
+          .from("publicaciones")
+          .insert({ usuario_id: authUser.id, contenido: content, imagen_urls: imageUrls })
+          .select()
+          .single();
 
-      if (error) {
-        // PostgREST "404 Not Found" or "Could not find table" error
-        if (error.code === '42P01' || error.message?.includes('schema cache')) {
-          console.error("CRITICAL: La tabla 'publicaciones' no existe en Supabase. Ejecuta la migración 002.");
-          throw new Error("MIGRATION_REQUIRED");
-        }
-        throw error;
-      }
+        if (error) throw error;
 
-      // Re-fetch with joined author data for the newly created post
-      const { data: feedRow } = await supabase
-        .rpc("get_feed_publicaciones", { p_limit: 1 })
-        .eq("id", data.id)
-        .single();
+        const { data: feedRow } = await supabase
+          .rpc("get_feed_publicaciones", { p_limit: 1 })
+          .eq("id", data.id)
+          .single();
 
-      return SUPABASE_POST_TO_SOCIAL_POST(feedRow ?? data);
+        return SUPABASE_POST_TO_SOCIAL_POST(feedRow ?? data);
+      };
+
+      return (await Promise.race([createAction(), timeoutPromise])) as SocialPost;
     } catch (e: any) {
-      console.error("[SocialService] Error en createPost Supabase:", e);
+      console.error("[SocialService] Error en createPost (using resilience fallback):", e);
       
-      // PERSISTENCE FALLBACK: Save to LocalStorage if Supabase fails
+      // PERSISTENCE FALLBACK: Save to LocalStorage if Supabase fails/denied
       const localPost: SocialPost = {
         id: `local_${Date.now()}`,
         user_id: userId,
@@ -123,13 +122,13 @@ export const SocialService = {
         likes: 0,
         dislikes: 0,
         comments: 0,
-        created_at: "En este dispositivo",
-        is_friend: true, // Optimistically friend of yourself
+        created_at: "Demo Mode (Local)",
+        is_friend: true,
         user: {
           id: userId,
-          username: authUser?.user_metadata?.username ? `@${authUser.user_metadata.username}` : (authUser?.email?.split('@')[0] || "@usuario"),
-          full_name: authUser?.user_metadata?.nombre_completo || authUser?.email || "Tú",
-          avatar_url: authUser?.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(authUser?.email || "U")}&background=003e6f&color=fff&bold=true&size=200`,
+          username: "@yo",
+          full_name: "Tú",
+          avatar_url: `https://ui-avatars.com/api/?name=Yo&background=003e6f&color=fff&bold=true&size=200`,
           points: 0,
           level: "Modo Local",
         },

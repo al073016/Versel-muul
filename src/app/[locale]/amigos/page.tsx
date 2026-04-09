@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useState, useEffect } from "react";
+import { Link } from "@/i18n/navigation";
 import { FriendsService } from "@/lib/services/friends.service";
 
 type Friend = {
@@ -93,15 +94,15 @@ export default function AmigosPage() {
             <div className="mt-2 bg-white border border-neutral-100 rounded-[1.5rem] shadow-lg overflow-hidden animate-fade-in">
               {searchResults.map(user => (
                 <div key={user.id} className="flex items-center justify-between px-6 py-4 hover:bg-neutral-50 transition-colors border-b border-neutral-100 last:border-b-0">
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200">
+                  <Link href={`/perfil?id=${user.id}`} className="flex items-center gap-4 group/search">
+                    <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 group-hover/search:scale-110 transition-transform">
                       <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
                     </div>
                     <div>
-                      <p className="font-headline font-bold text-[#003e6f] text-sm">{user.name}</p>
+                      <p className="font-headline font-bold text-[#003e6f] text-sm group-hover/search:text-secondary transition-colors">{user.name}</p>
                       <p className="text-xs text-neutral-500">{user.username}</p>
                     </div>
-                  </div>
+                  </Link>
                   <button
                     onClick={() => handleAgregar(user)}
                     disabled={requestSent[user.id]}
@@ -133,21 +134,21 @@ export default function AmigosPage() {
                 key={friend.id}
                 className={`bg-white p-6 rounded-[2rem] border border-neutral-100 shadow-sm flex items-center justify-between group hover:shadow-xl hover:border-[#003e6f]/10 transition-all duration-300 ${!friend.online ? 'opacity-75' : ''}`}
               >
-                <div className="flex items-center gap-5">
-                  <div className="relative">
-                    <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-neutral-100 shadow-inner">
-                      <img src={friend.avatar} alt={friend.name} className={`w-full h-full object-cover ${!friend.online ? 'grayscale' : ''}`} />
+                  <Link href={`/perfil?id=${friend.id}`} className="flex items-center gap-5 group/info">
+                    <div className="relative">
+                      <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-neutral-100 shadow-inner group-hover/info:scale-105 transition-transform duration-300">
+                        <img src={friend.avatar} alt={friend.name} className={`w-full h-full object-cover ${!friend.online ? 'grayscale' : ''}`} />
+                      </div>
+                      <div className={`absolute bottom-1 right-1 w-4 h-4 rounded-full border-2 border-white shadow-sm ${friend.online ? 'bg-emerald-500' : 'bg-neutral-300'}`} />
                     </div>
-                    <div className={`absolute bottom-1 right-1 w-4 h-4 rounded-full border-2 border-white shadow-sm ${friend.online ? 'bg-emerald-500' : 'bg-neutral-300'}`} />
-                  </div>
-                  <div>
-                    <h3 className="font-headline text-xl text-[#003e6f] font-bold">{friend.name}</h3>
-                    <div className="flex items-center gap-2 text-neutral-400 mt-1">
-                      <span className="material-symbols-outlined text-sm">{friend.online ? 'location_on' : 'schedule'}</span>
-                      <span className="text-sm font-body">{friend.status}</span>
+                    <div>
+                      <h3 className="font-headline text-xl text-[#003e6f] font-bold group-hover/info:text-secondary transition-colors">{friend.name}</h3>
+                      <div className="flex items-center gap-2 text-neutral-400 mt-1">
+                        <span className="material-symbols-outlined text-sm">{friend.online ? 'location_on' : 'schedule'}</span>
+                        <span className="text-sm font-body">{friend.status}</span>
+                      </div>
                     </div>
-                  </div>
-                </div>
+                  </Link>
                 <div className="flex items-center gap-2">
                   {friend.lat && friend.lng && (
                     <a

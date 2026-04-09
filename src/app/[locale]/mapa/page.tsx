@@ -202,6 +202,24 @@ async function safeInsertRuta(supabase: any, payload: any) {
     }
 
     const msg = getSupabaseErrorMessage(result.error).toLowerCase();
+    
+    // RLS Permission Denied Fix for Hackathon
+    if (msg.includes("permission denied") || msg.includes("row-level security")) {
+      try {
+        const localRoutes = JSON.parse(localStorage.getItem("muul_local_routes") || "[]");
+        const newLocalRoute = { 
+          ...currentPayload, 
+          id: `local_${Date.now()}`, 
+          created_at: new Date().toISOString(),
+          is_local: true 
+        };
+        localStorage.setItem("muul_local_routes", JSON.stringify([newLocalRoute, ...localRoutes]));
+        return { data: { id: newLocalRoute.id }, error: null, isLocal: true } as any;
+      } catch (e) {
+        console.error("Local storage fail:", e);
+      }
+    }
+
     if (msg.includes("invalid input syntax for type uuid") && "pois_ids" in currentPayload) {
       // Clean non-uuid IDs
       const rawPoisIds = Array.isArray(currentPayload.pois_ids) ? (currentPayload.pois_ids as string[]) : [];
@@ -235,7 +253,8 @@ const ordenarPorCercaniaAlOrigen = (
   pois: POI[],
   origen: [number, number] | null
 ): POI[] => {
-  if (!origen || pois.length <= 1) return pois;
+  if (!Array.isArray(pois) || pois.length === 0) return [];
+  if (!origen || pois.length <= 1) return [...pois];
 
   return [...pois].sort(
     (a, b) =>
@@ -640,14 +659,15 @@ export default function MapaPage() {
   }, []);
 
   /* ── Calculate route ── */
-  const calcularRuta = async () => {
-    if (poisEnRuta.length < 1) {
+  const calcularRuta = async (overridePois?: POI[]) => {
+    const targetPois = overridePois || poisEnRuta;
+    if (targetPois.length < 1) {
       mapboxOpt.setError(t("errorMinPuntos"));
       return;
     }
 
     // Forzar que la primera parada sea la más cercana al usuario
-    const poisBase = ordenarPorCercaniaAlOrigen(poisEnRuta, ubicacionUsuario);
+    const poisBase = ordenarPorCercaniaAlOrigen(targetPois, ubicacionUsuario);
 
     if (isAccessibleMode) {
       const result = await accessibleRoute.calculateAccessibleRoute(poisBase, ubicacionUsuario);
@@ -655,7 +675,7 @@ export default function MapaPage() {
         setPoisEnRuta(poisBase);
         setMostrarItinerario(true);
         setMobileSheetOpen(false);
-        setShowAccessibilityFeatures(false); // ✅ No mostrar puntos automáticamente
+        setShowAccessibilityFeatures(false);
         if (mapRef.current) {
           const bounds = new mapboxgl.LngLatBounds();
           (result.geometry.coordinates as [number, number][]).forEach((c) => bounds.extend(c));
@@ -763,13 +783,13 @@ export default function MapaPage() {
         es_publica: false
       };
 
-      const { error } = await safeInsertRuta(supabase, payload);
+      const { error, isLocal } = (await safeInsertRuta(supabase, payload)) as any;
 
       clearTimeout(securityTimeout);
 
       if (error) throw error;
 
-      setGuardadoMsg("✓ " + t("rutaGuardada"));
+      setGuardadoMsg(isLocal ? "✓ " + t("rutaGuardada") + " (Local)" : "✓ " + t("rutaGuardada"));
       setTimeout(() => {
         setGuardando(false);
         setGuardadoMsg("");
@@ -787,26 +807,64 @@ export default function MapaPage() {
 
   const cargarRutasGuardadas = async () => {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-    const { data } = await supabase.from("rutas_guardadas").select("*").eq("usuario_id", user.id).order("created_at", { ascending: false });
-    if (data) setRutasGuardadas(data);
+    let allMergedRoutes: any[] = [];
+    
+    // 1. Get from Supabase
+    if (user) {
+      const { data: dbData } = await supabase.from("rutas_guardadas").select("*").eq("usuario_id", user.id).order("created_at", { ascending: false });
+      if (dbData) allMergedRoutes = [...dbData];
+    }
+
+    // 2. Merge with Local (resilience mode)
+    try {
+      const localData = JSON.parse(localStorage.getItem("muul_local_routes") || "[]");
+      // Filter out those already in DB if they were synced (future)
+      allMergedRoutes = [...localData, ...allMergedRoutes];
+    } catch (e) {}
+
+    setRutasGuardadas(allMergedRoutes);
     setMostrarGuardadas(true);
   };
 
-  const eliminarRutaGuardada = async (id: string) => {
-    await supabase.from("rutas_guardadas").delete().eq("id", id);
+  const eliminarRutaGuardada = async (id: string | number) => {
+    if (String(id).startsWith("local_")) {
+      const localData = JSON.parse(localStorage.getItem("muul_local_routes") || "[]");
+      localStorage.setItem("muul_local_routes", JSON.stringify(localData.filter((r: any) => r.id !== id)));
+    } else {
+      await supabase.from("rutas_guardadas").delete().eq("id", id);
+    }
     setRutasGuardadas((prev) => prev.filter((r) => r.id !== id));
   };
 
-  const cargarRutaEnMapa = (pois_data: { id: string; nombre: string; emoji: string; categoria: string }[]) => {
-    const poisParaRuta = pois_data.map((d) => allPois.find((p) => p.id === d.id)).filter(Boolean) as POI[];
-    if (poisParaRuta.length < 1) { mapboxOpt.setError(t("errorGeneric")); return; }
+  const cargarRutaEnMapa = async (pois_info: any[]) => {
+    if (!pois_info || pois_info.length === 0) return;
+    
+    // Resolve full objects from IDs or partial objects
+    const poisParaRuta = pois_info.map((item) => {
+      const targetId = typeof item === 'string' ? item : (item.id || item);
+      return allPois.find((p) => p.id === targetId);
+    }).filter(Boolean) as POI[];
+
+    if (poisParaRuta.length < 1) {
+      mapboxOpt.setError(t("errorMinPuntos"));
+      return;
+    }
+
+    // 1. Sync state
     setPoisEnRuta(poisParaRuta);
+    setMostrarGuardadas(false);
+    setMostrarItinerario(true);
+    setMobileSheetOpen(false);
+
+    // 2. Clear previous and calculate new immediately
     mapboxOpt.clearRoute();
     accessibleRoute.clearRoute();
     metroRoute.clearRoute();
-    setMostrarItinerario(false);
-    setMostrarGuardadas(false);
+    
+    // Tiny delay to ensure state starts transition, but we use direct reference for calculation
+    setTimeout(() => {
+      calcularRuta(poisParaRuta);
+    }, 100);
   };
 
   /* ── Sorpréndeme ── */
@@ -1251,7 +1309,7 @@ export default function MapaPage() {
                   </div>
                   <TransportSelector value={transportMode} onChange={setTransportMode} enableMetro={metroEnabled} />
                   <div className="flex gap-2">
-                    <button onClick={calcularRuta} disabled={poisEnRuta.length < 1 || activeLoading}
+                    <button onClick={() => calcularRuta()} disabled={poisEnRuta.length < 1 || activeLoading}
                       className={`flex-1 py-4 rounded-xl font-headline font-black uppercase tracking-widest transition-all shadow-lg disabled:opacity-40 disabled:cursor-not-allowed ${isAccessibleMode ? "bg-[#fed000] text-[#003e6f] shadow-[#fed000]/20 hover:bg-yellow-400" : "bg-secondary hover:bg-secondary-fixed text-on-secondary shadow-secondary/10"}`}>
                       {activeLoading ? (isAccessibleMode ? t("analyzingAccessible") : t("calculando")) : (isAccessibleMode ? t("accessibleRouteCta") : isMetroMode ? t("metroRouteCta") : t("calcularRuta"))}
                     </button>
@@ -1672,7 +1730,7 @@ export default function MapaPage() {
                   </div>
                   <TransportSelector value={transportMode} onChange={setTransportMode} enableMetro={metroEnabled} />
                   <div className="flex gap-2">
-                    <button onClick={calcularRuta} disabled={poisEnRuta.length < 1 || activeLoading}
+                    <button onClick={() => calcularRuta()} disabled={poisEnRuta.length < 1 || activeLoading}
                       className={`flex-1 py-3 rounded-xl font-headline font-black text-sm uppercase tracking-widest disabled:opacity-40 disabled:cursor-not-allowed ${isAccessibleMode ? "bg-[#fed000] text-[#003e6f]" : "bg-secondary text-on-secondary"}`}>
                       {activeLoading ? (isAccessibleMode ? t("analyzingAccessible") : t("calculando")) : (isAccessibleMode ? t("accessibleRouteCta") : isMetroMode ? t("metroRouteCta") : t("calcularRuta"))}
                     </button>
