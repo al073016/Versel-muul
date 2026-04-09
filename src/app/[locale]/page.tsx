@@ -3,18 +3,39 @@
 import { useEffect, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
+import { haversine } from "@/lib/haversine";
+
+const OFFERS_DATA = [
+  { id: 1, name: "Tacos El Guero", lat: 19.423, lng: -99.163, desc: "20% de descuento en todos los tacos al pastor. Solo con código MUUL26.", off: "-20% OFF", type: "food" },
+  { id: 2, name: "Coppel Reforma", lat: 19.428, lng: -99.157, desc: "Bono de $500 MXN en compras mayores a $3,000 en tecnología.", off: "$500 MXN", type: "tech" },
+  { id: 3, name: "Soumaya VIP", lat: 19.440, lng: -99.204, desc: "Pase premium 2x1 en visitas guiadas nocturnas. Cupos limitados.", off: "2x1", type: "culture" }
+];
 
 export default function HomePage() {
   const t = useTranslations("home");
 
   const [activeHero, setActiveHero] = useState(0);
+  const [distancias, setDistancias] = useState<Record<number, string>>({});
   const heroImages = [
-    "https://images.unsplash.com/photo-1518182170546-07661fd94144?q=80&w=1920&h=1080&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1544013919-450f1fbcfa66?q=80&w=1920&h=1080&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1512813588641-0737a3459ced?q=80&w=1920&h=1080&auto=format&fit=crop"
+    "https://images.unsplash.com/photo-1518182170546-07661fd94144?q=80&w=1920&auto=format&fit=crop", // Ángel de la Independencia
+    "https://images.unsplash.com/photo-1585464231473-746d24c039a2?q=80&w=1920&auto=format&fit=crop", // Bellas Artes
+    "https://images.unsplash.com/photo-1563911892437-1feda0179e1b?q=80&w=1920&auto=format&fit=crop"  // Chapultepec
   ];
 
   useEffect(() => {
+    if (typeof window !== "undefined" && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((pos) => {
+        const uLat = pos.coords.latitude;
+        const uLng = pos.coords.longitude;
+        const newDist: Record<number, string> = {};
+        OFFERS_DATA.forEach(off => {
+          const d = haversine([uLat, uLng], [off.lat, off.lng]);
+          newDist[off.id] = d < 1 ? `${(d * 1000).toFixed(0)}m` : `${d.toFixed(1)}km`;
+        });
+        setDistancias(newDist);
+      });
+    }
+
     const timer = setInterval(() => {
       setActiveHero((prev) => (prev + 1) % heroImages.length);
     }, 5000);
@@ -114,52 +135,84 @@ export default function HomePage() {
             {t("exploraInteresDesc")}
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10">
-          {/* Nature Card */}
-          <div className="group relative aspect-[4/5] rounded-[2.5rem] overflow-hidden cursor-pointer shadow-xl hover:shadow-2xl transition-all duration-500">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
+          {/* Gastronomía */}
+          <div className="group relative aspect-[3/4] rounded-[2rem] overflow-hidden cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-500">
             <div 
               className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
               style={{
-                backgroundImage: 'linear-gradient(135deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.4) 100%), url("https://images.pexels.com/photos/3537903/pexels-photo-3537903.jpeg?auto=compress&cs=tinysrgb&w=600&h=800")'
+                backgroundImage: 'linear-gradient(135deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.5) 100%), url("https://images.unsplash.com/photo-1565299585323-38d6b0865b47?q=80&w=600&auto=format&fit=crop")'
               }}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#001c39]/90 via-transparent to-transparent" />
-            <div className="absolute bottom-0 left-0 right-0 p-8 md:p-10">
-              <span className="font-label text-emerald-300 !text-emerald-300 text-xs uppercase tracking-widest mb-3 block font-bold">{t("tagHogarVerde")}</span>
-              <h3 className="font-headline text-4xl md:text-5xl text-white !text-white font-black">{t("explorar")} {t("comida")}</h3>
-              <div className="h-1.5 w-12 bg-[#fed000] mt-6 rounded-full group-hover:w-20 transition-all duration-300" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#001c39]/90 via-transparent to-transparent opacity-80" />
+            <div className="absolute bottom-0 left-0 right-0 p-6">
+              <span className="material-symbols-outlined text-white/50 mb-3 block group-hover:scale-110 group-hover:text-secondary transition-all">restaurant</span>
+              <h3 className="font-headline text-lg md:text-xl lg:text-2xl text-white font-black leading-tight">Gastronomía</h3>
+              <div className="h-1 w-8 bg-[#fed000] mt-4 rounded-full group-hover:w-16 transition-all duration-300" />
             </div>
           </div>
           
-          {/* Culture Card */}
-          <div className="group relative aspect-[4/5] rounded-[2.5rem] overflow-hidden cursor-pointer shadow-xl hover:shadow-2xl transition-all duration-500">
+          {/* Hospedaje */}
+          <div className="group relative aspect-[3/4] rounded-[2rem] overflow-hidden cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-500">
             <div 
               className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
               style={{
-                backgroundImage: 'linear-gradient(135deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.4) 100%), url("https://images.pexels.com/photos/1537671/pexels-photo-1537671.jpeg?auto=compress&cs=tinysrgb&w=600&h=800")'
+                backgroundImage: 'linear-gradient(135deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.5) 100%), url("https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=600&auto=format&fit=crop")'
               }}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#001c39]/90 via-transparent to-transparent" />
-            <div className="absolute bottom-0 left-0 right-0 p-8 md:p-10">
-              <span className="font-label text-cyan-300 !text-cyan-300 text-xs uppercase tracking-widest mb-3 block font-bold">{t("tagCulturaViva")}</span>
-              <h3 className="font-headline text-4xl md:text-5xl text-white !text-white font-black">{t("cultural")}</h3>
-              <div className="h-1.5 w-12 bg-[#fed000] mt-6 rounded-full group-hover:w-20 transition-all duration-300" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#001c39]/90 via-transparent to-transparent opacity-80" />
+            <div className="absolute bottom-0 left-0 right-0 p-6">
+              <span className="material-symbols-outlined text-white/50 mb-3 block group-hover:scale-110 group-hover:text-secondary transition-all">apartment</span>
+              <h3 className="font-headline text-lg md:text-xl lg:text-2xl text-white font-black leading-tight">Hospedaje</h3>
+              <div className="h-1 w-8 bg-[#fed000] mt-4 rounded-full group-hover:w-16 transition-all duration-300" />
             </div>
           </div>
           
-          {/* Gastronomy Card */}
-          <div className="group relative aspect-[4/5] rounded-[2.5rem] overflow-hidden cursor-pointer shadow-xl hover:shadow-2xl transition-all duration-500">
+          {/* Cultural */}
+          <div className="group relative aspect-[3/4] rounded-[2rem] overflow-hidden cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-500">
             <div 
               className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
               style={{
-                backgroundImage: 'linear-gradient(135deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.4) 100%), url("https://images.pexels.com/photos/1092730/pexels-photo-1092730.jpeg?auto=compress&cs=tinysrgb&w=600&h=800")'
+                backgroundImage: 'linear-gradient(135deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.5) 100%), url("https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=600&auto=format&fit=crop")'
               }}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#001c39]/90 via-transparent to-transparent" />
-            <div className="absolute bottom-0 left-0 right-0 p-8 md:p-10">
-              <span className="font-label text-orange-300 !text-orange-300 text-xs uppercase tracking-widest mb-3 block font-bold">{t("tagGastronomia")}</span>
-              <h3 className="font-headline text-4xl md:text-5xl text-white !text-white font-black">{t("comida")}</h3>
-              <div className="h-1.5 w-12 bg-[#fed000] mt-6 rounded-full group-hover:w-20 transition-all duration-300" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#001c39]/90 via-transparent to-transparent opacity-80" />
+            <div className="absolute bottom-0 left-0 right-0 p-6">
+              <span className="material-symbols-outlined text-white/50 mb-3 block group-hover:scale-110 group-hover:text-secondary transition-all">confirmation_number</span>
+              <h3 className="font-headline text-lg md:text-xl lg:text-2xl text-white font-black leading-tight">Cultural</h3>
+              <div className="h-1 w-8 bg-[#fed000] mt-4 rounded-full group-hover:w-16 transition-all duration-300" />
+            </div>
+          </div>
+
+          {/* Eventos */}
+          <div className="group relative aspect-[3/4] rounded-[2rem] overflow-hidden cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-500">
+            <div 
+              className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+              style={{
+                backgroundImage: 'linear-gradient(135deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.5) 100%), url("https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=600&auto=format&fit=crop")'
+              }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#001c39]/90 via-transparent to-transparent opacity-80" />
+            <div className="absolute bottom-0 left-0 right-0 p-6">
+              <span className="material-symbols-outlined text-white/50 mb-3 block group-hover:scale-110 group-hover:text-secondary transition-all">event</span>
+              <h3 className="font-headline text-lg md:text-xl lg:text-2xl text-white font-black leading-tight">Eventos</h3>
+              <div className="h-1 w-8 bg-[#fed000] mt-4 rounded-full group-hover:w-16 transition-all duration-300" />
+            </div>
+          </div>
+
+          {/* Servicios */}
+          <div className="group relative aspect-[3/4] rounded-[2rem] overflow-hidden cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-500">
+            <div 
+              className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+              style={{
+                backgroundImage: 'linear-gradient(135deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.5) 100%), url("https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?q=80&w=600&auto=format&fit=crop")'
+              }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#001c39]/90 via-transparent to-transparent opacity-80" />
+            <div className="absolute bottom-0 left-0 right-0 p-6">
+              <span className="material-symbols-outlined text-white/50 mb-3 block group-hover:scale-110 group-hover:text-secondary transition-all">construction</span>
+              <h3 className="font-headline text-lg md:text-xl lg:text-2xl text-white font-black leading-tight">Servicios</h3>
+              <div className="h-1 w-8 bg-[#fed000] mt-4 rounded-full group-hover:w-16 transition-all duration-300" />
             </div>
           </div>
         </div>
@@ -237,44 +290,94 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Newsletter - Premium Gradient */}
-      <section className="py-24 md:py-32 bg-white px-6 md:px-12">
-        <div className="max-w-[1440px] mx-auto bg-gradient-to-br from-[#003e6f] via-[#005596] to-[#001c39] rounded-[4rem] p-12 md:p-20 relative overflow-hidden shadow-2xl">
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-sky-400/10 rounded-full blur-[100px] -z-10" />
-          
-          <div className="relative z-10 grid lg:grid-cols-2 gap-20 items-center">
-            <div>
-              <div className="inline-flex items-center gap-2 mb-8 text-white !text-white font-label text-xs uppercase tracking-[0.2em] bg-white/10 px-5 py-2.5 rounded-full border border-white/20 font-bold">
-                <span className="w-2 h-2 rounded-full bg-[#fed000] animate-pulse"></span>
-                {t("badge")}
+      {/* Offers Section - Premium Card Grid */}
+      <section className="py-24 md:py-32 bg-white px-6 md:px-12 max-w-[1440px] mx-auto overflow-visible">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-8">
+          <div>
+            <span className="font-label text-secondary tracking-widest text-xs uppercase mb-4 block font-black">⚡ OPORTUNIDADES MUUL</span>
+            <h2 className="font-headline text-5xl md:text-6xl text-[#003e6f] font-black leading-none">Ofertas <span className="text-secondary italic">Especiales</span></h2>
+          </div>
+          <Link href="/ofertas" className="flex items-center gap-3 text-[#003e6f] font-headline font-black text-sm uppercase tracking-widest hover:text-secondary transition-colors group">
+            Ver todas las ofertas
+            <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {/* Card 1 */}
+          <div className="group relative bg-[#f8faff] rounded-[2.5rem] p-8 md:p-10 border border-[#003e6f]/5 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/10 rounded-bl-[5rem] -mr-8 -mt-8 group-hover:scale-110 transition-transform duration-500" />
+            <div className="relative z-10 flex flex-col h-full">
+              <div className="flex justify-between items-start mb-8">
+                <div className="w-16 h-16 rounded-2xl bg-white shadow-md flex items-center justify-center border border-neutral-100">
+                  <span className="material-symbols-outlined text-3xl text-secondary">local_fire_department</span>
+                </div>
+                {distancias[1] && (
+                  <span className="text-[10px] font-black text-secondary bg-secondary/10 px-3 py-1 rounded-full uppercase tracking-widest flex items-center gap-1">
+                    <span className="material-symbols-outlined text-[12px]">near_me</span>
+                    {distancias[1]}
+                  </span>
+                )}
               </div>
-              
-              <h2 className="font-headline text-5xl md:text-7xl text-white !text-white mb-8 font-black leading-[1.1]">
-                {t("uneteA")} <br /><span className="text-[#fed000] !text-[#fed000] italic font-light">{t("inteligenciaEditorial")}</span>
-              </h2>
-              
-              <p className="text-white/80 text-lg md:text-xl mb-12 font-body leading-relaxed max-w-lg">
-                {t("newsletterDesc")}
-              </p>
-              
-              <div className="flex flex-col sm:flex-row gap-4 max-w-md">
-                <input 
-                  type="email" 
-                  placeholder={t("newsletterPlaceholder")}
-                  className="flex-1 px-8 py-5 bg-white/10 border border-white/20 backdrop-blur-xl rounded-full text-white !text-white placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-[#fed000] transition-all font-body font-medium shadow-inner"/>
-                <button className="px-10 py-5 bg-[#003e6f] text-white !text-white border border-white/20 rounded-full font-headline font-black text-base hover:bg-[#fed000] hover:text-[#003e6f] transition-all shadow-xl whitespace-nowrap">
-                  {t("suscribirme")}
-                </button>
+              <h3 className="font-headline text-3xl text-[#003e6f] font-black mb-4">Tacos El Guero</h3>
+              <p className="text-neutral-500 font-body mb-10 leading-relaxed">20% de descuento en todos los tacos al pastor. Solo con código MUUL26.</p>
+              <div className="mt-auto flex items-center justify-between">
+                <span className="bg-secondary text-[#003e6f] font-headline font-black px-4 py-2 rounded-xl text-lg">-20% OFF</span>
+                <Link href="/mapa?lat=19.423&lng=-99.163&id=1" className="w-12 h-12 rounded-full bg-[#003e6f] text-white flex items-center justify-center hover:bg-secondary hover:text-[#003e6f] transition-all border border-transparent">
+                  <span className="material-symbols-outlined">map</span>
+                </Link>
               </div>
             </div>
-            
-            <div className="hidden lg:block">
-              <div className="relative aspect-square rounded-[3rem] overflow-hidden border-8 border-white/10 shadow-3xl">
-                <img 
-                  src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop" 
-                  alt="Newsletter" 
-                  className="w-full h-full object-cover transition-all duration-700 hover:scale-105"
-                />
+          </div>
+
+          {/* Card 2 */}
+          <div className="group relative bg-[#003e6f] rounded-[2.5rem] p-8 md:p-10 shadow-xl shadow-[#003e6f]/20 hover:shadow-[#003e6f]/40 hover:-translate-y-2 transition-all duration-500 overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-bl-[5rem] -mr-8 -mt-8 group-hover:scale-110 transition-transform duration-500" />
+            <div className="relative z-10 flex flex-col h-full">
+              <div className="flex justify-between items-start mb-8">
+                <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/10">
+                  <span className="material-symbols-outlined text-3xl text-[#fed000]">shopping_bag</span>
+                </div>
+                {distancias[2] && (
+                  <span className="text-[10px] font-black text-[#fed000] bg-white/10 px-3 py-1 rounded-full uppercase tracking-widest flex items-center gap-1">
+                    <span className="material-symbols-outlined text-[12px]">near_me</span>
+                    {distancias[2]}
+                  </span>
+                )}
+              </div>
+              <h3 className="font-headline text-3xl text-white font-black mb-4">Coppel Reforma</h3>
+              <p className="text-white/60 font-body mb-10 leading-relaxed">Bono de $500 MXN en compras mayores a $3,000 en tecnología.</p>
+              <div className="mt-auto flex items-center justify-between">
+                <span className="bg-[#fed000] text-[#003e6f] font-headline font-black px-4 py-2 rounded-xl text-lg">$500 MXN</span>
+                <Link href="/mapa?lat=19.428&lng=-99.157&id=2" className="w-12 h-12 rounded-full bg-white text-[#003e6f] flex items-center justify-center hover:bg-[#fed000] transition-all">
+                  <span className="material-symbols-outlined">map</span>
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 3 */}
+          <div className="group relative bg-[#fffcf0] rounded-[2.5rem] p-8 md:p-10 border border-[#fed000]/20 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-[#fed000]/10 rounded-bl-[5rem] -mr-8 -mt-8 group-hover:scale-110 transition-transform duration-500" />
+            <div className="relative z-10 flex flex-col h-full">
+              <div className="flex justify-between items-start mb-8">
+                <div className="w-16 h-16 rounded-2xl bg-white shadow-md flex items-center justify-center border border-neutral-100">
+                  <span className="material-symbols-outlined text-3xl text-[#003e6f]">museum</span>
+                </div>
+                {distancias[3] && (
+                  <span className="text-[10px] font-black text-[#003e6f] bg-[#fed000]/10 px-3 py-1 rounded-full uppercase tracking-widest flex items-center gap-1">
+                    <span className="material-symbols-outlined text-[12px]">near_me</span>
+                    {distancias[3]}
+                  </span>
+                )}
+              </div>
+              <h3 className="font-headline text-3xl text-[#003e6f] font-black mb-4">Soumaya VIP</h3>
+              <p className="text-neutral-500 font-body mb-10 leading-relaxed">Pase premium 2x1 en visitas guiadas nocturnas. Cupos limitados.</p>
+              <div className="mt-auto flex items-center justify-between">
+                <span className="bg-[#003e6f] text-white font-headline font-black px-4 py-2 rounded-xl text-lg">2x1</span>
+                <Link href="/mapa?lat=19.440&lng=-99.204&id=3" className="w-12 h-12 rounded-full bg-[#fed000] text-[#003e6f] flex items-center justify-center hover:bg-[#003e6f] hover:text-white transition-all">
+                  <span className="material-symbols-outlined">map</span>
+                </Link>
               </div>
             </div>
           </div>

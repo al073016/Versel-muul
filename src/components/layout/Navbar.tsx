@@ -60,7 +60,6 @@ export default function Navbar() {
       { href: "/tiendas", label: t("categorias") },
       { href: "/mapa", label: t("mapa") },
       { href: "/amigos", label: t("amigos") },
-      { href: "/ofertas", label: t("ofertas") },
     ],
     [t]
   );
