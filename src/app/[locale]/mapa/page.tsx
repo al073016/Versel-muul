@@ -274,6 +274,7 @@ export default function MapaPage() {
   const animationRef = useRef<number | null>(null);
   const userWatchIdRef = useRef<number | null>(null);
   const centeredOnceRef = useRef(false);
+  const lastNearbyFetchKeyRef = useRef<string | null>(null);
   const t = useTranslations("mapa");
   const tn = useTranslations("nav");
   const locale = useLocale();
@@ -484,17 +485,29 @@ export default function MapaPage() {
     const center = mapRef.current.getCenter();
     const zoom = mapRef.current.getZoom();
 
-    const { merged } = await buscarCercanos([center.lat, center.lng], zoom);
+    const zoomBucket = Math.floor(zoom);
+    const latBucket = center.lat.toFixed(2);
+    const lngBucket = center.lng.toFixed(2);
+    const requestKey = `${locale}:${zoomBucket}:${latBucket}:${lngBucket}`;
+
+    if (lastNearbyFetchKeyRef.current === requestKey) return;
+    lastNearbyFetchKeyRef.current = requestKey;
+
+    const { merged } = await buscarCercanos([center.lat, center.lng], zoom, locale);
     if (merged.length > 0) {
       setAllPois(prev => {
         const result = [...prev];
+        let added = false;
         merged.forEach(m => {
-          if (!result.find(r => r.id === m.id)) result.push(m);
+          if (!result.find(r => r.id === m.id)) {
+            result.push(m);
+            added = true;
+          }
         });
-        return result;
+        return added ? result : prev;
       });
     }
-  }, [buscarCercanos]);
+  }, [buscarCercanos, locale]);
 
 
   useEffect(() => {
@@ -503,11 +516,18 @@ export default function MapaPage() {
 
     fetchNearbyPois().then(() => setInitialLoadDone(true));
 
-
-    const onMoveEnd = () => fetchNearbyPois();
+    // Re-fetch when user moves the map
+    let moveTimer: number | null = null;
+    const onMoveEnd = () => {
+      if (moveTimer !== null) window.clearTimeout(moveTimer);
+      moveTimer = window.setTimeout(() => {
+        fetchNearbyPois();
+      }, 220);
+    };
     mapRef.current?.on("moveend", onMoveEnd);
 
     return () => {
+      if (moveTimer !== null) window.clearTimeout(moveTimer);
       mapRef.current?.off("moveend", onMoveEnd);
     };
   }, [mapLoaded, fetchNearbyPois]);
@@ -1225,6 +1245,8 @@ export default function MapaPage() {
       data: { type: "Feature", properties: {}, geometry: activeRoute.geometry },
     });
 
+    const isSingleStrokeMode = transportMode === "cycling" || transportMode === "driving";
+
     if (isAccessibleMode) {
 
       mapRef.current.addLayer({
@@ -1247,6 +1269,15 @@ export default function MapaPage() {
         source: "main-route",
         layout: { "line-join": "round", "line-cap": "round" },
         paint: { "line-color": "#003e6f", "line-width": 3, "line-opacity": 0.45, "line-dasharray": [2, 3] }
+      });
+    } else if (isSingleStrokeMode) {
+      // Bicicleta y vehiculo: una sola linea para evitar efecto de doble trazo.
+      mapRef.current.addLayer({
+        id: "main-base",
+        type: "line",
+        source: "main-route",
+        layout: { "line-join": "round", "line-cap": "round" },
+        paint: { "line-color": color, "line-width": 6, "line-opacity": 0.96 }
       });
     } else {
       mapRef.current.addLayer({ id: "main-glow", type: "line", source: "main-route", layout: { "line-join": "round", "line-cap": "round" }, paint: { "line-color": color, "line-width": 14, "line-opacity": 0.2, "line-blur": 8 } });
@@ -1398,7 +1429,7 @@ export default function MapaPage() {
                 </div>
 
                 <div className="flex-1 overflow-y-auto px-4 space-y-2" style={{ scrollbarWidth: "none" }}>
-                  {!initialLoadDone || buscandoExternos ? (
+                  {!initialLoadDone ? (
                     <div className="space-y-3 p-4">
                       {[1,2,3].map((i) => (
                         <div key={i} className="animate-pulse flex gap-4 p-4">

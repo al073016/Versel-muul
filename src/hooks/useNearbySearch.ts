@@ -10,8 +10,9 @@ export function useNearbySearch() {
 
   const buscarCercanos = useCallback(
     async (
-      coords: [number, number],
-      _zoom: number
+      coords: [number, number], // [lat, lng]
+      _zoom: number,
+      locale = "es"
     ): Promise<{ merged: POI[] }> => {
       setBuscandoExternos(true);
 
@@ -20,6 +21,7 @@ export function useNearbySearch() {
           lat: coords[0],
           lng: coords[1],
           radioKm: 5,
+          locale,
         });
 
         return { merged };

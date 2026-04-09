@@ -10,9 +10,73 @@ type POIServiceOptions = {
   locale?: string;
 };
 
+type NearbyCachePayload = {
+  expiresAt: number;
+  data: POI[];
+};
+
+const NEARBY_CACHE_PREFIX = "muul:nearby:v1";
+const NEARBY_CACHE_TTL_MS = 3 * 60 * 1000;
+const NEARBY_GRID_DECIMALS = 2;
+
+function quantize(value: number, decimals = NEARBY_GRID_DECIMALS): string {
+  return value.toFixed(decimals);
+}
+
+function buildNearbyCacheKey({ lat, lng, radioKm, locale }: Required<POIServiceOptions>): string {
+  return [
+    NEARBY_CACHE_PREFIX,
+    quantize(lat),
+    quantize(lng),
+    Number(radioKm).toFixed(1),
+    locale,
+  ].join(":");
+}
+
+function readNearbyCache(key: string): POI[] | null {
+  if (typeof window === "undefined") return null;
+
+  try {
+    const raw = window.localStorage.getItem(key);
+    if (!raw) return null;
+
+    const parsed = JSON.parse(raw) as NearbyCachePayload;
+    if (!parsed?.expiresAt || !Array.isArray(parsed?.data)) return null;
+
+    if (Date.now() > parsed.expiresAt) {
+      window.localStorage.removeItem(key);
+      return null;
+    }
+
+    return parsed.data;
+  } catch {
+    return null;
+  }
+}
+
+function writeNearbyCache(key: string, data: POI[]): void {
+  if (typeof window === "undefined") return;
+
+  try {
+    const payload: NearbyCachePayload = {
+      expiresAt: Date.now() + NEARBY_CACHE_TTL_MS,
+      data,
+    };
+    window.localStorage.setItem(key, JSON.stringify(payload));
+  } catch {
+    // Ignore storage quota and serialization errors.
+  }
+}
+
 export const POIService = {
   
   async getNearby({ lat, lng, radioKm = 5, locale = "es" }: POIServiceOptions): Promise<POI[]> {
+    const cacheKey = buildNearbyCacheKey({ lat, lng, radioKm, locale });
+    const cached = readNearbyCache(cacheKey);
+    if (cached && cached.length > 0) {
+      return cached;
+    }
+
     try {
 
       const { createClient } = await import("@/lib/supabase/client");
@@ -31,7 +95,9 @@ export const POIService = {
           categoria: n.categoria ?? "tienda",
           emoji: "🏪",
         }));
-        return [...negocios, ...(poisData ?? [])] as POI[];
+        const merged = [...negocios, ...(poisData ?? [])] as POI[];
+        writeNearbyCache(cacheKey, merged);
+        return merged;
       }
     } catch (err) {
       console.warn("[POIService] Supabase unavailable, using local seed data:", err);
@@ -39,6 +105,7 @@ export const POIService = {
 
 
     const allPois = getLocalizedDummyPois(locale);
+    writeNearbyCache(cacheKey, allPois as POI[]);
     return allPois as POI[];
   },
 
