@@ -216,7 +216,7 @@ export async function POST(req: Request) {
       const modelos = modeloEnv && modeloEnv.includes(":free")
         ? [modeloEnv, ...MODELOS_GRATUITOS]
         : MODELOS_GRATUITOS;
-      const modelosUnicos = [...new Set(modelos)];
+      const modelosUnicos = Array.from(new Set(modelos));
 
       const instruction = getTargetLanguageInstruction(payload.translationBatch.targetLocale);
       const translated: Array<string | null> = [];
@@ -316,7 +316,7 @@ export async function POST(req: Request) {
     const modelos = modeloEnv && modeloEnv.includes(":free")
       ? [modeloEnv, ...MODELOS_GRATUITOS]
       : MODELOS_GRATUITOS;
-    const modelosUnicos = [...new Set(modelos)];
+    const modelosUnicos = Array.from(new Set(modelos));
 
     let respuesta: string | null = null;
     let ultimoError = "No fue posible generar la respuesta del asistente.";

@@ -1,3 +1,5 @@
+import { CURATED_PLACE_IMAGES } from "@/lib/dummy-data";
+
 /**
  * MUUL — Editorial Photo Engine
  * Genera imágenes de alta calidad (Unsplash) basadas en categorías y nombres
@@ -15,11 +17,7 @@ export const CATEGORY_QUERIES: Record<string, string> = {
 
 // Fotos "Curadas" para que al menos las de la demo sean perfectas
 export const CURATED_PHOTOS: Record<string, string> = {
-  "Tacos El Guero": "https://images.unsplash.com/photo-1565299585323-38d6b0865ef4?q=80&w=1000&auto=format&fit=crop",
-  "Coppel Reforma": "https://images.unsplash.com/photo-1573855619003-97b4799dcd8b?q=80&w=1000&auto=format&fit=crop",
-  "Museo Soumaya": "https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=80&w=1000&auto=format&fit=crop",
-  "The Coffee Bean": "https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=1000&auto=format&fit=crop",
-  "Centro Histórico": "https://images.unsplash.com/photo-1512813588641-0737a3459ced?q=80&w=1000&auto=format&fit=crop",
+  ...CURATED_PLACE_IMAGES,
 };
 
 /**

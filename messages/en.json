@@ -4,6 +4,8 @@
     "categorias": "Categories",
     "ofertas": "Offers",
     "amigos": "Friends",
+    "comunidad": "Community",
+    "ranking": "Ranking",
     "more": "More",
     "buscarPlaceholder": "Search routes or destinations...",
     "searchPeople": "People",
@@ -53,6 +55,14 @@
     "enVivo": "Live",
     "exploraInteresTitulo": "Explore by Interest",
     "exploraInteresDesc": "Smart filters designed to find the essence of every corner of our country.",
+    "gastronomia": "Gastronomy",
+    "hospedaje": "Stay",
+    "eventos": "Events",
+    "servicios": "Services",
+    "curaduriaExclusiva": "Exclusive curation",
+    "heroAngel": "Angel of Independence",
+    "heroBellasArtes": "Palace of Fine Arts",
+    "heroChapultepec": "Chapultepec Castle",
     "tagHogarVerde": "GREEN HOME",
     "tagCulturaViva": "LIVING CULTURE",
     "tagGastronomia": "GASTRONOMY",
@@ -64,9 +74,23 @@
     "mexicoSur": "SOUTH MEXICO",
     "destinoSecundario": "Puerto Escondido",
     "destinoSecundarioDesc": "Increase in interest for sustainable surfing",
+    "trendingRank": "🔥 Trending #1",
     "explorarGuia": "Explore Guide",
     "recomendacionesDigitales": "Digital Recommendations",
     "impactoPositivo": "Positive Impact",
+    "ofertasTag": "Muul opportunities",
+    "ofertasTitulo": "Special",
+    "ofertasDestacado": "Offers",
+    "oferta1Nombre": "Tacos El Guero",
+    "oferta1Desc": "20% off all tacos al pastor. Only with code MUUL26.",
+    "oferta1Badge": "-20% OFF",
+    "oferta2Nombre": "Coppel Reforma",
+    "oferta2Desc": "$500 MXN bonus on purchases over $3,000 in technology.",
+    "oferta2Badge": "$500 MXN",
+    "oferta3Nombre": "Soumaya VIP",
+    "oferta3Desc": "Premium 2x1 pass for night guided visits. Limited spots.",
+    "oferta3Badge": "2x1",
+    "verTodasLasOfertas": "See all offers",
     "uneteA": "Join the",
     "inteligenciaEditorial": "Editorial Intelligence",
     "newsletterDesc": "Receive every week a deep curation of destinations and products defining the new Mexico.",
@@ -83,6 +107,9 @@
     "cultural": "Culture",
     "deportes": "Sports",
     "tiendas": "Shops",
+    "hospedaje": "Stay",
+    "eventos": "Events",
+    "servicios": "Services",
     "abiertos": "Open now",
     "preguntarAI": "Ask about {nombre}",
     "seleccionaPrimero": "Select a place first",
@@ -146,6 +173,28 @@
     "muulAi": "Muul AI",
     "cerrarPanel": "Close panel",
     "abrirPanel": "Open panel"
+    ,"requireUserLocation": "Your location is required"
+    ,"noNearbyPlaces": "No nearby places were found"
+    ,"maxStops": "(max 12)"
+    ,"analyzingAccessible": "Analyzing..."
+    ,"accessibleRouteCta": "♿ Accessible Route"
+    ,"visitsMinutes": "min visits"
+    ,"optimal": "Optimal"
+    ,"accessibilityLabel": "Accessibility"
+    ,"accessibilityHigh": "High"
+    ,"accessibilityMedium": "Medium"
+    ,"accessibilityLow": "Low"
+    ,"accessibilityFeaturesToggle": "Ramps and elevators on map"
+    ,"featureRamps": "Ramps"
+    ,"featureElevators": "Elevators"
+    ,"featureCrossings": "Crossings"
+    ,"featureTactile": "Tactile paving"
+    ,"partyMode": "Party Mode"
+    ,"publishCommunity": "Post to Community"
+    ,"saveRoutes": "Save routes"
+    ,"openMuulAi": "Open MUUL AI"
+    ,"accessibleMode": "Accessible Mode"
+    ,"externalSource": "Mapbox"
   },
   "tiendas": {
     "titulo": "Registered",
@@ -397,7 +446,33 @@
     "verTiendas": "View all shops",
     "direccionNoEspecificada": "Address not specified",
     "horarioNoEspecificado": "Hours not specified",
-    "rfc": "Tax ID"
+    "rfc": "Tax ID",
+    "guardar": "Save",
+    "editarPerfil": "Edit profile",
+    "featureCard": "Card payments",
+    "featureTransfer": "Bank transfers",
+    "featurePetFriendly": "Pet friendly",
+    "featureVegan": "Vegan options",
+    "featureAccessible": "Accessible",
+    "dashboardSaved": "Changes saved successfully",
+    "dashboardSaveError": "Error saving changes",
+    "dashboardAccessTitle": "Access your dashboard",
+    "dashboardAccessDesc": "Sign in to manage your business",
+    "dashboardEmptyTitle": "You don't have a registered business",
+    "dashboardEmptyDesc": "Register your business on MUUL",
+    "dashboardRegister": "Register business",
+    "dashboardFollowers": "followers",
+    "dashboardPublicPage": "View public page",
+    "dashboardFeatures": "Business features",
+    "dashboardSocial": "Social media",
+    "dashboardInstagram": "Instagram",
+    "dashboardFacebook": "Facebook",
+    "dashboardVisits": "Visits this month",
+    "dashboardProducts": "Active products",
+    "dashboardRating": "Average rating",
+    "dashboardUrls": "URLs (optional)",
+    "dashboardProfileImageUrl": "Profile image URL",
+    "dashboardBannerUrl": "Banner URL"
   },
   "chatbot": {
     "titulo": "Muul AI",
@@ -481,6 +556,19 @@
     "subtitulo": "Discover where your friends are and plan your next adventure together.",
     "verMapa": "View Map",
     "agregarAmigos": "Add new friends"
+  },
+  "comunidad": {
+    "titulo": "Community",
+    "subtitulo": "Discover routes, stories, and the top travelers across the Muul network.",
+    "topViajeros": "Top Travelers of the Month",
+    "publicaciones": "Recent Posts",
+    "puntos": "{count} pts",
+    "nivel": "Level",
+    "comentarios": "Comments",
+    "compartirAventura": "Share your next adventure...",
+    "publicar": "Publish",
+    "tuAmigo": "Your Friend",
+    "explorador": "Explorer"
   },
   "ofertas": {
     "hotDeals": "🔥 Hot Deals",

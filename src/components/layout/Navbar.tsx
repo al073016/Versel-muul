@@ -5,7 +5,7 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { getPerfilCompat } from "@/lib/supabase/profileCompat";
 import { useTranslations, useLocale } from "next-intl";
-import { DUMMY_POIS } from "@/lib/dummy-data";
+import { getLocalizedDummyPois } from "@/lib/dummy-data";
 
 interface UserInfo {
   initials: string;
@@ -42,6 +42,7 @@ export default function Navbar() {
   const profileMenuRef = useRef<HTMLDivElement>(null);
 
   const t = useTranslations("nav");
+  const dummyPois = useMemo(() => getLocalizedDummyPois(locale), [locale]);
 
   // Search state
   const searchRef = useRef<HTMLDivElement>(null);
@@ -129,7 +130,7 @@ export default function Navbar() {
             );
           }
 
-          DUMMY_POIS.filter(
+          dummyPois.filter(
             (p) =>
               p.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
               p.descripcion?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -157,7 +158,7 @@ export default function Navbar() {
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [searchQuery, supabase]);
+  }, [dummyPois, searchQuery, supabase]);
 
   const handleSelectResult = (result: SearchResult) => {
     if (result.type === "person") {
@@ -219,7 +220,7 @@ export default function Navbar() {
       } = await supabase.auth.getUser();
       if (authUser) {
         const perfil = await getPerfilCompat(supabase, authUser.id);
-        const nombre = perfil?.nombre_completo || authUser.user_metadata?.nombre_completo || authUser.email || "Usuario";
+        const nombre = perfil?.nombre_completo || authUser.user_metadata?.nombre_completo || authUser.email || t("person");
         const parts = nombre.split(" ");
         const initials =
           parts.length >= 2 ? (parts[0][0] + parts[1][0]).toUpperCase() : nombre.substring(0, 2).toUpperCase();
@@ -314,12 +315,12 @@ export default function Navbar() {
                 {isSearching && (
                   <div className="py-8 flex flex-col items-center justify-center gap-3">
                     <div className="w-6 h-6 border-2 border-[#003e6f]/20 border-t-[#003e6f] rounded-full animate-spin" />
-                    <p className="text-xs text-[#003e6f]/40 font-bold">Buscando...</p>
+                    <p className="text-xs text-[#003e6f]/40 font-bold">{t("searching")}</p>
                   </div>
                 )}
                 {!isSearching && searchResults.length === 0 && searchQuery.trim().length > 0 && (
                   <div className="py-8 px-4 text-center">
-                    <p className="text-xs text-[#003e6f]/40 font-bold">Sin resultados</p>
+                    <p className="text-xs text-[#003e6f]/40 font-bold">{t("noResults")}</p>
                   </div>
                 )}
                 {!isSearching &&

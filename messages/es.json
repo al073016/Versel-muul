@@ -55,6 +55,14 @@
     "enVivo": "En Vivo",
     "exploraInteresTitulo": "Explora por Interés",
     "exploraInteresDesc": "Filtros inteligentes diseñados para encontrar la esencia de cada rincón de nuestro país.",
+    "gastronomia": "Gastronomía",
+    "hospedaje": "Hospedaje",
+    "eventos": "Eventos",
+    "servicios": "Servicios",
+    "curaduriaExclusiva": "Curaduría exclusiva",
+    "heroAngel": "Ángel de la Independencia",
+    "heroBellasArtes": "Palacio de Bellas Artes",
+    "heroChapultepec": "Castillo de Chapultepec",
     "tagHogarVerde": "HOGAR VERDE",
     "tagCulturaViva": "CULTURA VIVA",
     "tagGastronomia": "GASTRONOMÍA",
@@ -66,9 +74,23 @@
     "mexicoSur": "MÉXICO SUR",
     "destinoSecundario": "Puerto Escondido",
     "destinoSecundarioDesc": "Incremento en interés por surf sustentable",
+    "trendingRank": "🔥 Tendencia #1",
     "explorarGuia": "Explorar Guía",
     "recomendacionesDigitales": "Recomendaciones Digitales",
     "impactoPositivo": "Impacto Positivo",
+    "ofertasTag": "Oportunidades Muul",
+    "ofertasTitulo": "Ofertas",
+    "ofertasDestacado": "Especiales",
+    "oferta1Nombre": "Tacos El Guero",
+    "oferta1Desc": "20% de descuento en todos los tacos al pastor. Solo con código MUUL26.",
+    "oferta1Badge": "-20% OFF",
+    "oferta2Nombre": "Coppel Reforma",
+    "oferta2Desc": "Bono de $500 MXN en compras mayores a $3,000 en tecnología.",
+    "oferta2Badge": "$500 MXN",
+    "oferta3Nombre": "Soumaya VIP",
+    "oferta3Desc": "Pase premium 2x1 en visitas guiadas nocturnas. Cupos limitados.",
+    "oferta3Badge": "2x1",
+    "verTodasLasOfertas": "Ver todas las ofertas",
     "uneteA": "Únete a la",
     "inteligenciaEditorial": "Inteligencia Editorial",
     "newsletterDesc": "Recibe cada semana una curaduría profunda de destinos y productos que están definiendo el nuevo México.",
@@ -85,6 +107,9 @@
     "cultural": "Cultural",
     "deportes": "Deportes",
     "tiendas": "Tiendas",
+    "hospedaje": "Hospedaje",
+    "eventos": "Eventos",
+    "servicios": "Servicios",
     "abiertos": "Abiertos",
     "preguntarAI": "Preguntar sobre {nombre}",
     "seleccionaPrimero": "Selecciona un lugar primero",
@@ -148,6 +173,28 @@
     "muulAi": "Muul AI",
     "cerrarPanel": "Cerrar panel",
     "abrirPanel": "Abrir panel"
+    ,"requireUserLocation": "Se requiere tu ubicación"
+    ,"noNearbyPlaces": "No se encontraron lugares cercanos"
+    ,"maxStops": "(máx 12)"
+    ,"analyzingAccessible": "Analizando..."
+    ,"accessibleRouteCta": "♿ Ruta Accesible"
+    ,"visitsMinutes": "min visitas"
+    ,"optimal": "Óptima"
+    ,"accessibilityLabel": "Accesibilidad"
+    ,"accessibilityHigh": "Alta"
+    ,"accessibilityMedium": "Media"
+    ,"accessibilityLow": "Baja"
+    ,"accessibilityFeaturesToggle": "Rampas y elevadores en mapa"
+    ,"featureRamps": "Rampas"
+    ,"featureElevators": "Elevadores"
+    ,"featureCrossings": "Cruces"
+    ,"featureTactile": "Piso táctil"
+    ,"partyMode": "Modo Party"
+    ,"publishCommunity": "Publicar en Comunidad"
+    ,"saveRoutes": "Guardar rutas"
+    ,"openMuulAi": "Abrir MUUL AI"
+    ,"accessibleMode": "Modo Accesible"
+    ,"externalSource": "Mapbox"
   },
   "tiendas": {
     "titulo": "Tiendas",
@@ -232,19 +279,16 @@
     "notificaciones": "Notificaciones",
     "eliminarCuenta": "Eliminar Cuenta",
     "borrarDatos": "Borrar permanentemente tus datos de Muul",
-    "ajustes": "Ajustes del Perfil",
     "idioma": "Idioma Preferido",
     "correo": "Correo Electrónico",
     "guardar": "Guardar Cambios",
     "guardando": "Guardando...",
-    "cerrarSesion": "Cerrar Sesión",
     "cambiosGuardados": "¡Cambios guardados!",
     "tusInsignias": "Tus Insignias",
     "sinInsignias": "Aún no has desbloqueado insignias. ¡Empieza a explorar!",
     "desbloqueadas": "Has desbloqueado {count} insignias.",
     "empiezaAventura": "¡Empieza tu aventura!",
     "empiezaAventuraDesc": "Visita puntos de interés en el mapa para desbloquear insignias. Hay 10 insignias disponibles en 4 categorías.",
-    "misResenas": "Mis Reseñas",
     "resenasDesc": "Comparte tus experiencias con la comunidad de Muul.",
     "escribirResena": "Escribir nueva reseña",
     "sinResenas": "Sin reseñas aún",
@@ -402,7 +446,33 @@
     "verTiendas": "Ver todas las tiendas",
     "direccionNoEspecificada": "Dirección no especificada",
     "horarioNoEspecificado": "Horario no especificado",
-    "rfc": "RFC"
+    "rfc": "RFC",
+    "guardar": "Guardar",
+    "editarPerfil": "Editar perfil",
+    "featureCard": "Pago con tarjeta",
+    "featureTransfer": "Transferencias",
+    "featurePetFriendly": "Pet friendly",
+    "featureVegan": "Opciones veganas",
+    "featureAccessible": "Accesible",
+    "dashboardSaved": "Cambios guardados exitosamente",
+    "dashboardSaveError": "Error al guardar cambios",
+    "dashboardAccessTitle": "Accede a tu panel",
+    "dashboardAccessDesc": "Inicia sesión para gestionar tu negocio",
+    "dashboardEmptyTitle": "No tienes un negocio registrado",
+    "dashboardEmptyDesc": "Registra tu negocio en MUUL",
+    "dashboardRegister": "Registrar negocio",
+    "dashboardFollowers": "seguidores",
+    "dashboardPublicPage": "Ver página pública",
+    "dashboardFeatures": "Características del negocio",
+    "dashboardSocial": "Redes Sociales",
+    "dashboardInstagram": "Instagram",
+    "dashboardFacebook": "Facebook",
+    "dashboardVisits": "Visitas este mes",
+    "dashboardProducts": "Productos activos",
+    "dashboardRating": "Rating promedio",
+    "dashboardUrls": "URLs (opcional)",
+    "dashboardProfileImageUrl": "URL de foto de perfil",
+    "dashboardBannerUrl": "URL del banner"
   },
   "chatbot": {
     "titulo": "Muul AI",

@@ -4,6 +4,8 @@
     "categorias": "Categorias",
     "ofertas": "Ofertas",
     "amigos": "Amigos",
+    "comunidad": "Comunidade",
+    "ranking": "Ranking",
     "more": "Mais",
     "buscarPlaceholder": "Buscar rotas ou destinos...",
     "searchPeople": "Pessoas",
@@ -53,6 +55,14 @@
     "enVivo": "Ao Vivo",
     "exploraInteresTitulo": "Explore por interesse",
     "exploraInteresDesc": "Filtros inteligentes para encontrar a essência de cada canto do país.",
+    "gastronomia": "Gastronomia",
+    "hospedaje": "Hospedagem",
+    "eventos": "Eventos",
+    "servicios": "Serviços",
+    "curaduriaExclusiva": "Curadoria exclusiva",
+    "heroAngel": "Anjo da Independência",
+    "heroBellasArtes": "Palácio de Belas Artes",
+    "heroChapultepec": "Castelo de Chapultepec",
     "tagHogarVerde": "LAR VERDE",
     "tagCulturaViva": "CULTURA VIVA",
     "tagGastronomia": "GASTRONOMIA",
@@ -64,9 +74,23 @@
     "mexicoSur": "SUL DO MÉXICO",
     "destinoSecundario": "Puerto Escondido",
     "destinoSecundarioDesc": "Aumento no interesse por surf sustentável",
+    "trendingRank": "🔥 Tendência #1",
     "explorarGuia": "Explorar guia",
     "recomendacionesDigitales": "Recomendações digitais",
     "impactoPositivo": "Impacto positivo",
+    "ofertasTag": "Oportunidades Muul",
+    "ofertasTitulo": "Ofertas",
+    "ofertasDestacado": "Especiais",
+    "oferta1Nombre": "Tacos El Guero",
+    "oferta1Desc": "20% de desconto em todos os tacos al pastor. Somente com o código MUUL26.",
+    "oferta1Badge": "-20% OFF",
+    "oferta2Nombre": "Coppel Reforma",
+    "oferta2Desc": "Bônus de $500 MXN em compras acima de $3.000 em tecnologia.",
+    "oferta2Badge": "$500 MXN",
+    "oferta3Nombre": "Soumaya VIP",
+    "oferta3Desc": "Passe premium 2x1 para visitas guiadas noturnas. Vagas limitadas.",
+    "oferta3Badge": "2x1",
+    "verTodasLasOfertas": "Ver todas as ofertas",
     "uneteA": "Junte-se à",
     "inteligenciaEditorial": "Inteligência Editorial",
     "newsletterDesc": "Receba toda semana uma curadoria profunda de destinos e produtos que definem o novo México.",
@@ -83,6 +107,9 @@
     "cultural": "Cultural",
     "deportes": "Esportes",
     "tiendas": "Lojas",
+    "hospedaje": "Hospedagem",
+    "eventos": "Eventos",
+    "servicios": "Serviços",
     "abiertos": "Abertos",
     "preguntarAI": "Perguntar sobre {nombre}",
     "seleccionaPrimero": "Selecione um lugar primeiro",
@@ -146,6 +173,28 @@
     "muulAi": "Muul AI",
     "cerrarPanel": "Fechar painel",
     "abrirPanel": "Abrir painel"
+    ,"requireUserLocation": "Sua localização é necessária"
+    ,"noNearbyPlaces": "Não foram encontrados lugares próximos"
+    ,"maxStops": "(máx 12)"
+    ,"analyzingAccessible": "Analisando..."
+    ,"accessibleRouteCta": "♿ Rota Acessível"
+    ,"visitsMinutes": "min de visitas"
+    ,"optimal": "Ótima"
+    ,"accessibilityLabel": "Acessibilidade"
+    ,"accessibilityHigh": "Alta"
+    ,"accessibilityMedium": "Média"
+    ,"accessibilityLow": "Baixa"
+    ,"accessibilityFeaturesToggle": "Rampas e elevadores no mapa"
+    ,"featureRamps": "Rampas"
+    ,"featureElevators": "Elevadores"
+    ,"featureCrossings": "Travessias"
+    ,"featureTactile": "Piso tátil"
+    ,"partyMode": "Modo Party"
+    ,"publishCommunity": "Publicar na Comunidade"
+    ,"saveRoutes": "Salvar rotas"
+    ,"openMuulAi": "Abrir MUUL AI"
+    ,"accessibleMode": "Modo Acessível"
+    ,"externalSource": "Mapbox"
   },
   "tiendas": {
     "titulo": "Lojas",
@@ -253,31 +302,31 @@
     "resena3Lugar": "Mãos do México",
     "resena3Fecha": "28 Fev 2026",
     "resena3Texto": "Grande variedade de artesanato autêntico. Os preços são um pouco altos, mas a qualidade compensa.",
-    "miCuenta": "[TODO: Mi Cuenta]",
-    "direcciones": "[TODO: Direcciones]",
-    "misRutas": "[TODO: Mis Rutas]",
-    "editarPerfil": "[TODO: Editar Perfil]",
-    "hola": "[TODO: Hola]",
-    "exploradorDiamante": "[TODO: EXPLORADOR DIAMANTE]",
-    "rutasCompletadas": "[TODO: RUTAS COMPLETADAS]",
-    "puntosInteres": "[TODO: PUNTOS DE INTERÉS]",
-    "insigniasObtenidas": "[TODO: INSIGNIAS OBTENIDAS]",
-    "recientesActividades": "[TODO: Mis Recientes Actividades]",
-    "direccionesGuardadas": "[TODO: Direcciones Guardadas]",
-    "hogar": "[TODO: Hogar]",
-    "trabajo": "[TODO: Trabajo]",
-    "agregarDireccion": "[TODO: Agregar nueva dirección]",
-    "verMapa": "[TODO: Ver en Mapa]",
-    "fotoPerfil": "[TODO: Foto de Perfil]",
-    "cambiarFoto": "[TODO: Cambiar foto]",
-    "nombreCompleto": "[TODO: Nombre Completo]",
-    "cambiarBanner": "[TODO: Cambiar banner]",
-    "guardarCambios": "[TODO: Guardar cambios]",
-    "cancelar": "[TODO: Cancelar]",
-    "idiomaRegion": "[TODO: Idioma y Región]",
-    "notificaciones": "[TODO: Notificaciones]",
-    "eliminarCuenta": "[TODO: Eliminar Cuenta]",
-    "borrarDatos": "[TODO: Borrar permanentemente tus datos de Muul]"
+    "miCuenta": "Minha Conta",
+    "direcciones": "Endereços",
+    "misRutas": "Minhas Rotas",
+    "editarPerfil": "Editar Perfil",
+    "hola": "Olá",
+    "exploradorDiamante": "EXPLORADOR DIAMANTE",
+    "rutasCompletadas": "ROTAS CONCLUÍDAS",
+    "puntosInteres": "PONTOS DE INTERESSE",
+    "insigniasObtenidas": "INSÍGNIAS OBTIDAS",
+    "recientesActividades": "Minhas Atividades Recentes",
+    "direccionesGuardadas": "Endereços Salvos",
+    "hogar": "Casa",
+    "trabajo": "Trabalho",
+    "agregarDireccion": "Adicionar novo endereço",
+    "verMapa": "Ver no mapa",
+    "fotoPerfil": "Foto de Perfil",
+    "cambiarFoto": "Trocar foto",
+    "nombreCompleto": "Nome Completo",
+    "cambiarBanner": "Trocar banner",
+    "guardarCambios": "Salvar alterações",
+    "cancelar": "Cancelar",
+    "idiomaRegion": "Idioma e Região",
+    "notificaciones": "Notificações",
+    "eliminarCuenta": "Excluir Conta",
+    "borrarDatos": "Excluir permanentemente seus dados da Muul"
   },
   "login": {
     "heroEyebrow": "Inteligência em movimento",
@@ -397,7 +446,33 @@
     "verTiendas": "Ver todas as lojas",
     "direccionNoEspecificada": "Endereço não especificado",
     "horarioNoEspecificado": "Horário não especificado",
-    "rfc": "CNPJ"
+    "rfc": "CNPJ",
+    "guardar": "Salvar",
+    "editarPerfil": "Editar perfil",
+    "featureCard": "Pagamento com cartão",
+    "featureTransfer": "Transferências",
+    "featurePetFriendly": "Pet friendly",
+    "featureVegan": "Opções veganas",
+    "featureAccessible": "Acessível",
+    "dashboardSaved": "Alterações salvas com sucesso",
+    "dashboardSaveError": "Erro ao salvar alterações",
+    "dashboardAccessTitle": "Acesse seu painel",
+    "dashboardAccessDesc": "Faça login para gerenciar seu negócio",
+    "dashboardEmptyTitle": "Você não tem um negócio registrado",
+    "dashboardEmptyDesc": "Cadastre seu negócio na MUUL",
+    "dashboardRegister": "Registrar negócio",
+    "dashboardFollowers": "seguidores",
+    "dashboardPublicPage": "Ver página pública",
+    "dashboardFeatures": "Características do negócio",
+    "dashboardSocial": "Redes sociais",
+    "dashboardInstagram": "Instagram",
+    "dashboardFacebook": "Facebook",
+    "dashboardVisits": "Visitas neste mês",
+    "dashboardProducts": "Produtos ativos",
+    "dashboardRating": "Avaliação média",
+    "dashboardUrls": "URLs (opcional)",
+    "dashboardProfileImageUrl": "URL da foto de perfil",
+    "dashboardBannerUrl": "URL do banner"
   },
   "chatbot": {
     "titulo": "Muul AI",
@@ -481,6 +556,19 @@
     "subtitulo": "Descubra onde seus amigos estão e planeje sua próxima aventura juntos.",
     "verMapa": "Ver Mapa",
     "agregarAmigos": "Adicionar novos amigos"
+  },
+  "comunidad": {
+    "titulo": "Comunidade",
+    "subtitulo": "Descubra rotas, histórias e os viajantes em destaque da rede Muul.",
+    "topViajeros": "Viajantes em Destaque do Mês",
+    "publicaciones": "Publicações Recentes",
+    "puntos": "{count} pts",
+    "nivel": "Nível",
+    "comentarios": "Comentários",
+    "compartirAventura": "Compartilhe sua próxima aventura...",
+    "publicar": "Publicar",
+    "tuAmigo": "Seu Amigo",
+    "explorador": "Explorador"
   },
   "ofertas": {
     "hotDeals": "🔥 Hot Deals",

@@ -55,6 +55,14 @@
     "enVivo": "直播",
     "exploraInteresTitulo": "按兴趣探索",
     "exploraInteresDesc": "用智能筛选找到这个国家每个角落的精华。",
+    "gastronomia": "美食",
+    "hospedaje": "住宿",
+    "eventos": "活动",
+    "servicios": "服务",
+    "curaduriaExclusiva": "独家策展",
+    "heroAngel": "独立天使纪念碑",
+    "heroBellasArtes": "美术宫",
+    "heroChapultepec": "查普尔特佩克城堡",
     "tagHogarVerde": "绿色家园",
     "tagCulturaViva": "活力文化",
     "tagGastronomia": "美食",
@@ -66,9 +74,23 @@
     "mexicoSur": "墨西哥南部",
     "destinoSecundario": "埃斯孔迪多港",
     "destinoSecundarioDesc": "可持续冲浪热度上升",
+    "trendingRank": "🔥 热门 #1",
     "explorarGuia": "探索指南",
     "recomendacionesDigitales": "数字推荐",
     "impactoPositivo": "积极影响",
+    "ofertasTag": "Muul 专属机会",
+    "ofertasTitulo": "精选",
+    "ofertasDestacado": "优惠",
+    "oferta1Nombre": "Tacos El Guero",
+    "oferta1Desc": "所有牧羊人烤肉塔可享 8 折优惠，仅限使用代码 MUUL26。",
+    "oferta1Badge": "-20% OFF",
+    "oferta2Nombre": "Coppel Reforma",
+    "oferta2Desc": "科技类消费满 $3,000 可获 $500 MXN 奖励金。",
+    "oferta2Badge": "$500 MXN",
+    "oferta3Nombre": "Soumaya VIP",
+    "oferta3Desc": "夜间导览尊享 2x1 通票，名额有限。",
+    "oferta3Badge": "2x1",
+    "verTodasLasOfertas": "查看全部优惠",
     "uneteA": "加入",
     "inteligenciaEditorial": "精选情报",
     "newsletterDesc": "每周获取深度目的地与产品精选，了解新墨西哥。",
@@ -85,6 +107,9 @@
     "cultural": "文化",
     "deportes": "体育",
     "tiendas": "商店",
+    "hospedaje": "住宿",
+    "eventos": "活动",
+    "servicios": "服务",
     "abiertos": "营业中",
     "preguntarAI": "询问关于 {nombre}",
     "seleccionaPrimero": "请先选择一个地点",
@@ -148,6 +173,28 @@
     "muulAi": "Muul AI",
     "cerrarPanel": "关闭面板",
     "abrirPanel": "打开面板"
+    ,"requireUserLocation": "需要你的位置信息"
+    ,"noNearbyPlaces": "未找到附近地点"
+    ,"maxStops": "（最多 12 个）"
+    ,"analyzingAccessible": "分析中..."
+    ,"accessibleRouteCta": "♿ 无障碍路线"
+    ,"visitsMinutes": "分钟参观"
+    ,"optimal": "最优"
+    ,"accessibilityLabel": "无障碍"
+    ,"accessibilityHigh": "高"
+    ,"accessibilityMedium": "中"
+    ,"accessibilityLow": "低"
+    ,"accessibilityFeaturesToggle": "在地图上显示坡道和电梯"
+    ,"featureRamps": "坡道"
+    ,"featureElevators": "电梯"
+    ,"featureCrossings": "过街点"
+    ,"featureTactile": "盲道"
+    ,"partyMode": "派对模式"
+    ,"publishCommunity": "发布到社区"
+    ,"saveRoutes": "保存路线"
+    ,"openMuulAi": "打开 MUUL AI"
+    ,"accessibleMode": "无障碍模式"
+    ,"externalSource": "Mapbox"
   },
   "tiendas": {
     "titulo": "注册",
@@ -255,31 +302,31 @@
     "resena3Lugar": "墨西哥之手",
     "resena3Fecha": "2026年2月28日",
     "resena3Texto": "手工艺品种类丰富且正宗。价格略高但质量很好，服务人员也非常友善。",
-    "miCuenta": "[TODO: Mi Cuenta]",
-    "direcciones": "[TODO: Direcciones]",
-    "misRutas": "[TODO: Mis Rutas]",
-    "editarPerfil": "[TODO: Editar Perfil]",
-    "hola": "[TODO: Hola]",
-    "exploradorDiamante": "[TODO: EXPLORADOR DIAMANTE]",
-    "rutasCompletadas": "[TODO: RUTAS COMPLETADAS]",
-    "puntosInteres": "[TODO: PUNTOS DE INTERÉS]",
-    "insigniasObtenidas": "[TODO: INSIGNIAS OBTENIDAS]",
-    "recientesActividades": "[TODO: Mis Recientes Actividades]",
-    "direccionesGuardadas": "[TODO: Direcciones Guardadas]",
-    "hogar": "[TODO: Hogar]",
-    "trabajo": "[TODO: Trabajo]",
-    "agregarDireccion": "[TODO: Agregar nueva dirección]",
-    "verMapa": "[TODO: Ver en Mapa]",
-    "fotoPerfil": "[TODO: Foto de Perfil]",
-    "cambiarFoto": "[TODO: Cambiar foto]",
-    "nombreCompleto": "[TODO: Nombre Completo]",
-    "cambiarBanner": "[TODO: Cambiar banner]",
-    "guardarCambios": "[TODO: Guardar cambios]",
-    "cancelar": "[TODO: Cancelar]",
-    "idiomaRegion": "[TODO: Idioma y Región]",
-    "notificaciones": "[TODO: Notificaciones]",
-    "eliminarCuenta": "[TODO: Eliminar Cuenta]",
-    "borrarDatos": "[TODO: Borrar permanentemente tus datos de Muul]"
+    "miCuenta": "我的账户",
+    "direcciones": "地址",
+    "misRutas": "我的路线",
+    "editarPerfil": "编辑资料",
+    "hola": "你好",
+    "exploradorDiamante": "钻石探索者",
+    "rutasCompletadas": "已完成路线",
+    "puntosInteres": "兴趣点",
+    "insigniasObtenidas": "已获得徽章",
+    "recientesActividades": "我的近期活动",
+    "direccionesGuardadas": "已保存地址",
+    "hogar": "家庭",
+    "trabajo": "工作",
+    "agregarDireccion": "添加新地址",
+    "verMapa": "在地图中查看",
+    "fotoPerfil": "头像照片",
+    "cambiarFoto": "更换照片",
+    "nombreCompleto": "完整姓名",
+    "cambiarBanner": "更换横幅",
+    "guardarCambios": "保存更改",
+    "cancelar": "取消",
+    "idiomaRegion": "语言和地区",
+    "notificaciones": "通知",
+    "eliminarCuenta": "删除账户",
+    "borrarDatos": "永久删除你的 Muul 数据"
   },
   "login": {
     "heroEyebrow": "智能出行",
@@ -399,7 +446,33 @@
     "verTiendas": "查看所有商店",
     "direccionNoEspecificada": "地址未指定",
     "horarioNoEspecificado": "营业时间未指定",
-    "rfc": "税号"
+    "rfc": "税号",
+    "guardar": "保存",
+    "editarPerfil": "编辑资料",
+    "featureCard": "支持刷卡",
+    "featureTransfer": "支持转账",
+    "featurePetFriendly": "宠物友好",
+    "featureVegan": "纯素选项",
+    "featureAccessible": "无障碍",
+    "dashboardSaved": "更改已成功保存",
+    "dashboardSaveError": "保存更改时出错",
+    "dashboardAccessTitle": "进入你的控制面板",
+    "dashboardAccessDesc": "登录以管理你的商户",
+    "dashboardEmptyTitle": "你还没有注册商户",
+    "dashboardEmptyDesc": "在 MUUL 上注册你的商户",
+    "dashboardRegister": "注册商户",
+    "dashboardFollowers": "位关注者",
+    "dashboardPublicPage": "查看公开页面",
+    "dashboardFeatures": "商户特性",
+    "dashboardSocial": "社交媒体",
+    "dashboardInstagram": "Instagram",
+    "dashboardFacebook": "Facebook",
+    "dashboardVisits": "本月访问量",
+    "dashboardProducts": "在售产品",
+    "dashboardRating": "平均评分",
+    "dashboardUrls": "URL（可选）",
+    "dashboardProfileImageUrl": "头像图片 URL",
+    "dashboardBannerUrl": "横幅图片 URL"
   },
   "chatbot": {
     "titulo": "Muul AI",

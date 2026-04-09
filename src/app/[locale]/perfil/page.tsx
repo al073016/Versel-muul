@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import clsx from "clsx";
 
-type TabType = "cuenta" | "publicaciones" | "amigos" | "rutas" | "medallas" | "ajustes";
+type TabType = "cuenta" | "publicaciones" | "amigos" | "rutas" | "medallas" | "ajustes" | "direcciones" | "resenas" | "editar";
 
 export default function PerfilPage() {
   return (
