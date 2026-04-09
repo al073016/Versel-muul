@@ -321,7 +321,40 @@ function ComunidadContent() {
                 />
                 <label className="cursor-pointer text-neutral-400 hover:text-[#003e6f] transition-colors p-2 rounded-full hover:bg-neutral-100">
                   <span className="material-symbols-outlined text-[22px]">add_photo_alternate</span>
-                  <input type="file" accept="image}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleImageSelect}
+                    disabled={isPublishing || isDraftLoading}
+                  />
+                </label>
+                <button
+                  onClick={handleAddPost}
+                  disabled={!inputValue.trim() || isPublishing || isDraftLoading}
+                  className="px-4 py-2 rounded-xl bg-[#003e6f] text-white font-bold text-xs uppercase tracking-wider hover:bg-[#005596] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isPublishing ? "..." : t("publicar")}
+                </button>
+              </div>
+
+              {selectedImage && (
+                <div className="mt-4 relative w-full h-56 rounded-2xl overflow-hidden border border-outline-variant/20">
+                  <Image src={selectedImage} alt="Vista previa" fill className="object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedImage(null);
+                      setSelectedImageFile(null);
+                    }}
+                    className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/55 text-white flex items-center justify-center hover:bg-black/70 transition-colors"
+                    aria-label="Quitar imagen"
+                  >
+                    <span className="material-symbols-outlined text-sm">close</span>
+                  </button>
+                </div>
+              )}
+            </div>
             <div className="flex flex-col">
               <h2 className="font-headline font-black text-xl text-[#003e6f] mb-6">{t("publicaciones")}</h2>
               {posts.map(post => (
