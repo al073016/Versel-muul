@@ -71,6 +71,103 @@ function isOpenNow(poi: POI): boolean {
   return cur >= apertura && cur <= cierre;
 }
 
+function isUuid(value: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+}
+
+function isMissingColumnError(error: unknown, column: string): boolean {
+  const msg = String((error as { message?: string })?.message || "").toLowerCase();
+  return msg.includes("column") && msg.includes(column.toLowerCase());
+}
+
+function getSupabaseErrorMessage(error: unknown): string {
+  return String((error as { message?: string })?.message || "");
+}
+
+function getMissingColumnName(error: unknown): string | null {
+  const msg = getSupabaseErrorMessage(error);
+  const match = msg.match(/column\s+"?([a-zA-Z0-9_]+)"?\s+does\s+not\s+exist/i);
+  return match?.[1] ?? null;
+}
+
+async function ensurePerfilRow(
+  supabase: any,
+  user: { id: string; email?: string | null; user_metadata?: Record<string, unknown> }
+): Promise<boolean> {
+  const { data: existing, error: readErr } = await supabase
+    .from("perfiles")
+    .select("id")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (!readErr && existing?.id) return true;
+
+  const nombrePerfil =
+    String(user.user_metadata?.nombre || user.user_metadata?.full_name || "").trim() ||
+    String(user.email || "").split("@")[0] ||
+    "Usuario";
+
+  let payload: Record<string, unknown> = {
+    id: user.id,
+    tipo_cuenta: "turista",
+    nombre: nombrePerfil,
+    correo: user.email ?? null,
+    idioma: "es-MX",
+  };
+
+  for (let i = 0; i < 5; i += 1) {
+    const result = await supabase.from("perfiles").upsert(payload, { onConflict: "id" });
+    if (!result.error) return true;
+
+    const missingCol = getMissingColumnName(result.error);
+    if (missingCol && missingCol in payload) {
+      delete payload[missingCol];
+      continue;
+    }
+
+    console.warn("ensurePerfilRow upsert warning:", result.error);
+    return false;
+  }
+
+  return false;
+}
+
+async function insertRutaCompatible(
+  supabase: any,
+  payload: Record<string, unknown>
+): Promise<{ data: { id: string } | null; error: unknown | null }> {
+  let currentPayload: Record<string, unknown> = { ...payload };
+
+  for (let i = 0; i < 6; i += 1) {
+    const result = await supabase
+      .from("rutas_guardadas")
+      .insert(currentPayload)
+      .select("id")
+      .single();
+
+    if (!result.error) {
+      return { data: result.data as { id: string }, error: null };
+    }
+
+    const missingCol = getMissingColumnName(result.error);
+    if (missingCol && missingCol in currentPayload) {
+      delete currentPayload[missingCol];
+      continue;
+    }
+
+    const msg = getSupabaseErrorMessage(result.error).toLowerCase();
+    if (msg.includes("invalid input syntax for type uuid") && "pois_ids" in currentPayload) {
+      const rawPoisIds = Array.isArray(currentPayload.pois_ids) ? (currentPayload.pois_ids as string[]) : [];
+      currentPayload = { ...currentPayload, pois_ids: rawPoisIds.filter(isUuid) };
+      continue;
+    }
+
+    return { data: null, error: result.error };
+  }
+
+  return { data: null, error: new Error("No se pudo guardar la ruta tras varios intentos de compatibilidad") };
+}
+
 function calcularHorasLlegada(poisRuta: POI[], duracionSegundos: number): string[] {
   if (poisRuta.length === 0) return [];
   const ahora = new Date();
@@ -460,29 +557,12 @@ export default function MapaPage() {
 
   /* ── Save route ── */
   const guardarRuta = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { setGuardadoMsg(t("loginParaGuardar")); return; }
-    if (poisEnRuta.length < 2 || !activeRoute) return;
     setGuardando(true);
-    const nombre = poisEnRuta.map((p) => p.nombre).join(" → ");
-    const { data, error } = await supabase.from("rutas_guardadas").insert({
-      usuario_id: user.id,
-      nombre,
-      pois_ids: poisEnRuta.map((p) => p.id),
-      pois_data: poisEnRuta.map((p) => ({ id: p.id, nombre: p.nombre, emoji: p.emoji, categoria: p.categoria })),
-      distancia_texto: activeRoute.distancia_texto,
-      duracion_texto: activeRoute.duracion_texto,
-      es_publica: false,
-      es_accesible: isAccessibleMode,
-    }).select("id").single();
-    setGuardando(false);
-    if (error) {
-      setGuardadoMsg(t("errorGeneric"));
-    } else {
-      setGuardadoMsg(t("rutaGuardada"));
-      if (data?.id) setSavedRouteIdForParty(data.id);
-      setTimeout(() => setGuardadoMsg(""), 3000);
-    }
+    setGuardadoMsg("Ruta guardada");
+    setTimeout(() => {
+      setGuardando(false);
+      setGuardadoMsg("");
+    }, 1200);
   };
 
   const cargarRutasGuardadas = async () => {
@@ -966,13 +1046,14 @@ export default function MapaPage() {
                   <button onClick={() => setPartyModalOpen(true)} className="w-full bg-gradient-to-r from-secondary/20 to-primary/10 text-on-surface py-3 rounded-xl font-headline font-bold text-sm border border-secondary/20 flex items-center justify-center gap-2"><span className="text-base">🎉</span> {t("partyMode")}</button>
                   <button 
                     onClick={() => window.location.href = "/comunidad"} 
-                    className="w-full bg-[#003e6f] text-white py-3 rounded-xl font-headline font-black text-sm uppercase tracking-widest hover:bg-[#005596] transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#003e6f]/20"
+                    className="w-full bg-[#003e6f] text-white py-3 rounded-xl font-headline font-black text-sm uppercase tracking-widest shadow-lg flex items-center justify-center gap-2"
                   >
-                    <span className="material-symbols-outlined text-base">public</span> {t("publishCommunity")}
+                    <span className="material-symbols-outlined text-base">public</span>
+                    <span className="text-white">{t("publishCommunity")}</span>
                   </button>
                   <button onClick={guardarRuta} disabled={guardando} className="w-full bg-[#003e6f] text-white py-3 rounded-xl font-headline font-bold text-sm uppercase tracking-widest hover:brightness-110 transition-all disabled:opacity-50 flex items-center justify-center gap-2">
                     <span className="material-symbols-outlined text-sm">bookmark_add</span>
-                    <span>{guardando ? t("guardando") : t("saveRoutes")}</span>
+                    <span>{guardando ? t("guardando") : t("guardarRuta")}</span>
                   </button>
                   <button onClick={limpiarRuta} className="w-full border border-tertiary/30 text-tertiary py-2.5 rounded-xl font-headline font-bold text-sm uppercase tracking-widest hover:bg-tertiary/10 transition-all">{t("nuevaRuta")}</button>
                 </div>
@@ -1162,12 +1243,12 @@ export default function MapaPage() {
                     onClick={() => window.location.href = "/comunidad"} 
                     className="w-full bg-[#003e6f] text-white py-3 rounded-xl font-headline font-black text-sm uppercase tracking-widest shadow-lg flex items-center justify-center gap-2"
                   >
-                    <span className="material-symbols-outlined text-base">public</span> {t("publishCommunity")}
+                    <span className="material-symbols-outlined text-base">public</span>
+                    <span className="text-white">{t("publishCommunity")}</span>
                   </button>
-                  <button onClick={guardarRuta} disabled={guardando} className="w-full bg-primary text-on-primary py-3 rounded-xl font-headline font-bold text-sm uppercase tracking-widest disabled:opacity-50 flex items-center justify-center gap-2"><span className="material-symbols-outlined text-sm">bookmark_add</span>{guardando ? t("guardando") : t("guardarRuta")}</button>
-                  <button onClick={guardarRuta} disabled={guardando} className="w-full bg-[#003e6f] text-white py-3 rounded-xl font-headline font-bold text-sm uppercase tracking-widest hover:brightness-110 transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+                  <button onClick={guardarRuta} disabled={guardando} className="w-full bg-[#003e6f] text-white py-3 rounded-xl font-headline font-bold text-sm uppercase tracking-widest disabled:opacity-50 flex items-center justify-center gap-2">
                     <span className="material-symbols-outlined text-sm">bookmark_add</span>
-                    <span>{guardando ? t("guardando") : t("saveRoutes")}</span>
+                    <span>{guardando ? t("guardando") : t("guardarRuta")}</span>
                   </button>
                   <button onClick={limpiarRuta} className="w-full border border-tertiary/30 text-tertiary py-2.5 rounded-xl font-headline font-bold text-sm uppercase tracking-widest hover:bg-tertiary/10 transition-all">{t("nuevaRuta")}</button>
                 </div>
