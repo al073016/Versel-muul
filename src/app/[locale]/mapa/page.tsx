@@ -792,7 +792,7 @@ export default function MapaPage() {
   const { broadcastRouteUpdate, participants, fetchParticipants, trackPresence, myColor, onSyncRequestRef, sendSyncRequest } = usePartyMode(
     activePartyId, 
     handleRemoteUpdate, 
-    useCallback((p) => presenceCallbackRef.current?.(p), [])
+    useCallback((p: any) => presenceCallbackRef.current?.(p), [])
   );
 
 
