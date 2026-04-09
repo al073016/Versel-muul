@@ -713,9 +713,7 @@ export default function MapaPage() {
     return `${t("abierto")} · ${t("cierra", { hora: poi.horario_cierre })}`;
   };
 
-  /* ═══════════════════════════════════════
-     RENDER
-  ═══════════════════════════════════════ */
+  // --- RENDER ---
   return (
     <div className="h-screen flex flex-col overflow-hidden pt-[80px] bg-surface text-on-surface font-body">
       <main className="flex flex-1 overflow-hidden">
