@@ -1,4 +1,5 @@
 import type { POI } from "@/types/database";
+import { SANTA_FE_POIS } from "./santa-fe-dummy-data";
 
 export type SupportedLocale = "es" | "en" | "pt" | "zh";
 type LocalizedValue<T> = Record<SupportedLocale, T>;
@@ -94,6 +95,7 @@ export const HOME_IMAGE_URLS = {
 };
 
 const POI_SEEDS: PoiSeed[] = [
+  ...SANTA_FE_POIS,
   // GASTRONOMIA (5)
   {
     id: "gastro-taqueria-orinoco-roma",
