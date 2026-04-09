@@ -73,19 +73,6 @@ export default function RecursosPage() {
             </div>
           </a>
 
-          {/* URL Input */}
-          <div className="mt-8 p-6 bg-[#003e6f] rounded-xl border border-[#fed000]/20">
-            <label className="block text-sm font-bold text-white mb-2">
-              URL de la imagen:
-            </label>
-            <input
-              type="url"
-              value={imagenUrl}
-              onChange={(e) => setImagenUrl(e.target.value)}
-              placeholder="https://ejemplo.com/imagen.jpg"
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:border-[#fed000] focus:ring-2 focus:ring-[#fed000]/20"
-            />
-          </div>
         </section>
 
         {/* CTA Section */}
