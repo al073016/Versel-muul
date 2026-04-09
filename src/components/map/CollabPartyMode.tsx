@@ -6,7 +6,7 @@ import { DUMMY_SOCIAL_USERS, SocialUser } from "@/lib/social-dummy";
 import Image from "next/image";
 
 export default function CollabPartyMode({ routeId }: { routeId?: string }) {
-  const t = useTranslations("mapa");
+  const t = useTranslations("partyMode");
   const [collaborators, setCollaborators] = useState<SocialUser[]>([
     DUMMY_SOCIAL_USERS['u1']
   ]);
@@ -30,7 +30,7 @@ export default function CollabPartyMode({ routeId }: { routeId?: string }) {
       
       {/* Toast Notification for new friend joining */}
       <div className={`bg-[#003e6f] text-white text-[10px] font-bold px-3 py-1.5 rounded-full shadow-lg transition-all duration-500 transform ${justJoined ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}`}>
-        Carlos R. se ha unido a tu ruta
+        {t("collabJoined")}
       </div>
 
       <div className="bg-white/90 backdrop-blur-md px-4 py-2 rounded-full shadow-[0_10px_30px_rgba(0,0,0,0.1)] border border-[#fed000]/30 flex items-center gap-3 animate-fade-in-up">
@@ -48,9 +48,9 @@ export default function CollabPartyMode({ routeId }: { routeId?: string }) {
           </div>
         </div>
         <div className="flex flex-col">
-          <span className="text-[10px] font-black uppercase text-[#fed000] tracking-widest leading-none drop-shadow-sm">Party Mode</span>
+          <span className="text-[10px] font-black uppercase text-[#fed000] tracking-widest leading-none drop-shadow-sm">{t("collabMode")}</span>
           <span className="text-xs font-bold text-[#003e6f] leading-tight">
-            {collaborators.length > 1 ? "Editando juntos" : "Tú nada más"}
+            {collaborators.length > 1 ? t("collabTogether") : t("collabSolo")}
           </span>
         </div>
       </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import type { POI } from "@/types/database";
 import { usePartyMode, type PartyRoute } from "@/hooks/usePartyMode";
 
@@ -42,6 +43,7 @@ export default function PartyModeModal({
   duracionTexto = "",
   onLoadRoute,
 }: PartyModeModalProps) {
+  const tp = useTranslations("partyMode");
   const {
     loading,
     error,
@@ -115,7 +117,7 @@ export default function PartyModeModal({
   const handleShareNative = async () => {
     if (!partyLink) return;
     if (navigator.share) {
-      await navigator.share({ title: "Únete a mi ruta en Muul 🗺️", url: partyLink });
+      await navigator.share({ title: tp("shareTitle"), url: partyLink });
     } else {
       handleCopyLink();
     }
@@ -135,10 +137,10 @@ export default function PartyModeModal({
         <div className="p-5 border-b border-outline-variant/10 flex items-center justify-between shrink-0">
           <div>
             <h2 className="font-headline font-black text-on-surface text-base flex items-center gap-2">
-              <span className="text-xl">🎉</span> Modo Party
+              <span className="text-xl">🎉</span> {tp("title")}
             </h2>
             <p className="text-[11px] text-on-surface-variant mt-0.5">
-              Rutas públicas para hacer en grupo
+              {tp("subtitle")}
             </p>
           </div>
           <button
@@ -151,19 +153,19 @@ export default function PartyModeModal({
 
         {/* Tabs */}
         <div className="flex border-b border-outline-variant/10 shrink-0">
-          {(["mi_ruta", "unirse", "explorar"] as Tab[]).map((t) => (
+          {(["mi_ruta", "unirse", "explorar"] as Tab[]).map((tabKey) => (
             <button
-              key={t}
-              onClick={() => setTab(t)}
+              key={tabKey}
+              onClick={() => setTab(tabKey)}
               className={`flex-1 py-3 text-xs font-black uppercase tracking-wider transition-colors ${
-                tab === t
+                tab === tabKey
                   ? "text-secondary border-b-2 border-secondary"
                   : "text-on-surface-variant hover:text-on-surface"
               }`}
             >
-              {t === "mi_ruta" && "Mi Ruta"}
-              {t === "unirse" && "Unirse"}
-              {t === "explorar" && "Explorar"}
+              {tabKey === "mi_ruta" && tp("tabs.myRoute")}
+              {tabKey === "unirse" && tp("tabs.join")}
+              {tabKey === "explorar" && tp("tabs.explore")}
             </button>
           ))}
         </div>
@@ -177,12 +179,12 @@ export default function PartyModeModal({
               {!activeRouteId ? (
                 <>
                   <p className="text-sm text-on-surface-variant leading-relaxed">
-                    Activa el modo Party para que tus amigos puedan ver y copiar tu ruta.
+                    {tp("activateDescription")}
                   </p>
                   {poisEnRuta.length > 0 && (
                     <div className="p-3 rounded-xl bg-surface-container-high space-y-2">
                       <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest">
-                        Tu ruta actual
+                        {tp("currentRoute")}
                       </p>
                       <div className="flex flex-wrap gap-1">
                         {poisEnRuta.map((p) => (
@@ -204,7 +206,7 @@ export default function PartyModeModal({
                     disabled={loading || (poisEnRuta.length < 2 && !savedRouteId)}
                     className="w-full bg-secondary text-on-secondary py-3.5 rounded-xl font-headline font-black text-sm uppercase tracking-widest disabled:opacity-40 transition-all hover:brightness-110"
                   >
-                    {loading ? "Activando…" : "🎉 Activar Modo Party"}
+                    {loading ? tp("activating") : `🎉 ${tp("activateButton")}`}
                   </button>
                 </>
               ) : (
@@ -218,7 +220,7 @@ export default function PartyModeModal({
                   {/* QR-style code display */}
                   <div className="p-4 rounded-2xl bg-surface-container-high space-y-2 text-center">
                     <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest">
-                      Código de ruta
+                      {tp("routeCode")}
                     </p>
                     <p className="font-mono text-xs text-on-surface break-all select-all bg-surface-container-highest p-2 rounded-lg">
                       {activeRouteId}
@@ -234,25 +236,25 @@ export default function PartyModeModal({
                       <span className="material-symbols-outlined text-sm">
                         {copied ? "check" : "content_copy"}
                       </span>
-                      {copied ? "¡Copiado!" : "Copiar link"}
+                      {copied ? tp("copied") : tp("copyLink")}
                     </button>
                     <button
                       onClick={handleShareNative}
                       className="flex items-center justify-center gap-2 py-3 rounded-xl bg-secondary text-on-secondary text-xs font-bold hover:opacity-90 transition-all"
                     >
                       <span className="material-symbols-outlined text-sm">share</span>
-                      Compartir
+                      {tp("share")}
                     </button>
                   </div>
 
                   {/* Participants */}
                   <div className="space-y-2">
                     <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest">
-                      Participantes ({participants.length})
+                      {tp("participants", { count: participants.length })}
                     </p>
                     {participants.length === 0 ? (
                       <p className="text-xs text-on-surface-variant text-center py-3">
-                        Nadie se ha unido aún 👀
+                        {tp("noParticipants")}
                       </p>
                     ) : (
                       <div className="flex flex-wrap gap-2">
@@ -260,7 +262,7 @@ export default function PartyModeModal({
                           <div
                             key={p.usuario_id}
                             className="w-9 h-9 rounded-full bg-secondary/20 border-2 border-secondary flex items-center justify-center text-xs font-black text-secondary"
-                            title={`Participante ${i + 1}`}
+                            title={tp("participantTitle", { number: i + 1 })}
                           >
                             {i + 1}
                           </div>
@@ -277,12 +279,12 @@ export default function PartyModeModal({
           {tab === "unirse" && (
             <div className="p-5 space-y-4">
               <p className="text-sm text-on-surface-variant leading-relaxed">
-                Pega el código o link que te compartieron para unirte a una ruta.
+                {tp("joinDescription")}
               </p>
               <textarea
                 value={joinCode}
                 onChange={(e) => setJoinCode(e.target.value)}
-                placeholder="Pega aquí el código UUID o el link completo…"
+                placeholder={tp("joinPlaceholder")}
                 rows={3}
                 className="w-full bg-surface-container-high border-none rounded-xl p-3 text-on-surface text-xs placeholder:text-on-surface-variant focus:ring-2 focus:ring-secondary/40 resize-none font-mono"
               />
@@ -293,7 +295,7 @@ export default function PartyModeModal({
                 disabled={loading || joinCode.trim().length < 8}
                 className="w-full bg-secondary text-on-secondary py-3.5 rounded-xl font-headline font-black text-sm uppercase tracking-widest disabled:opacity-40 transition-all hover:brightness-110"
               >
-                {loading ? "Uniéndome…" : "Unirme a la Ruta"}
+                {loading ? tp("joining") : tp("joinRoute")}
               </button>
             </div>
           )}
@@ -314,7 +316,7 @@ export default function PartyModeModal({
                 <div className="flex flex-col items-center text-center py-10 space-y-3">
                   <span className="text-4xl">🗺️</span>
                   <p className="text-on-surface-variant text-sm">
-                    No hay rutas públicas aún. ¡Sé el primero!
+                    {tp("noPublicRoutes")}
                   </p>
                 </div>
               ) : (
@@ -343,7 +345,7 @@ export default function PartyModeModal({
                       }}
                       className="w-full bg-secondary/20 text-secondary border border-secondary/30 py-2 rounded-lg text-xs font-black uppercase tracking-wider hover:bg-secondary/30 transition-all"
                     >
-                      Copiar esta ruta
+                      {tp("copyThisRoute")}
                     </button>
                   </div>
                 ))

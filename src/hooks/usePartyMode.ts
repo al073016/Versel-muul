@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import type { POI } from "@/types/database";
 
@@ -28,6 +29,7 @@ export interface PartyParticipant {
    ══════════════════════════════════════════════ */
 export function usePartyMode() {
   const supabase = createClient();
+  const t = useTranslations("partyMode");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
@@ -50,10 +52,10 @@ export function usePartyMode() {
         .eq("id", rutaId);
       setLoading(false);
       if (err) {
-        setError("No se pudo activar el modo Party");
+        setError(t("errors.activateFailed"));
         return false;
       }
-      setSuccessMsg("¡Ruta pública! Comparte el código con tus amigos 🎉");
+      setSuccessMsg(t("success.publicRoute"));
       return true;
     },
     [supabase]
@@ -70,7 +72,7 @@ export function usePartyMode() {
         .eq("id", rutaId);
       setLoading(false);
       if (err) {
-        setError("Error al desactivar modo Party");
+        setError(t("errors.deactivateFailed"));
         return false;
       }
       return true;
@@ -90,7 +92,7 @@ export function usePartyMode() {
         data: { user },
       } = await supabase.auth.getUser();
       if (!user) {
-        setError("Debes iniciar sesión para crear una ruta Party");
+        setError(t("errors.loginRequiredCreate"));
         return null;
       }
       setLoading(true);
@@ -115,14 +117,14 @@ export function usePartyMode() {
         .single();
       setLoading(false);
       if (err || !data) {
-        setError("Error al crear la ruta Party");
+        setError(t("errors.createFailed"));
         return null;
       }
       // Add creator as first participant
       await supabase
         .from("rutas_participantes")
         .insert({ ruta_id: data.id, usuario_id: user.id });
-      setSuccessMsg("¡Ruta Party creada! 🎉");
+      setSuccessMsg(t("success.created"));
       return data.id;
     },
     [supabase]
@@ -136,7 +138,7 @@ export function usePartyMode() {
         data: { user },
       } = await supabase.auth.getUser();
       if (!user) {
-        setError("Debes iniciar sesión para unirte a una ruta");
+        setError(t("errors.loginRequiredJoin"));
         return null;
       }
       setLoading(true);
@@ -150,7 +152,7 @@ export function usePartyMode() {
         .single();
 
       if (fetchErr || !ruta) {
-        setError("Ruta no encontrada o no es pública");
+        setError(t("errors.routeNotFound"));
         setLoading(false);
         return null;
       }
@@ -170,7 +172,7 @@ export function usePartyMode() {
       }
 
       setLoading(false);
-      setSuccessMsg("¡Te uniste a la ruta! 🎊");
+      setSuccessMsg(t("success.joined"));
       return ruta as PartyRoute;
     },
     [supabase]
