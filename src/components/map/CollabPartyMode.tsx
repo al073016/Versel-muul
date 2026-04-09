@@ -49,7 +49,9 @@ export default function CollabPartyMode({ routeId }: { routeId?: string }) {
         </div>
         <div className="flex flex-col">
           <span className="text-[10px] font-black uppercase text-[#fed000] tracking-widest leading-none drop-shadow-sm">Party Mode</span>
-          <span className="text-xs font-bold text-[#003e6f] leading-tight">Editando juntos</span>
+          <span className="text-xs font-bold text-[#003e6f] leading-tight">
+            {collaborators.length > 1 ? "Editando juntos" : "Tú nada más"}
+          </span>
         </div>
       </div>
     </div>

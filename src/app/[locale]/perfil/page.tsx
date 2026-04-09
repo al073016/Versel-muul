@@ -5,6 +5,11 @@ import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useTranslations } from "next-intl";
 import { 
+  FriendsService, 
+  GamificationService 
+} from "@/lib/services";
+import type { Badge } from "@/lib/services/gamification.service";
+import { 
   User, 
   MapPin, 
   Route, 
@@ -46,48 +51,14 @@ function PerfilContent() {
   const [friendSearch, setFriendSearch] = useState("");
   const [requestSent, setRequestSent] = useState(false);
   
-  const [friendsList, setFriendsList] = useState([
-    {
-      id: "u2",
-      name: "Carlos R.",
-      username: "@carlos_explorador",
-      status: "En línea",
-      avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=500&auto=format&fit=crop",
-      online: true
-    },
-    {
-      id: "u1",
-      name: "Ana Martínez",
-      username: "@viajera66",
-      status: "Hace 2 horas",
-      avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=500&auto=format&fit=crop",
-      online: false
-    },
-    {
-      id: "u6",
-      name: "Marco Villanueva",
-      username: "@marco_photo",
-      status: "En línea",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&auto=format&fit=crop",
-      online: true
-    },
-    {
-      id: "u5",
-      name: "Lucía Ramírez",
-      username: "@lu_traveler",
-      status: "Hace 30 min",
-      avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=500&auto=format&fit=crop",
-      online: false
-    },
-    {
-      id: "u7",
-      name: "Valentina Orozco",
-      username: "@vale_fit",
-      status: "Hace 1 día",
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=500&auto=format&fit=crop",
-      online: false
-    }
-  ]);
+  const [friendsList, setFriendsList] = useState<{ id: string; name: string; username: string; status: string; online: boolean; avatar: string }[]>([]);
+
+  const [rutasGuardadas, setRutasGuardadas] = useState<{ id: string; nombre: string; created_at: string; pois_data: any[]; modo_transporte: string; distancia_texto?: string; duracion_texto?: string }[]>([]);
+  const [badges, setBadges] = useState<Badge[]>([]);
+
+  useEffect(() => {
+    FriendsService.getAmigos().then(setFriendsList);
+  }, []);
 
   const profileId = searchParams.get("id");
   const [isPublicView, setIsPublicView] = useState(false);
@@ -197,6 +168,52 @@ function PerfilContent() {
     fetchPerfil();
   }, [supabase, profileId]);
 
+  // Load user data and badges
+  const [currentUser, setCurrentUser] = useState<{ nombre: string, initials: string, avatar_url: string | null } | null>(null);
+  
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const perfilData = await getPerfilCompat(supabase, user.id);
+        const nombre = perfilData?.nombre_completo || user.user_metadata?.nombre_completo || user.email || "Usuario";
+        const parts = nombre.split(" ");
+        const initials = parts.length >= 2 ? (parts[0][0] + parts[1][0]).toUpperCase() : nombre.substring(0, 2).toUpperCase();
+        
+        setPerfil({
+           ...perfilData,
+           nombre_completo: nombre,
+           puntos_totales: perfilData?.puntos || 0,
+           nivel_actual: perfilData?.nivel || "Explorador Novato"
+        });
+        
+        setCurrentUser({ nombre, initials, avatar_url: perfilData?.avatar_url || null });
+
+        // Load real badges
+        const userBadges = await GamificationService.getBadges(user.id);
+        setBadges(userBadges);
+      }
+    };
+    fetchUserData();
+  }, [supabase]);
+
+  // Load persisted routes from Supabase (real data)
+  // SUPABASE SWAP: Already real — just requires rows in rutas_guardadas table
+  useEffect(() => {
+    const loadRutas = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const { data } = await supabase
+        .from('rutas_guardadas')
+        .select('id, nombre, created_at, pois_data, modo_transporte, distancia_texto, duracion_texto')
+        .eq('usuario_id', session.user.id)
+        .order('created_at', { ascending: false })
+        .limit(20);
+      if (data && data.length > 0) setRutasGuardadas(data);
+    };
+    loadRutas();
+  }, [supabase]);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-surface">
@@ -290,21 +307,13 @@ function PerfilContent() {
     { id: "ajustes", icon: <Settings size={20} />, label: "Ajustes" },
   ];
 
-  const tiers = [
-    { name: 'bronze', className: 'bg-[#a16207]/20 border-[#a16207]/30 text-[#fef3c7] shadow-[#a16207]/30' },
-    { name: 'silver', className: 'bg-slate-400/20 border-slate-300/40 text-slate-100 shadow-slate-400/30' },
-    { name: 'gold', className: 'bg-yellow-400/20 border-yellow-300/40 text-yellow-100 shadow-yellow-300/30' },
-  ];
+  const tiers = {
+    bronze: 'bg-[#a16207]/20 border-[#a16207]/30 text-[#fef3c7] shadow-[#a16207]/30',
+    silver: 'bg-slate-400/20 border-slate-300/40 text-slate-100 shadow-slate-400/30',
+    gold: 'bg-yellow-400/20 border-yellow-300/40 text-yellow-100 shadow-yellow-300/30',
+  };
 
-  const insigniasDestacadas = [
-    { emoji: "🌮", label: "Maestro Taquero", description: "Visita 10 taquerías verificadas." },
-    { emoji: "🏛️", label: "Explorador Prehispánico", description: "Completa la ruta de las 5 pirámides." },
-    { emoji: "🏖️", label: "Amante del Sol", description: "Visita 3 playas diferentes en un mes." },
-    { emoji: "🌶️", label: "Valiente del Chile", description: "Prueba 5 platillos picantes." },
-  ].map(insignia => ({
-    ...insignia,
-    tier: tiers[Math.floor(Math.random() * tiers.length)]
-  }));
+  const getTierClass = (badge: Badge) => tiers[badge.tier] || tiers.bronze;
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -440,9 +449,9 @@ function PerfilContent() {
             {/* Stats Grid */}
             <section className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {[
-                { label: t("rutasCompletadas"), value: perfil?.rutas_completadas || "0", color: "bg-[#003e6f] text-white" },
+                { label: t("rutasCompletadas"), value: rutasGuardadas.length || "0", color: "bg-[#003e6f] text-white" },
                 { label: t("puntosInteres"), value: perfil?.puntos_totales || "0", color: "bg-[#fed000] text-[#003e6f]" },
-                { label: t("insigniasObtenidas"), value: perfil?.insignias || "0", color: "bg-slate-100 text-[#003e6f]" },
+                { label: t("insigniasObtenidas"), value: badges.length || "0", color: "bg-slate-100 text-[#003e6f]" },
               ].map((stat, idx) => (
                 <div key={idx} className={`${stat.color} p-10 rounded-[2.5rem] flex flex-col items-center justify-center text-center shadow-sm border border-black/5 transition-transform hover:scale-[1.02] duration-300`}>
                   <span className="font-label font-black text-[10px] tracking-[0.2em] mb-4 opacity-70">{stat.label}</span>
@@ -455,11 +464,24 @@ function PerfilContent() {
             <section className="space-y-8">
               <h2 className="text-4xl font-headline italic text-primary">Insignias Destacadas</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                {insigniasDestacadas.map((insignia) => (
-                  <div key={insignia.label} className={`bg-surface-container-low p-8 rounded-[2.5rem] flex flex-col items-center text-center border hover:bg-white hover:shadow-xl transition-all ${insignia.tier.className}`}>
-                    <span className="text-6xl mb-4">{insignia.emoji}</span>
-                    <h3 className="font-headline font-bold text-xl text-on-surface mb-2">{insignia.label}</h3>
-                    <p className="text-sm text-on-surface-variant font-body">{insignia.description}</p>
+                {badges.map((badge) => (
+                  <div key={badge.label} className={`bg-surface-container-low p-8 rounded-[2.5rem] flex flex-col items-center text-center border hover:bg-white hover:shadow-xl transition-all ${getTierClass(badge)}`}>
+                    <span className="text-6xl mb-4">{badge.emoji}</span>
+                    <h3 className="font-headline font-bold text-xl text-on-surface mb-2">{badge.label}</h3>
+                    <p className="text-sm text-on-surface-variant font-body">{badge.description}</p>
+                    {badge.progress !== undefined && badge.total !== undefined && (
+                      <div className="mt-4 w-full">
+                        <div className="h-2 bg-black/10 rounded-full overflow-hidden">
+                           <div 
+                             className="h-full bg-current transition-all duration-1000" 
+                             style={{ width: `${(badge.progress / badge.total) * 100}%` }}
+                           />
+                        </div>
+                        <p className="text-[10px] mt-2 font-bold uppercase tracking-widest opacity-60">
+                           {badge.progress}/{badge.total} {t("completado")}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -556,7 +578,10 @@ function PerfilContent() {
                         </div>
                       </div>
                       <button 
-                        onClick={() => setFriendsList(friendsList.filter(f => f.id !== friend.id))}
+                        onClick={async () => {
+                          await FriendsService.eliminarAmigo(friend.id);
+                          setFriendsList(prev => prev.filter(f => f.id !== friend.id));
+                        }}
                         className="text-neutral-400 hover:text-red-500 bg-transparent hover:bg-red-50 transition-all p-2 rounded-full flex items-center justify-center shrink-0"
                         title="Eliminar amigo"
                       >
@@ -608,23 +633,31 @@ function PerfilContent() {
           <div className="space-y-8 animate-fade-in-up">
             <h2 className="text-4xl font-headline italic text-primary">{t("misRutas")}</h2>
             <div className="grid grid-cols-1 gap-6">
-              {[
-                { name: "Ruta del Tequila", date: "15 Mar 2024", stops: 5, time: "4.5h" },
-                { name: "Joyas de San Miguel", date: "10 Feb 2024", stops: 8, time: "6h" },
-              ].map((ruta, idx) => (
-                <div key={idx} className="bg-white p-6 md:p-8 rounded-[2rem] border border-outline-variant/10 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row items-center gap-6">
+              {rutasGuardadas.length > 0 ? rutasGuardadas.map((ruta) => (
+                <div key={ruta.id} className="bg-white p-6 md:p-8 rounded-[2rem] border border-outline-variant/10 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row items-center gap-6">
                   <div className="w-16 h-16 bg-[#fed000]/10 rounded-2xl flex items-center justify-center text-[#fed000]">
                     <Route size={32} />
                   </div>
                   <div className="flex-1 text-center md:text-left">
-                    <h3 className="font-headline font-bold text-2xl mb-1 text-[#003e6f]">{ruta.name}</h3>
-                    <p className="text-[10px] text-[#003e6f]/40 font-black tracking-widest uppercase">{ruta.date} • {ruta.stops} Paradas • {ruta.time}</p>
+                    <h3 className="font-headline font-bold text-2xl mb-1 text-[#003e6f]">{ruta.nombre}</h3>
+                    <p className="text-[10px] text-[#003e6f]/40 font-black tracking-widest uppercase">
+                      {new Date(ruta.created_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })} • {ruta.pois_data?.length || 0} Paradas • {ruta.modo_transporte} {ruta.distancia_texto ? `• ${ruta.distancia_texto}` : ''}
+                    </p>
                   </div>
-                  <button className="bg-[#003e6f] text-white px-8 py-4 rounded-full font-black uppercase tracking-widest text-[11px] hover:brightness-110 transition-all shadow-lg shadow-[#003e6f]/20">
+                  <a href={`/mapa?ruta=${ruta.id}`} className="bg-[#003e6f] !text-white px-8 py-4 rounded-full font-black uppercase tracking-widest text-[11px] hover:brightness-110 transition-all shadow-lg shadow-[#003e6f]/20">
                     {t("verMapa")}
-                  </button>
+                  </a>
                 </div>
-              ))}
+              )) : (
+                <div className="bg-white p-12 rounded-[2rem] border border-outline-variant/10 shadow-sm text-center">
+                  <span className="material-symbols-outlined text-6xl text-neutral-300 mb-4 block">route</span>
+                  <p className="font-headline text-2xl text-[#003e6f] font-bold mb-2">Aún no has guardado rutas</p>
+                  <p className="text-neutral-500 font-body mb-6">Explora el mapa y guarda tus rutas favoritas.</p>
+                  <a href="/mapa" className="inline-block bg-[#fed000] text-[#003e6f] px-8 py-3 rounded-full font-bold text-sm uppercase tracking-widest hover:bg-[#ffdf40] transition-colors">
+                    Abrir Mapa
+                  </a>
+                </div>
+              )}
             </div>
           </div>
         )}
