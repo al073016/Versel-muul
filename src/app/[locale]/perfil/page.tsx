@@ -407,13 +407,13 @@ function PerfilContent() {
             {/* Hero Section */}
             <header className="relative w-full aspect-[21/9] md:aspect-[3/1] rounded-[2.5rem] overflow-hidden group shadow-2xl">
               <img 
-                src="" 
+                src="https://qewqnirwuptcudoflgkd.supabase.co/storage/v1/object/public/muul_media/banderas.jpg" 
                 alt="Paseo de la Reforma" 
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-black/10 z-10"></div>
               <div className="relative z-20 h-full p-8 md:p-12 flex flex-col justify-center gap-4">
-                <h1 className="text-4xl md:text-6xl lg:text-7xl font-headline italic font-light text-white leading-tight">
+                <h1 className="text-4xl md:text-6xl lg:text-7xl font-headline italic font-light !text-white leading-tight">
                   {perfil?.nombre_completo || ""}
                 </h1>
 
@@ -440,13 +440,13 @@ function PerfilContent() {
             {/* Stats Grid */}
             <section className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {[
-                { label: t("rutasCompletadas"), value: "24", color: "bg-[#003e6f] text-white" },
+                { label: t("rutasCompletadas"), value: "24", color: "bg-[#003e6f]" },
                 { label: t("puntosInteres"), value: "158", color: "bg-[#fed000] text-[#003e6f]" },
                 { label: t("insigniasObtenidas"), value: "12", color: "bg-slate-100 text-[#003e6f]" },
               ].map((stat, idx) => (
                 <div key={idx} className={`${stat.color} p-10 rounded-[2.5rem] flex flex-col items-center justify-center text-center shadow-sm border border-black/5 transition-transform hover:scale-[1.02] duration-300`}>
-                  <span className="font-label font-black text-[10px] tracking-[0.2em] mb-4 opacity-70">{stat.label}</span>
-                  <span className="text-6xl md:text-7xl font-headline italic font-light tracking-tighter">{stat.value}</span>
+                  <span className={`font-label font-black text-[10px] tracking-[0.2em] mb-4 opacity-70 ${idx === 0 ? '!text-[#fed000]' : ''}`}>{stat.label}</span>
+                  <span className={`text-6xl md:text-7xl font-headline italic font-light tracking-tighter ${idx === 0 ? '!text-[#fed000]' : ''}`}>{stat.value}</span>
                 </div>
               ))}
             </section>

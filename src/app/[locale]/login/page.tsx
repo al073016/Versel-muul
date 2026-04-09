@@ -456,8 +456,11 @@ export default function LoginPage() {
 
         if (negocioData?.id) {
           router.push(`/negocio/${negocioData.id}`);
+        } else if (authData.user?.id) {
+          // Fallback: usar user_id si no viene negocio_id
+          router.push(`/negocio/${authData.user.id}`);
         } else {
-          router.push("/perfil");
+          router.push("/");
         }
         return;
       }

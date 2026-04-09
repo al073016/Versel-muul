@@ -158,8 +158,12 @@ export default function SignupNegocioPage() {
       setTimeout(() => {
         if (data.data?.negocio_id) {
           router.push(`/negocio/${data.data.negocio_id}`);
+        } else if (data.data?.user_id) {
+          // Fallback: si no viene negocio_id, usar user_id
+          router.push(`/negocio/${data.data.user_id}`);
         } else {
-          router.push("/perfil");
+          // Si no hay IDs, ir a home
+          router.push("/");
         }
       }, 2000);
     } catch (err) {

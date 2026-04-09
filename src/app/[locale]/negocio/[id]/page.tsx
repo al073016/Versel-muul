@@ -1,38 +1,90 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useParams } from "next/navigation";
-import { Link } from "@/i18n/navigation";
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useLocale, useTranslations } from "next-intl";
 import type { Negocio, Producto } from "@/types/database";
-import { getLocalizedDummyPois } from "@/lib/dummy-data";
 import { getPremiumPhoto } from "@/lib/photo-engine";
 import { haversine } from "@/lib/haversine";
+import { Link } from "@/i18n/navigation";
 
-const categoryEmojis: Record<string, string> = {
-  comida: "🌮", tienda: "🛍️", servicios: "🏨", cultural: "🏛️", deportes: "⚽",
+// Mockup productos para taquería
+const MOCKUP_PRODUCTOS: Producto[] = [
+  {
+    id: "mock-1",
+    negocio_id: "",
+    nombre: "Tacos al Pastor",
+    descripcion: "Deliciosos tacos al pastor con piña y cebolla morada",
+    precio: 45,
+    activo: true,
+    created_at: new Date().toISOString(),
+  } as Producto,
+  {
+    id: "mock-2",
+    negocio_id: "",
+    nombre: "Tacos de Carnitas",
+    descripcion: "Carnitas de cerdo tierno con cebolla y cilantro",
+    precio: 50,
+    activo: true,
+    created_at: new Date().toISOString(),
+  } as Producto,
+  {
+    id: "mock-3",
+    negocio_id: "",
+    nombre: "Tacos de Barbacoa",
+    descripcion: "Barbacoa tradicional con chile y cebolla",
+    precio: 55,
+    activo: true,
+    created_at: new Date().toISOString(),
+  } as Producto,
+  {
+    id: "mock-4",
+    negocio_id: "",
+    nombre: "Quesadillas",
+    descripcion: "Quesadillas rellenas de queso Oaxaca y tinga de pollo",
+    precio: 40,
+    activo: true,
+    created_at: new Date().toISOString(),
+  } as Producto,
+  {
+    id: "mock-5",
+    negocio_id: "",
+    nombre: "Chiles Rellenos",
+    descripcion: "Chiles poblanos rellenos de queso con salsa roja",
+    precio: 65,
+    activo: true,
+    created_at: new Date().toISOString(),
+  } as Producto,
+  {
+    id: "mock-6",
+    negocio_id: "",
+    nombre: "Tortas",
+    descripcion: "Tortas preparadas con carnes y verduras frescas",
+    precio: 60,
+    activo: true,
+    created_at: new Date().toISOString(),
+  } as Producto,
+];
+
+// URLs de imágenes para mockup productos
+const MOCKUP_IMAGEN_URLS: Record<string, string> = {
+  "mock-1": "https://qewqnirwuptcudoflgkd.supabase.co/storage/v1/object/public/muul_media/pastor.webp",
+  "mock-2": "https://qewqnirwuptcudoflgkd.supabase.co/storage/v1/object/public/muul_media/carnitas.jpg",
+  "mock-3": "https://qewqnirwuptcudoflgkd.supabase.co/storage/v1/object/public/muul_media/barbacoa.webp",
+  "mock-4": "https://qewqnirwuptcudoflgkd.supabase.co/storage/v1/object/public/muul_media/QUESADILLA.webp",
+  "mock-5": "https://qewqnirwuptcudoflgkd.supabase.co/storage/v1/object/public/muul_media/CHILES.webp",
+  "mock-6": "https://loremflickr.com/400/500/torta,mexican",
 };
-
-const slugify = (value: string) =>
-  value
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .trim()
-    .replace(/\s+/g, "-")
-    .replace(/[^a-z0-9-]/g, "")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
 
 export default function NegocioPerfilPage() {
   const params = useParams();
   const id = params.id as string;
+  const router = useRouter();
   const supabase = createClient();
   const t = useTranslations("negocio");
   const tc = useTranslations("common");
   const locale = useLocale();
-  const dummyPois = useMemo(() => getLocalizedDummyPois(locale), [locale]);
 
   const [negocio, setNegocio] = useState<Negocio | null>(null);
   const [productos, setProductos] = useState<Producto[]>([]);
@@ -64,28 +116,19 @@ export default function NegocioPerfilPage() {
         const currentNegocio = negocioData[0];
         setNegocio(currentNegocio);
 
-        // Fetch products for the business
         const { data: productosData, error: productosError } = await supabase.rpc('get_productos_by_negocio_id', { p_negocio_id: currentNegocio.id });
-
-        if (productosError) {
-          console.error("Error fetching productos:", productosError);
-        } else {
-          setProductos(productosData || []);
+        if (!productosError) {
+          // Usa mockup si no hay productos en BD
+          setProductos(productosData && productosData.length > 0 ? productosData : MOCKUP_PRODUCTOS);
         }
 
-        // Geolocation logic
         if (typeof window !== "undefined" && navigator.geolocation) {
           navigator.geolocation.getCurrentPosition((pos) => {
-            const uLat = pos.coords.latitude;
-            const uLng = pos.coords.longitude;
-            
             if (currentNegocio.latitud && currentNegocio.longitud) {
-              const d = haversine([uLat, uLng], [currentNegocio.latitud, currentNegocio.longitud]);
+              const d = haversine([pos.coords.latitude, pos.coords.longitude], [currentNegocio.latitud, currentNegocio.longitud]);
               setDistancia(d < 1 ? `${(d * 1000).toFixed(0)}m` : `${d.toFixed(1)}km`);
             }
-          }, (err) => {
-            console.warn("Geolocation error:", err);
-          }, { timeout: 10000 });
+          }, null, { timeout: 10000 });
         }
 
         const { data: { user } } = await supabase.auth.getUser();
@@ -93,7 +136,7 @@ export default function NegocioPerfilPage() {
           setIsOwner(true);
         }
       } catch (error) {
-        console.error("An unexpected error occurred:", error);
+        console.error("Error:", error);
         setNotFound(true);
       } finally {
         setLoading(false);
@@ -108,30 +151,27 @@ export default function NegocioPerfilPage() {
     setProdGuardando(true);
     setProdMsg("");
 
-    const { data, error } = await supabase.rpc('add_new_producto', {
+    const { error } = await supabase.rpc('add_new_producto', {
       p_negocio_id: negocio.id,
       p_nombre: prodNombre.trim(),
       p_descripcion: prodDescripcion.trim() || null,
       p_precio: prodPrecio ? parseFloat(prodPrecio) : null
     });
 
-    setProdGuardando(false);
     if (error) {
       setProdMsg(tc("error"));
       console.error("Error adding product:", error);
-      return;
+    } else {
+      const { data: productosData } = await supabase.rpc('get_productos_by_negocio_id', { p_negocio_id: negocio.id });
+      if (productosData) setProductos(productosData);
+      setProdNombre("");
+      setProdDescripcion("");
+      setProdPrecio("");
+      setShowProductForm(false);
+      setProdMsg(t("productoAgregado"));
+      setTimeout(() => setProdMsg(""), 3000);
     }
-    
-    // Assuming the RPC returns the new product, we refetch to be safe
-    const { data: productosData } = await supabase.rpc('get_productos_by_negocio_id', { p_negocio_id: negocio.id });
-    if (productosData) setProductos(productosData);
-
-    setProdNombre("");
-    setProdDescripcion("");
-    setProdPrecio("");
-    setShowProductForm(false);
-    setProdMsg(t("productoAgregado"));
-    setTimeout(() => setProdMsg(""), 3000);
+    setProdGuardando(false);
   };
 
   const handleDeleteProduct = async (prodId: string) => {
@@ -140,18 +180,12 @@ export default function NegocioPerfilPage() {
     setProductos((prev) => prev.filter((p) => p.id !== prodId));
   };
 
-  const formatHorario = () => {
-    if (!negocio?.horario_apertura || !negocio?.horario_cierre) return t("horarioNoEspecificado");
-    return `${negocio.horario_apertura} - ${negocio.horario_cierre}`;
-  };
-
   if (loading) {
     return (
-      <main className="max-w-[1440px] mx-auto min-h-screen px-6 py-24">
-        <div className="animate-pulse space-y-8">
-          <div className="h-[350px] bg-surface-container-high rounded-xl" />
-          <div className="h-8 bg-surface-container-high rounded w-1/3" />
-          <div className="h-4 bg-surface-container-high rounded w-2/3" />
+      <main className="min-h-screen flex items-center justify-center bg-surface pt-24">
+        <div className="animate-pulse flex flex-col items-center gap-4">
+          <div className="w-12 h-12 rounded-full bg-primary/20"></div>
+          <p className="text-on-surface-variant font-medium tracking-widest uppercase text-xs">{t("cargando")}</p>
         </div>
       </main>
     );
@@ -159,237 +193,276 @@ export default function NegocioPerfilPage() {
 
   if (notFound || !negocio) {
     return (
-      <main className="max-w-7xl mx-auto min-h-[60vh] flex flex-col items-center justify-center px-6 py-24 text-center space-y-6">
+      <main className="max-w-screen-2xl mx-auto min-h-[60vh] flex flex-col items-center justify-center px-8 py-24 text-center space-y-6 pt-24">
         <span className="text-6xl">🏪</span>
-        <h1 className="font-headline font-black text-3xl">{t("noEncontrado")}</h1>
+        <h1 className="text-4xl font-serif font-semibold">{t("noEncontrado")}</h1>
         <p className="text-on-surface-variant max-w-md">{t("noEncontradoDesc")}</p>
-        <Link href="/tiendas" className="px-8 py-3 bg-primary text-on-primary rounded-xl font-headline font-bold hover:shadow-glow-secondary transition-all">{t("verTiendas")}</Link>
+        <Link href="/tiendas" className="px-8 py-3 bg-primary text-on-primary rounded-full font-sans font-bold hover:shadow-lg transition-all">{t("verTiendas")}</Link>
       </main>
     );
   }
 
   return (
-    <main className="max-w-[1440px] mx-auto min-h-screen pb-28 md:pb-0">
-        {/* HERO */}
-        <header className="relative h-[400px] md:h-[500px] w-full overflow-hidden">
-          <div className="absolute inset-0">
-            <img 
-              src={negocio.foto_url || getPremiumPhoto(negocio.nombre, negocio.categoria)} 
-              alt={negocio.nombre} 
-              className="w-full h-full object-cover" 
-            />
-            <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/10 to-[#003e6f]" />
-          </div>
-          <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/40 to-transparent" />
-          <div className="absolute bottom-0 left-0 w-full p-8 md:p-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div className="space-y-4 animate-fade-in-up">
-              <div className="flex items-center gap-3">
-                {negocio.verificado && (
-                  <span className="bg-[#fed000] text-[#003e6f] px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest flex items-center gap-1 shadow-lg shadow-[#fed000]/20">
-                    <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
-                    {t("verificado")}
-                  </span>
-                )}
-                <span className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest text-white border border-white/10">{tc(negocio.categoria)}</span>
-              </div>
-              <h1 className="text-5xl md:text-8xl font-headline font-black tracking-tighter text-white uppercase italic drop-shadow-2xl">{negocio.nombre}</h1>
-              {negocio.descripcion && (<p className="text-white/80 max-w-xl text-lg font-medium leading-relaxed drop-shadow-lg">{negocio.descripcion}</p>)}
+    <main className="bg-surface pt-24 pb-20">
+      {/* PROFILE HEADER */}
+      <section className="max-w-screen-2xl mx-auto px-8 mb-12">
+        {/* Hero Image */}
+        <div className="relative h-96 w-full rounded-3xl overflow-hidden mb-8">
+          {/* 
+            📸 IMAGEN DE FONDO DEL NEGOCIO 
+            
+            Opciones para URL:
+            1. negocio.foto_url (si existe en BD)
+            2. Agregar columna: ALTER TABLE negocios ADD COLUMN foto_url TEXT;
+            3. Supabase Storage: https://tu-bucket.supabase.co/storage/v1/object/public/...
+            4. URL externa de CDN
+            5. Fallback automático: getPremiumPhoto()
+            
+            Tamaño recomendado: 1200x400px o mayor
+            Formato: JPG/PNG
+          */}
+          <img
+            alt={negocio.nombre}
+            className="w-full h-full object-cover"
+            src="https://qewqnirwuptcudoflgkd.supabase.co/storage/v1/object/public/muul_media/TacosTino.jpeg"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-primary/60 to-transparent"></div>
+
+          {/* Logo y Nombre */}
+          <div className="absolute bottom-8 left-8 flex items-end gap-6">
+            <div className="w-32 h-32 rounded-2xl bg-white p-1 shadow-2xl">
+              {/* 
+                📸 LOGO DEL NEGOCIO 
+                
+                Opciones:
+                1. Usar negocio.foto_url (mismo de arriba)
+                2. Agregar columna logo_url: ALTER TABLE negocios ADD COLUMN logo_url TEXT;
+                3. Avatar generado automáticamente (fallback actual)
+                
+                Tamaño recomendado: 256x256px (cuadrado)
+                Formato: PNG con transparencia preferible
+              */}
+              <img
+                alt="Business Logo"
+                className="w-full h-full object-cover rounded-xl"
+                src={negocio.foto_url || `https://ui-avatars.com/api/?name=${negocio.nombre}&background=003e6f&color=fff&size=256`}
+              />
             </div>
-            {isOwner && (<Link href="#productos" className="md:block bg-primary text-on-primary font-headline font-bold py-4 px-8 rounded-xl shadow-lg active:scale-95 transition-all">{t("gestionar")}</Link>)}
-          </div>
-        </header>
-
-        {/* CONTENT */}
-        <div className="px-6 md:px-12 py-12 flex flex-col lg:flex-row gap-12">
-          <div className="flex-grow space-y-20">
-            {/* Info */}
-            <section className="space-y-8 animate-fade-in-up">
-              <div className="flex items-center gap-4">
-                <h2 className="text-3xl font-headline font-bold uppercase tracking-tight">{t("infoGeneral")}</h2>
-                <div className="h-[2px] flex-grow bg-gradient-to-r from-outline-variant/30 to-transparent" />
-              </div>
-              <div className="grid md:grid-cols-2 gap-8">
-                <div className="glass-panel p-8 rounded-xl space-y-6">
-                  <div className="flex items-start gap-4">
-                    <span className="material-symbols-outlined text-secondary" style={{ fontVariationSettings: "'FILL' 1" }}>schedule</span>
-                    <div>
-                      <h4 className="font-headline font-bold text-sm uppercase text-on-surface-variant">{t("horarios")}</h4>
-                      <p className="text-on-surface mt-1">{formatHorario()}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-4">
-                    <span className="material-symbols-outlined text-secondary" style={{ fontVariationSettings: "'FILL' 1" }}>location_on</span>
-                    <div>
-                      <h4 className="font-headline font-bold text-sm uppercase text-on-surface-variant">{t("ubicacion")}</h4>
-                      <p className="text-on-surface mt-1">{negocio.direccion || t("direccionNoEspecificada")}</p>
-                    </div>
-                  </div>
-                  {negocio.rfc && (
-                    <div className="flex items-start gap-4">
-                      <span className="material-symbols-outlined text-secondary" style={{ fontVariationSettings: "'FILL' 1" }}>receipt_long</span>
-                      <div>
-                        <h4 className="font-headline font-bold text-sm uppercase text-on-surface-variant">{t("rfc")}</h4>
-                        <p className="text-on-surface mt-1 font-mono text-sm">{negocio.rfc}</p>
-                      </div>
-                    </div>
-                  )}
+            <div className="pb-2">
+              <h1 className="text-5xl font-serif font-semibold text-white mb-2 tracking-tight">{negocio.nombre}</h1>
+              {negocio.especialidades && negocio.especialidades.length > 0 && (
+                <div className="flex gap-3">
+                  {negocio.especialidades.slice(0, 2).map((spec) => (
+                    <span key={spec} className="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-xs font-mono font-bold tracking-widest uppercase">
+                      {spec}
+                    </span>
+                  ))}
                 </div>
-                {negocio.especialidades && negocio.especialidades.length > 0 && (
-                  <div className="space-y-4">
-                    <h4 className="font-headline font-bold text-sm uppercase text-on-surface-variant tracking-widest">{t("especialidades")}</h4>
-                    <div className="flex flex-wrap gap-3">
-                      {negocio.especialidades.map((spec) => (<span key={spec} className="bg-surface-container-highest border border-outline-variant/20 px-4 py-2 rounded-lg text-sm">{spec}</span>))}
-                    </div>
-                  </div>
-                )}
-                {distancia && (
-                  <div className="flex items-center justify-between p-6 bg-secondary/5 border border-secondary/10 rounded-2xl animate-fade-in md:col-span-2">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-full bg-secondary/20 flex items-center justify-center text-secondary">
-                        <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>near_me</span>
-                      </div>
-                      <div>
-                        <p className="text-[10px] font-black uppercase text-secondary tracking-widest">Estás a</p>
-                        <p className="text-xl font-headline font-black text-[#003e6f]">{distancia}</p>
-                      </div>
-                    </div>
-                    <Link 
-                      href={{
-                        pathname: '/mapa',
-                        query: { lat: negocio.latitud, lng: negocio.longitud, id: negocio.id }
-                      }}
-                      className="bg-secondary text-on-secondary px-6 py-3 rounded-xl font-headline font-bold text-xs uppercase tracking-widest shadow-lg shadow-secondary/20 active:scale-95 transition-all flex items-center gap-2"
-                    >
-                      <span className="material-symbols-outlined text-sm">map</span>
-                      Ver en mapa
-                    </Link>
-                  </div>
-                )}
-              </div>
-            </section>
+              )}
+            </div>
+          </div>
+        </div>
 
-            {/* Products */}
-            <section className="space-y-8" id="productos">
-              <div className="flex items-center justify-between">
-                <h2 className="text-3xl font-headline font-bold uppercase tracking-tight">{isOwner ? t("misProductos") : t("productos")}</h2>
+        {/* CONTENT GRID: Left (Main) + Right (Sidebar) */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+          {/* LEFT: Description + Products */}
+          <div className="md:col-span-2">
+            {/* Descripción */}
+            {negocio.descripcion && (
+              <p className="text-xl font-serif text-on-surface/80 leading-relaxed mb-8">{negocio.descripcion}</p>
+            )}
+
+            {/* PRODUCTOS SECTION */}
+            <div className="mb-16">
+              <div className="flex justify-between items-end mb-8">
+                <h2 className="text-3xl font-serif font-medium">Productos Destacados</h2>
                 {isOwner && (
-                  <button onClick={() => setShowProductForm(!showProductForm)} className="text-secondary font-headline font-bold text-sm flex items-center gap-1 uppercase tracking-widest hover:underline">
-                    <span className="material-symbols-outlined text-sm">{showProductForm ? "close" : "add"}</span>
-                    {showProductForm ? t("cancelar") : t("agregarProducto")}
+                  <button
+                    onClick={() => setShowProductForm(!showProductForm)}
+                    className="text-primary font-sans font-bold text-sm flex items-center gap-1"
+                  >
+                    <span className="material-symbols-outlined text-lg">{showProductForm ? "close" : "add"}</span>
+                    {showProductForm ? "Cancelar" : "Agregar"}
                   </button>
                 )}
               </div>
 
+              {/* FORM PARA AGREGAR PRODUCTOS */}
               {isOwner && showProductForm && (
-                <form onSubmit={handleAddProduct} className="bg-surface-container-high p-6 rounded-xl space-y-4 animate-fade-in-up border border-outline-variant/10">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <input type="text" required value={prodNombre} onChange={(e) => setProdNombre(e.target.value)} placeholder={t("nombreProducto")} className="bg-surface-container-highest border-none rounded-lg py-3 px-4 text-on-surface focus:ring-2 focus:ring-secondary/40 placeholder:text-on-surface-variant/40" />
-                    <input type="text" value={prodDescripcion} onChange={(e) => setProdDescripcion(e.target.value)} placeholder={t("descProducto")} className="bg-surface-container-highest border-none rounded-lg py-3 px-4 text-on-surface focus:ring-2 focus:ring-secondary/40 placeholder:text-on-surface-variant/40" />
-                    <input type="number" value={prodPrecio} onChange={(e) => setProdPrecio(e.target.value)} placeholder={t("precioProducto")} step="0.01" min="0" className="bg-surface-container-highest border-none rounded-lg py-3 px-4 text-on-surface focus:ring-2 focus:ring-secondary/40 placeholder:text-on-surface-variant/40" />
-                  </div>
-                  <button type="submit" disabled={prodGuardando} className="bg-secondary text-on-secondary px-6 py-3 rounded-lg font-headline font-bold text-sm uppercase tracking-widest hover:brightness-110 transition-all disabled:opacity-50">
-                    {prodGuardando ? tc("cargando") : t("agregar")}
-                  </button>
-                </form>
+                <div className="bg-surface-container-low p-6 rounded-2xl mb-8 border border-outline-variant/10">
+                  <form onSubmit={handleAddProduct} className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <input
+                        type="text"
+                        required
+                        value={prodNombre}
+                        onChange={(e) => setProdNombre(e.target.value)}
+                        placeholder="Nombre del producto"
+                        className="bg-surface-container-highest border border-outline-variant/10 rounded-lg py-3 px-4 text-on-surface text-sm"
+                      />
+                      <input
+                        type="text"
+                        value={prodDescripcion}
+                        onChange={(e) => setProdDescripcion(e.target.value)}
+                        placeholder="Descripción"
+                        className="bg-surface-container-highest border border-outline-variant/10 rounded-lg py-3 px-4 text-on-surface text-sm"
+                      />
+                      <input
+                        type="number"
+                        value={prodPrecio}
+                        onChange={(e) => setProdPrecio(e.target.value)}
+                        placeholder="Precio"
+                        step="0.01"
+                        min="0"
+                        className="bg-surface-container-highest border border-outline-variant/10 rounded-lg py-3 px-4 text-on-surface text-sm"
+                      />
+                    </div>
+                    <button
+                      type="submit"
+                      disabled={prodGuardando}
+                      className="bg-secondary text-on-secondary px-6 py-3 rounded-full font-sans font-bold text-sm hover:brightness-110 transition-all disabled:opacity-50"
+                    >
+                      {prodGuardando ? "Guardando..." : "Agregar Producto"}
+                    </button>
+                    {prodMsg && <p className="text-secondary text-xs font-bold">{prodMsg}</p>}
+                  </form>
+                </div>
               )}
 
-              {prodMsg && (<p className="text-secondary text-xs font-bold animate-fade-in-up">{prodMsg}</p>)}
-
+              {/* PRODUCT GRID */}
               {productos.length === 0 ? (
                 <div className="flex flex-col items-center text-center py-12 space-y-4">
-                  <span className="text-5xl">{categoryEmojis[negocio.categoria] || "📦"}</span>
-                  <h3 className="font-headline font-bold text-xl">{t("sinProductos")}</h3>
-                  <p className="text-on-surface-variant max-w-md">{isOwner ? t("sinProductosOwner") : t("sinProductosVisitor")}</p>
+                  <span className="text-5xl">📦</span>
+                  <p className="text-on-surface-variant">{t("sinProductos")}</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 stagger-children">
-                  {productos.map((producto) => (
-                    <div key={producto.id} className="group bg-surface-container-low rounded-xl overflow-hidden hover:translate-y-[-4px] transition-all duration-300">
-                      <div className="h-48 relative overflow-hidden bg-gradient-to-br from-surface-container-high to-surface-container-highest flex items-center justify-center">
-                        <span className="text-7xl group-hover:scale-110 transition-transform duration-500">{categoryEmojis[negocio.categoria] || "📦"}</span>
-                        {producto.precio && (<div className="absolute top-4 right-4 bg-surface/80 backdrop-blur px-3 py-1 rounded-md text-secondary font-bold text-sm">${producto.precio}</div>)}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {productos.map((p: Producto) => (
+                    <div key={p.id} className="group cursor-pointer">
+                      {/* 
+                        📸 IMAGEN DE PRODUCTO 
+                        
+                        Opciones para URL:
+                        1. producto.imagen_url (si existe en BD)
+                        2. Agregar columna: ALTER TABLE productos ADD COLUMN imagen_url TEXT;
+                        3. Supabase Storage con estructura: /productos/{producto-id}/imagen.jpg
+                        4. URL externa de CDN
+                        5. Fallback: Avatar generado (actual)
+                        
+                        Tamaño recomendado: 400x500px (proporción 4:5)
+                        Formato: JPG/PNG
+                        
+                        Cambio del código:
+                        src={p.imagen_url || `https://ui-avatars.com/api/?name=${p.nombre}...`}
+                      */}
+                      <div className="aspect-[4/5] bg-surface-container-low rounded-2xl overflow-hidden mb-4 transition-transform duration-300 group-hover:scale-[1.02] flex items-center justify-center">
+                        <img
+                          alt={p.nombre}
+                          className="w-full h-full object-cover"
+                          src={MOCKUP_IMAGEN_URLS[p.id] || `https://ui-avatars.com/api/?name=${p.nombre}&background=dde9ff&color=003e6f&size=400`}
+                        />
                       </div>
-                      <div className="p-6 space-y-2">
-                        <div className="flex items-start justify-between gap-2">
-                          <h3 className="font-headline font-bold text-xl">{producto.nombre}</h3>
-                          {isOwner && (<button onClick={() => handleDeleteProduct(producto.id)} className="text-on-surface-variant hover:text-tertiary transition-colors shrink-0"><span className="material-symbols-outlined text-sm">delete</span></button>)}
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="font-sans font-bold text-on-surface">{p.nombre}</h3>
+                          {p.descripcion && <p className="text-on-surface-variant text-sm">{p.descripcion}</p>}
+                          {p.precio && <p className="font-mono text-sm text-primary font-bold">${p.precio}</p>}
                         </div>
-                        {producto.descripcion && (<p className="text-on-surface-variant text-sm line-clamp-2">{producto.descripcion}</p>)}
+                        {isOwner && (
+                          <button
+                            onClick={() => handleDeleteProduct(p.id)}
+                            className="text-error hover:text-error/80 transition-colors ml-2"
+                          >
+                            <span className="material-symbols-outlined text-lg">delete</span>
+                          </button>
+                        )}
                       </div>
                     </div>
                   ))}
                 </div>
               )}
-            </section>
+            </div>
           </div>
 
-          {/* SIDEBAR */}
-          <aside className="w-full lg:w-96">
-            <div className="sticky top-28 space-y-8">
-              <div className="bg-surface-container-low rounded-2xl p-8 space-y-8 border border-outline-variant/10">
-                <div className="space-y-2">
-                  <h3 className="font-headline font-black uppercase text-xs tracking-[0.2em] text-on-surface-variant">{t("estadisticas")}</h3>
-                  <div className="grid grid-cols-2 gap-4 pt-4">
-                    <div className="space-y-1">
-                      <div className="text-2xl font-headline font-black text-on-surface">{productos.length}</div>
-                      <div className="text-[10px] uppercase font-bold text-on-surface-variant">{t("productos")}</div>
-                    </div>
-                    <div className="space-y-1">
-                      <div className="text-2xl font-headline font-black text-secondary">{negocio.verificado ? "✅" : "⏳"}</div>
-                      <div className="text-[10px] uppercase font-bold text-on-surface-variant">{negocio.verificado ? t("verificado") : t("enRevision")}</div>
-                    </div>
-                  </div>
+          {/* RIGHT: SIDEBAR INFO */}
+          <div className="space-y-8">
+            {/* INFORMACIÓN PANEL */}
+            <div className="bg-surface-container-low p-8 rounded-3xl">
+              <h3 className="text-xl font-serif font-medium mb-6">Información</h3>
+              <ul className="space-y-4">
+                {negocio.direccion && (
+                  <li className="flex items-start gap-3">
+                    <span className="material-symbols-outlined text-primary">location_on</span>
+                    <span className="text-sm font-sans">{negocio.direccion}</span>
+                  </li>
+                )}
+                {negocio.horario_apertura && negocio.horario_cierre && (
+                  <li className="flex items-start gap-3">
+                    <span className="material-symbols-outlined text-primary">schedule</span>
+                    <span className="text-sm font-sans">
+                      {negocio.horario_apertura} - {negocio.horario_cierre}
+                    </span>
+                  </li>
+                )}
+                {distancia && (
+                  <li className="flex items-start gap-3">
+                    <span className="material-symbols-outlined text-primary">near_me</span>
+                    <span className="text-sm font-sans">{distancia}</span>
+                  </li>
+                )}
+              </ul>
+              <button className="w-full mt-8 bg-gradient-to-br from-primary to-primary-container text-white font-sans font-bold py-4 rounded-full shadow-lg hover:brightness-105 transition-all">
+                Reservar / Contactar
+              </button>
+            </div>
+
+            {/* STATS PANEL */}
+            <div className="bg-surface-container-low/50 p-8 rounded-3xl border border-outline-variant/10">
+              <span className="px-2 py-1 bg-primary text-on-primary rounded-sm text-[10px] font-mono mb-4 inline-block">ESTADÍSTICAS</span>
+              <h4 className="font-serif text-lg mb-2">Estado del Negocio</h4>
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between">
+                  <span>Productos:</span>
+                  <span className="font-bold text-primary">{productos.length}</span>
                 </div>
-
-                {negocio.latitud && negocio.longitud && (
-                  <div className="space-y-2">
-                    <h4 className="font-headline font-bold text-sm uppercase tracking-widest text-on-surface-variant">{t("coordenadas")}</h4>
-                    <p className="text-[10px] text-secondary font-mono">{negocio.latitud.toFixed(4)}° N, {Math.abs(negocio.longitud).toFixed(4)}° W</p>
-                  </div>
-                )}
-
-                {(negocio.instagram || negocio.facebook || (negocio as any).telefono) && (
-                  <div className="space-y-4 pt-4 border-t border-outline-variant/10">
-                    <h4 className="font-headline font-bold text-xs uppercase tracking-[0.2em] text-on-surface-variant">Contacto</h4>
-                    <div className="space-y-3">
-                      {(negocio as any).telefono && (
-                        <div className="flex items-center gap-3 text-on-surface">
-                          <span className="material-symbols-outlined text-secondary" style={{ fontVariationSettings: "'FILL' 1" }}>phone_in_talk</span>
-                          <span className="text-sm font-bold">{(negocio as any).telefono}</span>
-                        </div>
-                      )}
-                      <div className="flex gap-4">
-                        {negocio.instagram && (
-                          <a href={`https://instagram.com/${negocio.instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-pink-500/10 flex items-center justify-center text-pink-600 hover:bg-pink-500/20 transition-all">
-                            <span className="material-symbols-outlined text-xl">camera_alt</span>
-                          </a>
-                        )}
-                        {negocio.facebook && (
-                          <a href={`https://facebook.com/${negocio.facebook}`} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-blue-600/10 flex items-center justify-center text-blue-700 hover:bg-blue-600/20 transition-all">
-                            <span className="material-symbols-outlined text-xl">facebook</span>
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                <div className="space-y-3 pt-4">
-                  {isOwner && (
-                    <Link href="#productos" className="w-full bg-primary text-on-primary font-headline font-black py-4 rounded-xl flex items-center justify-center gap-2 hover:brightness-110 active:scale-95 transition-all uppercase tracking-widest text-sm">
-                      <span className="material-symbols-outlined">edit</span>{t("gestionar")}
-                    </Link>
-                  )}
-                  <button className="w-full border border-outline-variant/30 text-on-surface font-headline font-bold py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-surface-container-high transition-all uppercase tracking-widest text-sm">
-                    <span className="material-symbols-outlined">share</span>{tc("compartir")}
-                  </button>
+                <div className="flex justify-between">
+                  <span>Verificado:</span>
+                  <span className="font-bold">{negocio.verificado ? "✅" : "⏳"}</span>
                 </div>
               </div>
-
-              {/* Promotional section removed */}
             </div>
-          </aside>
+
+            {/* REDES SOCIALES */}
+            {(negocio.instagram || negocio.facebook) && (
+              <div className="bg-surface-container-low p-8 rounded-3xl">
+                <h4 className="font-serif text-lg mb-4">Contacto</h4>
+                <div className="flex gap-4">
+                  {negocio.instagram && (
+                    <a
+                      href={`https://instagram.com/${negocio.instagram.replace("@", "")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-10 h-10 rounded-full bg-pink-500/10 flex items-center justify-center text-pink-600 hover:bg-pink-500/20 transition-all"
+                    >
+                      <span className="material-symbols-outlined text-xl">camera_alt</span>
+                    </a>
+                  )}
+                  {negocio.facebook && (
+                    <a
+                      href={`https://facebook.com/${negocio.facebook}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-10 h-10 rounded-full bg-blue-600/10 flex items-center justify-center text-blue-700 hover:bg-blue-600/20 transition-all"
+                    >
+                      <span className="material-symbols-outlined text-xl">facebook</span>
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-      </main>
+      </section>
+    </main>
   );
 }

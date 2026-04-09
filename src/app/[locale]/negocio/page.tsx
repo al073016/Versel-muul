@@ -190,21 +190,21 @@ export default function NegocioDashboardPage() {
             )}
           </div>
 
-          {/* Info */}
-          <div className="flex-1 flex flex-col justify-center gap-4">
-            <h1 className="text-5xl font-bold">{negocio.nombre}</h1>
-            <p className="text-on-surface-variant text-lg">{negocio.descripcion}</p>
-            <div className="flex items-center gap-4 flex-wrap">
-              <span className="px-3 py-1 bg-primary-container text-primary-fixed rounded-full text-sm font-bold">
-                {tc(negocio.categoria)}
-              </span>
-              {negocio.verificado && (
-                <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-bold">
-                  ✓ {t("verificado")}
+            {/* Info */}
+            <div className="flex-1 flex flex-col justify-center gap-4">
+              <h1 className="text-5xl font-bold">{negocio.nombre}</h1>
+              <p className="text-on-surface-variant text-lg">{negocio.descripcion}</p>
+              <div className="flex items-center gap-4 flex-wrap">
+                <span className="px-3 py-1 bg-primary-container text-primary-fixed rounded-full text-sm font-bold">
+                  {tc(negocio.categoria)}
                 </span>
-              )}
-              <span className="text-gray-600">👥 {negocio.seguidores || 0} {t("dashboardFollowers")}</span>
-            </div>
+                {negocio.verificado && (
+                  <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-bold">
+                    ✓ {t("verificado")}
+                  </span>
+                )}
+                <span className="text-gray-600">👥 {negocio.seguidores || 0} {t("dashboardFollowers")}</span>
+              </div>
 
             <div className="flex gap-4">
               {isEditing ? (
