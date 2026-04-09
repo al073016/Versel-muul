@@ -33,6 +33,10 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'commons.wikimedia.org',
+      },
+      {
+        protocol: 'https',
+        hostname: 'qewqnirwuptcudoflgkd.supabase.co',
       }
     ],
   },
