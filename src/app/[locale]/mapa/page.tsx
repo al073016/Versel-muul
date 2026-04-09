@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { Link } from "@/i18n/navigation";
+import { SocialService } from "@/lib/services/social.service";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { createClient } from "@/lib/supabase/client";
@@ -594,6 +595,50 @@ export default function MapaPage() {
     } else { copiarItinerario(); }
   };
 
+  const publicarEnComunidad = async () => {
+    if (poisEnRuta.length === 0 || !activeRoute || !itinerarioRef.current) return;
+    
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      setGuardadoMsg(t("loginParaGuardar"));
+      return;
+    }
+
+    setGuardadoMsg(t("generandoImagen") + "...");
+    setGuardando(true);
+
+    try {
+      // 1. Capture the itinerary as an image
+      const canvas = await html2canvas(itinerarioRef.current, { 
+        backgroundColor: "#f8f9ff", 
+        scale: 2,
+        useCORS: true,
+        logging: false
+      });
+      
+      const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/png'));
+      if (!blob) throw new Error("Canvas to blob failed");
+
+      // 2. Prepare the post data to send via draft
+      const nombres = poisEnRuta.map(p => p.nombre).join(" → ");
+      const text = `🗺️ ¡Acabo de crear una nueva ruta en Muul! \n\n📍 Recorrido: ${nombres}\n📏 Distancia: ${activeRoute.distancia_texto}\n⏱️ Tiempo estimado: ${activeRoute.duracion_texto}\n\n#Muul #Aventura #Turismo`;
+
+      // 3. Save to draft in sessionStorage
+      sessionStorage.setItem("muul_draft_text", text);
+      sessionStorage.setItem("muul_draft_image", canvas.toDataURL("image/png"));
+      
+      setGuardadoMsg("✨ Preparando borrador...");
+      setTimeout(() => {
+        router.push("/comunidad?draft=true");
+      }, 1000);
+    } catch (error) {
+      console.error("Error al preparar borrador:", error);
+      setGuardadoMsg("❌ Error al preparar borrador");
+    } finally {
+      setGuardando(false);
+    }
+  };
+
   /* ── Render markers ── */
   useEffect(() => {
     if (!mapRef.current || !mapLoaded) return;
@@ -965,10 +1010,12 @@ export default function MapaPage() {
                   </div>
                   <button onClick={() => setPartyModalOpen(true)} className="w-full bg-gradient-to-r from-secondary/20 to-primary/10 text-on-surface py-3 rounded-xl font-headline font-bold text-sm border border-secondary/20 flex items-center justify-center gap-2"><span className="text-base">🎉</span> {t("partyMode")}</button>
                   <button 
-                    onClick={() => window.location.href = "/comunidad"} 
-                    className="w-full bg-[#003e6f] !text-white py-3 rounded-xl font-headline font-black text-sm uppercase tracking-widest hover:bg-[#005596] transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#003e6f]/20"
+                    onClick={publicarEnComunidad}
+                    disabled={guardando || poisEnRuta.length === 0}
+                    className="w-full bg-[#003e6f] !text-white py-3 rounded-xl font-headline font-black text-sm uppercase tracking-widest hover:bg-[#005596] transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#003e6f]/20 disabled:opacity-50"
                   >
-                    <span className="material-symbols-outlined text-base">public</span> {t("publishCommunity")}
+                    <span className="material-symbols-outlined text-base">public</span> 
+                    {guardando ? "Publicando..." : t("publishCommunity")}
                   </button>
                   <button onClick={guardarRuta} disabled={guardando} className="w-full bg-[#003e6f] !text-white py-3 rounded-xl font-headline font-bold text-sm uppercase tracking-widest hover:brightness-110 transition-all disabled:opacity-50 flex items-center justify-center gap-2">
                     <span className="material-symbols-outlined text-sm">bookmark_add</span>

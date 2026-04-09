@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import { 
   DUMMY_RANKING, 
@@ -8,15 +9,16 @@ import {
   SocialUser 
 } from "@/lib/social-dummy";
 import { SocialService } from "@/lib/services/social.service";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { getPerfilCompat } from "@/lib/supabase/profileCompat";
 
-function PostCard({ post }: { post: SocialPost }) {
+function PostCard({ post, currentUserId }: { post: SocialPost, currentUserId?: string | null }) {
   const t = useTranslations("comunidad");
   const [likes, setLikes] = useState(post.likes);
   const [liked, setLiked] = useState(false);
+  const isMe = currentUserId && post.user_id === currentUserId;
 
   const handleLike = async () => {
     const newLiked = !liked;
@@ -39,7 +41,11 @@ function PostCard({ post }: { post: SocialPost }) {
               <Link href={`/perfil?id=${post.user.id}`} className="font-headline font-bold text-[#003e6f] hover:underline decoration-2 underline-offset-2 transition-all">
                 {post.user.full_name}
               </Link>
-              {post.is_friend && (
+              {isMe ? (
+                <span className="bg-[#003e6f]/10 text-[#003e6f] text-[10px] font-black uppercase px-2 py-0.5 rounded-full tracking-widest">
+                  {t("tu")}
+                </span>
+              ) : post.is_friend && (
                 <span className="bg-[#fed000]/20 text-[#003e6f] text-[10px] font-black uppercase px-2 py-0.5 rounded-full tracking-widest">
                   {t("tuAmigo")}
                 </span>
@@ -128,7 +134,16 @@ function RankingBoard({ users }: { users: SocialUser[] }) {
 }
 
 export default function ComunidadPage() {
+  return (
+    <Suspense fallback={<div>Cargando comunidad...</div>}>
+      <ComunidadContent />
+    </Suspense>
+  );
+}
+
+function ComunidadContent() {
   const t = useTranslations("comunidad");
+  const searchParams = useSearchParams();
   const supabase = createClient();
   const [posts, setPosts] = useState<SocialPost[]>([]);
   const [ranking, setRanking] = useState<SocialUser[]>(DUMMY_RANKING);
@@ -167,7 +182,7 @@ export default function ComunidadPage() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
 
-  const [currentUser, setCurrentUser] = useState<{ nombre: string, initials: string, avatar_url: string | null } | null>(null);
+  const [currentUser, setCurrentUser] = useState<{ id: string, nombre: string, initials: string, avatar_url: string | null } | null>(null);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -177,11 +192,36 @@ export default function ComunidadPage() {
         const nombre = perfil?.nombre_completo || user.user_metadata?.nombre_completo || user.email || "Usuario";
         const parts = nombre.split(" ");
         const initials = parts.length >= 2 ? (parts[0][0] + parts[1][0]).toUpperCase() : nombre.substring(0, 2).toUpperCase();
-        setCurrentUser({ nombre, initials, avatar_url: perfil?.avatar_url || null });
+        setCurrentUser({ id: user.id, nombre, initials, avatar_url: perfil?.avatar_url || null });
       }
     };
     fetchUser();
   }, [supabase]);
+
+  // Recover draft from Map
+  useEffect(() => {
+    const isDraft = searchParams.get("draft") === "true";
+    if (isDraft) {
+      const draftText = sessionStorage.getItem("muul_draft_text");
+      const draftImage = sessionStorage.getItem("muul_draft_image");
+      
+      if (draftText) setInputValue(draftText);
+      if (draftImage) {
+        setSelectedImage(draftImage);
+        // Convert base64 to File object for the real upload
+        fetch(draftImage)
+          .then(res => res.blob())
+          .then(blob => {
+            const file = new File([blob], "ruta-compartida.png", { type: "image/png" });
+            setSelectedImageFile(file);
+          });
+      }
+      
+      // Clear draft from storage so it doesn't reappear on refresh
+      sessionStorage.removeItem("muul_draft_text");
+      sessionStorage.removeItem("muul_draft_image");
+    }
+  }, [searchParams]);
 
   const handleAddPost = async () => {
     if (!inputValue.trim()) return;
@@ -299,7 +339,7 @@ export default function ComunidadPage() {
             <div className="flex flex-col">
               <h2 className="font-headline font-black text-xl text-[#003e6f] mb-6">{t("publicaciones")}</h2>
               {posts.map(post => (
-                <PostCard key={post.id} post={post} />
+                <PostCard key={post.id} post={post} currentUserId={currentUser?.id} />
               ))}
             </div>
           </div>

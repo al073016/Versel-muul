@@ -2,6 +2,7 @@ import type { POI } from "@/types/database";
 import { SANTA_FE_POIS } from "./santa-fe-dummy-data";
 
 export type SupportedLocale = "es" | "en" | "pt" | "zh";
+// Break circular dependency: SupportedLocale is now defined locally here too.
 type LocalizedValue<T> = Record<SupportedLocale, T>;
 
 interface LocalizedProductSeed {
@@ -95,6 +96,27 @@ export const HOME_IMAGE_URLS = {
 };
 
 const POI_SEEDS: PoiSeed[] = [
+  {
+    id: "gastro-base-debug",
+    nombre: "Restaurante de Prueba",
+    categoria: "comida",
+    latitud: 19.4326,
+    longitud: -99.1332,
+    direccion: "Calle Falsa 123, CDMX",
+    emoji: "🍽️",
+    foto_url: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1200",
+    verificado: true,
+    activo: true,
+    precio_rango: allLocales("$"),
+    horario_apertura: "08:00",
+    horario_cierre: "22:00",
+    descripcion: allLocales("Un restaurante de prueba para asegurar que los datos cargan."),
+    especialidades: allLocales(["Prueba 1", "Prueba 2"]),
+    telefono: "55 1234 5678",
+    instagram: "test",
+    facebook: "test",
+    productos: [],
+  },
   ...SANTA_FE_POIS,
   // GASTRONOMIA (5)
   {

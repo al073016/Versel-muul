@@ -14,8 +14,9 @@ const categoryEmojis: Record<string, string> = {
   comida: "🌮", tienda: "🛍️", servicios: "🏨", cultural: "🏛️", deportes: "⚽",
 };
 
-const slugify = (value: string) =>
-  value
+const slugify = (value: string | null | undefined) => {
+  if (!value) return "";
+  return value
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
@@ -24,6 +25,7 @@ const slugify = (value: string) =>
     .replace(/[^a-z0-9-]/g, "")
     .replace(/-+/g, "-")
     .replace(/^-|-$/g, "");
+};
 
 export default function TiendasPage() {
   const supabase = createClient();
@@ -79,28 +81,73 @@ export default function TiendasPage() {
 
   useEffect(() => {
     const fetchNegocios = async () => {
-      const { data } = await supabase.from("negocios").select("*").eq("activo", true).order("created_at", { ascending: false });
+      setLoadingStores(true);
       
-      const mocked: Negocio[] = dummyPois.map(p => ({
-        id: p.id,
-        propietario_id: 'dummy',
-        nombre: p.nombre,
-        descripcion: p.descripcion,
-        categoria: p.categoria as any,
-        latitud: p.latitud,
-        longitud: p.longitud,
-        foto_url: p.foto_url,
-        horario_apertura: p.horario_apertura,
-        horario_cierre: p.horario_cierre,
-        verificado: true,
-        activo: true,
-        created_at: new Date().toISOString(),
-      } as any));
+      const mocked: Negocio[] = [
+        // Hardcoded critical stores for debugging and guarantee
+        {
+          id: 'h-csf',
+          propietario_id: 'dummy',
+          nombre: 'Centro Santa Fe',
+          descripcion: 'El centro comercial más grande de México y Latinoamérica.',
+          categoria: 'tienda' as any,
+          latitud: 19.3590,
+          longitud: -99.2760,
+          foto_url: 'https://images.unsplash.com/photo-1519567241046-7f570eee3ce6?q=80&w=1000&auto=format&fit=crop',
+          horario_apertura: '11:00',
+          horario_cierre: '21:00',
+          verificado: true,
+          activo: true,
+          created_at: new Date().toISOString(),
+        },
+        {
+          id: 'h-coppel',
+          propietario_id: 'dummy',
+          nombre: 'Coppel Santa Fe',
+          descripcion: 'Tu sucursal Coppel favorita en la zona más moderna de la ciudad.',
+          categoria: 'tienda' as any,
+          latitud: 19.3615,
+          longitud: -99.2740,
+          foto_url: 'https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?q=80&w=1000&auto=format&fit=crop',
+          horario_apertura: '09:00',
+          horario_cierre: '21:00',
+          verificado: true,
+          activo: true,
+          created_at: new Date().toISOString(),
+        },
+        // Plus other localized dummy pois
+        ...dummyPois.map(p => ({
+          id: p.id,
+          propietario_id: 'dummy',
+          nombre: p.nombre || "Negocio",
+          descripcion: p.descripcion || "",
+          categoria: p.categoria as any,
+          latitud: p.latitud,
+          longitud: p.longitud,
+          foto_url: p.foto_url || "",
+          horario_apertura: p.horario_apertura || "09:00",
+          horario_cierre: p.horario_cierre || "20:00",
+          verificado: true,
+          activo: true,
+          created_at: new Date().toISOString(),
+        }) as any)
+      ];
 
-      const merged = [...mocked, ...(data || [])];
-      setNegocios(merged);
-      setFilteredNegocios(merged);
-      setLoadingStores(false);
+      setNegocios(mocked);
+      setFilteredNegocios(mocked);
+      setLoadingStores(false); // Render immediately
+
+      try {
+        const { data } = await supabase.from("negocios").select("*").eq("activo", true).order("created_at", { ascending: false });
+        if (data && data.length > 0) {
+          const dbIds = new Set(data.map(d => d.id));
+          const uniqueMocked = mocked.filter(m => !dbIds.has(m.id));
+          const merged = [...uniqueMocked, ...data];
+          setNegocios(merged);
+        }
+      } catch (err) {
+        console.error("Error fetching negocios:", err);
+      }
     };
     fetchNegocios();
   }, [dummyPois, supabase]);
@@ -148,8 +195,19 @@ export default function TiendasPage() {
     setHorarioApertura(""); setHorarioCierre("");
     setGpsActive(false); setLatitud(null); setLongitud(null); setAceptaTerminos(false);
 
+    // Refresh data correctly (do not overwrite with ONLY supabase data)
     const { data: newData } = await supabase.from("negocios").select("*").eq("activo", true).order("created_at", { ascending: false });
-    if (newData) { setNegocios(newData); setFilteredNegocios(newData); }
+    if (newData) { 
+      const mocked: Negocio[] = dummyPois.map(p => ({
+        id: p.id, propietario_id: 'dummy', nombre: p.nombre, descripcion: p.descripcion,
+        categoria: p.categoria as any, latitud: p.latitud, longitud: p.longitud,
+        foto_url: p.foto_url, horario_apertura: p.horario_apertura, horario_cierre: p.horario_cierre,
+        verificado: true, activo: true, created_at: new Date().toISOString(),
+      } as any));
+      const merged = [...mocked, ...newData];
+      setNegocios(merged); 
+      setFilteredNegocios(merged); 
+    }
   };
 
   return (
@@ -165,6 +223,7 @@ export default function TiendasPage() {
                 {t("titulo")} <br /><span className="text-[#005596]">{t("registradas")}</span>
               </h1>
               <p className="text-neutral-500 max-w-xl text-lg">{t("subtitulo")}</p>
+              <div className="text-[10px] text-neutral-300 mt-2">Debug: {negocios.length} total, {filteredNegocios.length} filtered</div>
             </div>
 
             <div className="flex flex-col md:flex-row gap-6 mb-12">
@@ -192,11 +251,11 @@ export default function TiendasPage() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 stagger-children">
                 {filteredNegocios.map((negocio) => (
-                  <Link key={negocio.id} href={`/negocio/${slugify(negocio.nombre) || negocio.id}`} className="group bg-white border border-neutral-100 rounded-3xl overflow-hidden relative shadow-sm hover:shadow-2xl hover:translate-y-[-8px] transition-all duration-500">
+                  <Link key={negocio.id} href={`/negocio/${slugify(negocio.nombre || "") || negocio.id}`} className="group bg-white border border-neutral-100 rounded-3xl overflow-hidden relative shadow-sm hover:shadow-2xl hover:translate-y-[-8px] transition-all duration-500">
                     <div className="h-64 relative bg-slate-50 flex items-center justify-center overflow-hidden">
                       <img 
-                        src={negocio.foto_url || getPremiumPhoto(negocio.nombre, negocio.categoria)} 
-                        alt={negocio.nombre} 
+                        src={negocio.foto_url || getPremiumPhoto(negocio.nombre || "", negocio.categoria)} 
+                        alt={negocio.nombre || "Negocio"} 
                         className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 brightness-90" 
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-[#003e6f]/60 via-transparent to-transparent z-10" />
@@ -204,7 +263,7 @@ export default function TiendasPage() {
                       {negocio.verificado && (<span className="absolute top-4 right-4 z-20 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-black text-[#003e6f] flex items-center gap-1">🌊 MUUL</span>)}
                     </div>
                     <div className="p-8 relative">
-                      <h3 className="text-2xl font-black font-headline mb-2 text-[#003e6f]">{negocio.nombre}</h3>
+                      <h3 className="text-2xl font-black font-headline mb-2 text-[#003e6f]">{negocio.nombre || "Negocio"}</h3>
                       <p className="text-[#005596] font-bold text-sm mb-4 flex items-center gap-2">
                         <span className="material-symbols-outlined text-sm">schedule</span>
                         {negocio.horario_apertura && negocio.horario_cierre ? `${negocio.horario_apertura} - ${negocio.horario_cierre}` : t("horarioNoDisponible")}

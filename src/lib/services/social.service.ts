@@ -76,7 +76,17 @@ export const SocialService = {
     }
 
     // Local fallback
-    const user = DUMMY_SOCIAL_USERS["u1"];
+    const { data: { user: authUser } } = await (await import("../supabase/client")).createClient().auth.getUser();
+    
+    const user = {
+      id: userId,
+      username: authUser?.user_metadata?.username ? `@${authUser.user_metadata.username}` : (authUser?.email?.split('@')[0] || "@usuario"),
+      full_name: authUser?.user_metadata?.nombre_completo || authUser?.email || "Tú",
+      avatar_url: authUser?.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(authUser?.email || "U")}&background=003e6f&color=fff&bold=true&size=200`,
+      points: 0,
+      level: "Explorador",
+    };
+
     return {
       id: `post_local_${Date.now()}`,
       user_id: userId,

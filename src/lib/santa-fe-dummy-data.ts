@@ -1,4 +1,5 @@
-import type { SupportedLocale } from "./dummy-data";
+export type SupportedLocale = "es" | "en" | "pt" | "zh";
+// Removed circular import from ./dummy-data
 
 type LocalizedValue<T> = Record<SupportedLocale, T>;
 

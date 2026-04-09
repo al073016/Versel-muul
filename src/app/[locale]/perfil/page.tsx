@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { getPerfilCompat } from "@/lib/supabase/profileCompat";
 import { useTranslations } from "next-intl";
 import { 
   FriendsService, 
@@ -428,11 +429,11 @@ function PerfilContent() {
 
                 {/* Mockup de Insignias */}
                 <div className="flex flex-wrap gap-3 pt-2">
-                  {insigniasDestacadas.map((insignia, index) => (
+                  {badges.slice(0, 3).map((insignia, index) => (
                     <div 
-                      key={insignia.label} 
+                      key={insignia.id} 
                       className={clsx(
-                        `flex items-center gap-2 backdrop-blur-sm rounded-full px-4 py-2 text-sm shadow-lg transition-all hover:shadow-xl border ${insignia.tier.className}`,
+                        `flex items-center gap-2 backdrop-blur-sm rounded-full px-4 py-2 text-sm shadow-lg transition-all hover:shadow-xl border ${getTierClass(insignia)}`,
                         {
                           'hidden md:flex': index >= 1 // Oculta insignias después de la primera en pantallas pequeñas
                         }
