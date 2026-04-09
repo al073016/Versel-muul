@@ -105,7 +105,7 @@ export const DUMMY_POSTS: SocialPost[] = [
     user_id: 'u1',
     content: '¡Acabo de desbloquear el logro "Cultura Capital" al visitar Bellas Artes y el Museo Soumaya el mismo día! Totalmente recomendado, la ciudad está hermosa esta semana. 🎨🏛️',
     image_urls: [
-      'https://images.unsplash.com/photo-1585464231473-746d24c039a2?q=80&w=1000&auto=format&fit=crop'
+      'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1200&auto=format&fit=crop'
     ],
     likes: 128,
     dislikes: 2,
@@ -119,7 +119,7 @@ export const DUMMY_POSTS: SocialPost[] = [
     user_id: 'u2',
     content: 'Encontré unos tacos al pastor escondidos en la Juárez que están nivel Dios. Acabo de subir la ruta pública para que los prueben. De nada 😎🌮',
     image_urls: [
-      'https://images.unsplash.com/photo-1565299585323-38d6b0865ef4?q=80&w=1000&auto=format&fit=crop'
+      'https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?q=80&w=1200&auto=format&fit=crop'
     ],
     likes: 45,
     dislikes: 0,
@@ -145,7 +145,7 @@ export const DUMMY_POSTS: SocialPost[] = [
     user_id: 'u4',
     content: 'Review del día: Samurai Sushi en la Alameda. El Dragon Roll está BRUTAL, la salsa anguila es casera. 9/10. Solo le falta mejor servicio en hora pico. 🍣⭐',
     image_urls: [
-      'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?q=80&w=1000&auto=format&fit=crop'
+      'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?q=80&w=1200&auto=format&fit=crop'
     ],
     likes: 89,
     dislikes: 3,
@@ -159,7 +159,7 @@ export const DUMMY_POSTS: SocialPost[] = [
     user_id: 'u5',
     content: 'Trabajé todo el día desde The Coffee Bean en Polanco. Internet rapidísimo, enchufes en todas las mesas, y el cold brew nitrogenado es adictivo. Nuevo spot favorito de home office. 💻☕',
     image_urls: [
-      'https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=1000&auto=format&fit=crop'
+      'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1200&auto=format&fit=crop'
     ],
     likes: 67,
     dislikes: 0,
@@ -173,7 +173,7 @@ export const DUMMY_POSTS: SocialPost[] = [
     user_id: 'u6',
     content: 'Golden hour en el Ángel de la Independencia. No importa cuántas veces lo fotografíe, siempre hay un ángulo nuevo. Esta ciudad nunca deja de sorprenderme. 📸✨',
     image_urls: [
-      'https://images.unsplash.com/photo-1518182170546-07661fd94144?q=80&w=1000&auto=format&fit=crop'
+      'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1200&auto=format&fit=crop'
     ],
     likes: 234,
     dislikes: 1,
@@ -199,7 +199,7 @@ export const DUMMY_POSTS: SocialPost[] = [
     user_id: 'u8',
     content: 'Acabo de crear una ruta gastronómica de 5 paradas por el Centro Histórico. Incluye tacos, churros, esquites, mezcal artesanal y termina con un café de olla en un lugar secreto. La publiqué como ruta pública, ¡compártanla! 🔥🇲🇽',
     image_urls: [
-      'https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?q=80&w=1000&auto=format&fit=crop'
+      'https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?q=80&w=1200&auto=format&fit=crop'
     ],
     likes: 312,
     dislikes: 4,
@@ -213,7 +213,7 @@ export const DUMMY_POSTS: SocialPost[] = [
     user_id: 'u1',
     content: 'Tip de viajera: si van al Castillo de Chapultepec, lleguen antes de las 10am. Casi no hay gente y pueden tomar fotos increíbles de toda la ciudad desde arriba. 🏰🌅',
     image_urls: [
-      'https://images.unsplash.com/photo-1563911892437-1feda0179e1b?q=80&w=1000&auto=format&fit=crop'
+      'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1200&auto=format&fit=crop'
     ],
     likes: 156,
     dislikes: 0,

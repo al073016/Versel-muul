@@ -13,6 +13,26 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'plus.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'ui-avatars.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'upload.wikimedia.org',
+      },
+      {
+        protocol: 'https',
+        hostname: 'flagcdn.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'commons.wikimedia.org',
       }
     ],
   },

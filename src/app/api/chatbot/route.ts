@@ -17,6 +17,7 @@ interface ContextoChat {
   tipo_contexto?: "general" | "poi" | "negocio" | "ruta";
   poi?: POIContext | null;
   ruta?: POIContext[];
+  lugares_cercanos?: POIContext[];
   total_visibles?: number;
 }
 
@@ -99,6 +100,7 @@ function buildContextoTexto(context: ContextoChat, fallbackPoi?: POIContext): st
   const tipo = context.tipo_contexto || (fallbackPoi?.nombre ? "poi" : "general");
   const poiActivo = context.poi || fallbackPoi;
   const ruta = Array.isArray(context.ruta) ? context.ruta : [];
+  const lugaresCercanos = Array.isArray(context.lugares_cercanos) ? context.lugares_cercanos : [];
   const total = typeof context.total_visibles === "number" ? context.total_visibles : undefined;
 
   if (tipo === "ruta") {
@@ -133,6 +135,7 @@ function buildContextoTexto(context: ContextoChat, fallbackPoi?: POIContext): st
       poiActivo.especialidades?.length ? `Especialidades: ${poiActivo.especialidades.join(", ")}` : "",
       poiActivo.verificado ? "Lugar verificado por Muul: sí" : "",
       poiActivo.emoji ? `Emoji representativo: ${poiActivo.emoji}` : "",
+      lugaresCercanos.length ? `Lugares Muul cercanos: ${lugaresCercanos.slice(0, 5).map((p) => p.nombre || "POI").join(", ")}` : "",
     ]
       .filter(Boolean)
       .join("\n");
@@ -141,6 +144,12 @@ function buildContextoTexto(context: ContextoChat, fallbackPoi?: POIContext): st
   return [
     "Contexto activo: Mapa general.",
     total ? `Lugares visibles en mapa: ${total}.` : "",
+    lugaresCercanos.length
+      ? [
+          "Lugares Muul cercanos disponibles:",
+          ...lugaresCercanos.slice(0, 8).map((p, i) => `${i + 1}. ${p.emoji || "📍"} ${p.nombre || "POI"} (${p.categoria || "sin categoría"})${p.descripcion ? ` — ${p.descripcion}` : ""}`),
+        ].join("\n")
+      : "",
     "No hay un lugar específico seleccionado.",
   ]
     .filter(Boolean)
@@ -300,6 +309,7 @@ export async function POST(req: Request) {
       SYSTEM_PROMPT,
       "",
       `Idioma de respuesta obligatorio: ${idioma}.`,
+      "Si el contexto incluye lugares cercanos, usa exclusivamente esos lugares Muul como base para recomendaciones cercanas y no inventes sitios externos.",
       "",
       "Contexto disponible:",
       contextoTexto,

@@ -63,7 +63,7 @@ export default function Navbar() {
     () => [
       { href: "/", label: t("explorar") },
       { href: "/comunidad", label: t("comunidad") },
-      { href: "/tiendas", label: t("categorias") },
+      { href: "/tiendas", label: t("tiendas") },
       { href: "/mapa", label: t("mapa") },
     ],
     [t]

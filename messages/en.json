@@ -172,29 +172,29 @@
     "marcaEvento": "MUUL 2026",
     "muulAi": "Muul AI",
     "cerrarPanel": "Close panel",
-    "abrirPanel": "Open panel"
-    ,"requireUserLocation": "Your location is required"
-    ,"noNearbyPlaces": "No nearby places were found"
-    ,"maxStops": "(max 12)"
-    ,"analyzingAccessible": "Analyzing..."
-    ,"accessibleRouteCta": "♿ Accessible Route"
-    ,"visitsMinutes": "min visits"
-    ,"optimal": "Optimal"
-    ,"accessibilityLabel": "Accessibility"
-    ,"accessibilityHigh": "High"
-    ,"accessibilityMedium": "Medium"
-    ,"accessibilityLow": "Low"
-    ,"accessibilityFeaturesToggle": "Ramps and elevators on map"
-    ,"featureRamps": "Ramps"
-    ,"featureElevators": "Elevators"
-    ,"featureCrossings": "Crossings"
-    ,"featureTactile": "Tactile paving"
-    ,"partyMode": "Party Mode"
-    ,"publishCommunity": "Post to Community"
-    ,"saveRoutes": "Save routes"
-    ,"openMuulAi": "Open MUUL AI"
-    ,"accessibleMode": "Accessible Mode"
-    ,"externalSource": "Mapbox"
+    "abrirPanel": "Open panel",
+    "requireUserLocation": "Your location is required",
+    "noNearbyPlaces": "No nearby places were found",
+    "maxStops": "(max 12)",
+    "analyzingAccessible": "Analyzing...",
+    "accessibleRouteCta": "♿ Accessible Route",
+    "visitsMinutes": "min visits",
+    "optimal": "Optimal",
+    "accessibilityLabel": "Accessibility",
+    "accessibilityHigh": "High",
+    "accessibilityMedium": "Medium",
+    "accessibilityLow": "Low",
+    "accessibilityFeaturesToggle": "Ramps and elevators on map",
+    "featureRamps": "Ramps",
+    "featureElevators": "Elevators",
+    "featureCrossings": "Crossings",
+    "featureTactile": "Tactile paving",
+    "partyMode": "Party Mode",
+    "publishCommunity": "Post to Community",
+    "saveRoutes": "Save routes",
+    "openMuulAi": "Open MUUL AI",
+    "accessibleMode": "Accessible Mode",
+    "externalSource": "Mapbox"
   },
   "tiendas": {
     "titulo": "Registered",
@@ -241,7 +241,9 @@
     "nombreNegocioPlaceholder": "e.g. El Tizon Plateado",
     "rfcPlaceholder": "ABC123456XYZ",
     "direccionPlaceholder": "e.g. Reforma Avenue 2026, Mexico City",
-    "gpsActivo": "Active"
+    "gpsActivo": "Active",
+    "hospedaje": "Stay",
+    "eventos": "Events"
   },
   "perfil": {
     "turista": "Tourist",
@@ -513,7 +515,114 @@
     "copied": "Link copied",
     "shareError": "Unable to share",
     "fifa": "Muul 2026",
+    "foundation": "Foundation",
+    "entrepreneurship": "Start up",
+    "mexico": "MEXICO",
     "copyright": "© 2026 Muul. All rights reserved."
+  },
+  "partyMode": {
+    "title": "Party Mode",
+    "subtitle": "Public routes for group adventures",
+    "shareTitle": "Join my route in Muul 🗺️",
+    "tabs": {
+      "myRoute": "My Route",
+      "join": "Join",
+      "explore": "Explore"
+    },
+    "activateDescription": "Turn on Party Mode so your friends can view and copy your route.",
+    "currentRoute": "Your current route",
+    "activating": "Activating…",
+    "activateButton": "Activate Party Mode",
+    "routeCode": "Route code",
+    "copied": "Copied!",
+    "copyLink": "Copy link",
+    "share": "Share",
+    "participants": "Participants ({count})",
+    "noParticipants": "No one has joined yet 👀",
+    "participantTitle": "Participant {number}",
+    "joinDescription": "Paste the code or link someone shared with you to join a route.",
+    "joinPlaceholder": "Paste the UUID code or full link here…",
+    "joining": "Joining…",
+    "joinRoute": "Join Route",
+    "noPublicRoutes": "There are no public routes yet. Be the first!",
+    "copyThisRoute": "Copy this route",
+    "collabJoined": "Carlos R. joined your route",
+    "collabMode": "Party Mode",
+    "collabTogether": "Editing together",
+    "collabSolo": "Just you",
+    "success": {
+      "publicRoute": "Public route ready! Share the code with your friends 🎉",
+      "created": "Party route created! 🎉",
+      "joined": "You joined the route! 🎊"
+    },
+    "errors": {
+      "activateFailed": "Could not activate Party Mode",
+      "deactivateFailed": "Failed to deactivate Party Mode",
+      "loginRequiredCreate": "You must sign in to create a Party route",
+      "createFailed": "Failed to create the Party route",
+      "loginRequiredJoin": "You must sign in to join a route",
+      "routeNotFound": "Route not found or it is not public"
+    }
+  },
+  "auth": {
+    "touristRegistration": "Tourist Registration",
+    "tagline": "Intelligence in Motion",
+    "heroTitle": "Join MUUL",
+    "heroDescription": "Create your account and start exploring the best routes. Discover experiences curated by artificial intelligence.",
+    "benefitRoutesTitle": "Curated Routes",
+    "benefitRoutesDescription": "Discover new places intelligently.",
+    "benefitCommunityTitle": "Community",
+    "benefitCommunityDescription": "Connect with other travelers like you.",
+    "benefitSafeTitle": "Safe Travel",
+    "benefitSafeDescription": "Backed by Coppel on every km.",
+    "createAccount": "Create Account",
+    "registerTouristAccount": "Register your tourist account",
+    "successMessage": "✅ Account created! Redirecting...",
+    "fields": {
+      "nombre": "FIRST NAME",
+      "apellido": "LAST NAME",
+      "username": "USERNAME",
+      "email": "EMAIL",
+      "telefono": "PHONE",
+      "password": "PASSWORD",
+      "confirmPassword": "CONFIRM PASSWORD"
+    },
+    "terms": {
+      "acceptPrefix": "I accept the",
+      "termsLink": "terms and conditions",
+      "andPrefix": "and the",
+      "privacyLink": "privacy policy"
+    },
+    "actions": {
+      "registering": "Registering...",
+      "register": "Register"
+    },
+    "orSignUpWith": "Or sign up with",
+    "providers": {
+      "googleAlt": "Google",
+      "google": "Google",
+      "apple": "Apple"
+    },
+    "loginPrompt": "Already have an account?",
+    "loginLink": "Sign in",
+    "footerCopyright": "© 2024 MUUL by Coppel. All rights reserved.",
+    "footerPrivacy": "Privacy",
+    "footerTerms": "Terms",
+    "footerHelp": "Help",
+    "errors": {
+      "nombreRequired": "First name is required",
+      "apellidoRequired": "Last name is required",
+      "usernameRequired": "Username is required",
+      "emailRequired": "Email is required",
+      "emailInvalid": "Email is not valid",
+      "telefonoRequired": "Phone number is required",
+      "passwordLength": "Password must be at least 6 characters",
+      "passwordMismatch": "Passwords do not match",
+      "termsRequired": "You must accept the terms and conditions",
+      "signupFailed": "Signup failed",
+      "signupAccountFailed": "Account signup failed",
+      "googleConnectionFailed": "Failed to connect with Google"
+    }
   },
   "legal": {
     "privacyTitle": "Privacy",
@@ -570,7 +679,8 @@
     "comentarios": "Comments",
     "compartirAventura": "Share your next adventure...",
     "publicar": "Publish",
-    "tuAmigo": "Your Friend",
+    "tuAmigo": "Following",
+    "tu": "YOU",
     "explorador": "Explorer"
   },
   "ofertas": {

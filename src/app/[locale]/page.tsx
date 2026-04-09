@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { haversine } from "@/lib/haversine";
-import { HOME_IMAGE_URLS } from "@/lib/dummy-data";
+import { DUMMY_POIS, HOME_IMAGE_URLS } from "@/lib/dummy-data";
 
 const OFFERS_DATA = [
   { id: 1, lat: 19.423, lng: -99.163 },
@@ -42,12 +42,20 @@ export default function HomePage() {
     }
   ];
 
+  const categoryImages = {
+    gastronomia: DUMMY_POIS.find((poi) => poi.categoria === "comida")?.foto_url ?? HOME_IMAGE_URLS.categories.gastronomia,
+    hospedaje: DUMMY_POIS.find((poi) => poi.categoria === "hospedaje")?.foto_url ?? HOME_IMAGE_URLS.categories.hospedaje,
+    cultural: DUMMY_POIS.find((poi) => poi.categoria === "cultural")?.foto_url ?? HOME_IMAGE_URLS.categories.cultural,
+    eventos: DUMMY_POIS.find((poi) => poi.categoria === "eventos")?.foto_url ?? HOME_IMAGE_URLS.categories.eventos,
+    servicios: DUMMY_POIS.find((poi) => poi.categoria === "servicios")?.foto_url ?? HOME_IMAGE_URLS.categories.servicios,
+  };
+
   const categoryCards = [
-    { href: "/mapa?filter=comida", icon: "restaurant", label: t("gastronomia"), image: HOME_IMAGE_URLS.categories.gastronomia },
-    { href: "/mapa?filter=hospedaje", icon: "apartment", label: t("hospedaje"), image: HOME_IMAGE_URLS.categories.hospedaje },
-    { href: "/mapa?filter=cultural", icon: "confirmation_number", label: t("cultural"), image: HOME_IMAGE_URLS.categories.cultural },
-    { href: "/mapa?filter=eventos", icon: "event", label: t("eventos"), image: HOME_IMAGE_URLS.categories.eventos },
-    { href: "/mapa?filter=servicios", icon: "construction", label: t("servicios"), image: HOME_IMAGE_URLS.categories.servicios },
+    { href: "/mapa?filter=comida", icon: "restaurant", label: t("gastronomia"), image: categoryImages.gastronomia },
+    { href: "/mapa?filter=hospedaje", icon: "apartment", label: t("hospedaje"), image: categoryImages.hospedaje },
+    { href: "/mapa?filter=cultural", icon: "confirmation_number", label: t("cultural"), image: categoryImages.cultural },
+    { href: "/mapa?filter=eventos", icon: "event", label: t("eventos"), image: categoryImages.eventos },
+    { href: "/mapa?filter=servicios", icon: "construction", label: t("servicios"), image: categoryImages.servicios },
   ];
 
   useEffect(() => {

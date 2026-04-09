@@ -24,6 +24,7 @@ interface ChatModalProps {
   onClose: () => void;
   poi: POI | null;
   poisEnRuta?: POI[];
+  lugaresCercanos?: POI[];
   totalVisibles?: number;
   idioma?: string;
 }
@@ -31,7 +32,7 @@ interface ChatModalProps {
 const MAX_PREGUNTAS_SESION = 15;
 const COOLDOWN_MS = 1800;
 
-export default function ChatModal({ isOpen, onClose, poi, poisEnRuta = [], totalVisibles = 0, idioma = "es-MX" }: ChatModalProps) {
+export default function ChatModal({ isOpen, onClose, poi, poisEnRuta = [], lugaresCercanos = [], totalVisibles = 0, idioma = "es-MX" }: ChatModalProps) {
   const [mensajes, setMensajes] = useState<Mensaje[]>([]);
   const [cargando, setCargando] = useState(false);
   const [ultimaPregunta, setUltimaPregunta] = useState(0);
@@ -243,6 +244,7 @@ export default function ChatModal({ isOpen, onClose, poi, poisEnRuta = [], total
             tipo_contexto: contextoChat,
             poi,
             ruta: poisEnRuta,
+            lugares_cercanos: lugaresCercanos,
             total_visibles: totalVisibles,
           },
           history: [...mensajes, nuevaMensaje],

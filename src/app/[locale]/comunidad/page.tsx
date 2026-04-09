@@ -1,26 +1,31 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import { 
-  DUMMY_POSTS, 
   DUMMY_RANKING, 
   SocialPost, 
   SocialUser 
 } from "@/lib/social-dummy";
-import { useState, useEffect } from "react";
+import { SocialService } from "@/lib/services/social.service";
+import { useState, useEffect, Suspense } from "react";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { getPerfilCompat } from "@/lib/supabase/profileCompat";
 
-function PostCard({ post }: { post: SocialPost }) {
+function PostCard({ post, currentUserId }: { post: SocialPost, currentUserId?: string | null }) {
   const t = useTranslations("comunidad");
   const [likes, setLikes] = useState(post.likes);
   const [liked, setLiked] = useState(false);
+  const isMe = currentUserId && post.user_id === currentUserId;
 
-  const handleLike = () => {
-    setLiked(!liked);
-    setLikes(liked ? likes - 1 : likes + 1);
+  const handleLike = async () => {
+    const newLiked = !liked;
+    setLiked(newLiked);
+    setLikes(newLiked ? likes + 1 : likes - 1);
+    // Real Supabase toggle (no-op if not authenticated)
+    await SocialService.toggleLike(post.id);
   };
 
   return (
@@ -36,7 +41,11 @@ function PostCard({ post }: { post: SocialPost }) {
               <Link href={`/perfil?id=${post.user.id}`} className="font-headline font-bold text-[#003e6f] hover:underline decoration-2 underline-offset-2 transition-all">
                 {post.user.full_name}
               </Link>
-              {post.is_friend && (
+              {isMe ? (
+                <span className="bg-[#003e6f]/10 text-[#003e6f] text-[10px] font-black uppercase px-2 py-0.5 rounded-full tracking-widest">
+                  {t("tu")}
+                </span>
+              ) : post.is_friend && (
                 <span className="bg-[#fed000]/20 text-[#003e6f] text-[10px] font-black uppercase px-2 py-0.5 rounded-full tracking-widest">
                   {t("tuAmigo")}
                 </span>
@@ -125,46 +134,55 @@ function RankingBoard({ users }: { users: SocialUser[] }) {
 }
 
 export default function ComunidadPage() {
+  return (
+    <Suspense fallback={<div>Cargando comunidad...</div>}>
+      <ComunidadContent />
+    </Suspense>
+  );
+}
+
+function ComunidadContent() {
   const t = useTranslations("comunidad");
-  const [posts, setPosts] = useState<SocialPost[]>(() => {
-    const basePosts = DUMMY_POSTS.slice().sort((a, b) => (b.is_friend === a.is_friend ? 0 : b.is_friend ? 1 : -1));
-    if (typeof window !== 'undefined') {
+  const searchParams = useSearchParams();
+  const supabase = createClient();
+  const [posts, setPosts] = useState<SocialPost[]>([]);
+  const [ranking, setRanking] = useState<SocialUser[]>(DUMMY_RANKING);
+
+  // Load real ranking from Supabase (get_ranking RPC)
+  useEffect(() => {
+    const loadRanking = async () => {
       try {
-        const saved = localStorage.getItem('muul_user_posts');
-        if (saved) {
-          const userPosts: SocialPost[] = JSON.parse(saved);
-          return [...userPosts, ...basePosts];
+        const { data } = await supabase.rpc("get_ranking", { p_limit: 10 });
+        if (data && data.length > 0) {
+          setRanking(data.map((u: any) => ({
+            id: u.id,
+            username: u.username ? `@${u.username}` : "@usuario",
+            full_name: u.nombre_completo ?? "Usuario",
+            avatar_url: u.foto_url ?? `https://ui-avatars.com/api/?name=${encodeURIComponent(u.nombre_completo ?? "U")}&background=003e6f&color=fff&bold=true&size=200`,
+            points: u.puntos ?? 0,
+            level: u.nivel ?? "Explorador Novato",
+          })));
         }
-      } catch (_) {}
-    }
-    return basePosts;
-  });
+      } catch {
+        // fallback to DUMMY_RANKING already set as default
+      }
+    };
+    loadRanking();
+  }, [supabase]);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      const data = await SocialService.getFeedPosts();
+      setPosts(data);
+    };
+    fetchPosts();
+  }, []);
   const [inputValue, setInputValue] = useState("");
   const [isPublishing, setIsPublishing] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
 
-  /* 
-   ========================================================================================
-   HACKATHON ARCHITECTURE NOTE:
-   We explicitly chose to mock this data using local state (DUMMY_POSTS) to guarantee 
-   zero-latency during the live Hackathon Pitch demo. 
-
-   If we wanted to use real data, the Supabase integration is perfectly mapped 
-   and would just require replacing the useState initialization with this effect:
-   
-   useEffect(() => {
-     const fetchRealPosts = async () => {
-       const { data } = await supabase.from('social_posts').select('*, users(*)');
-       setPosts(data);
-     }
-     fetchRealPosts();
-   }, []);
-   ========================================================================================
-  */
-
-  const supabase = createClient();
-  const [currentUser, setCurrentUser] = useState<{ nombre: string, initials: string, avatar_url: string | null } | null>(null);
+  const [currentUser, setCurrentUser] = useState<{ id: string, nombre: string, initials: string, avatar_url: string | null } | null>(null);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -174,52 +192,74 @@ export default function ComunidadPage() {
         const nombre = perfil?.nombre_completo || user.user_metadata?.nombre_completo || user.email || "Usuario";
         const parts = nombre.split(" ");
         const initials = parts.length >= 2 ? (parts[0][0] + parts[1][0]).toUpperCase() : nombre.substring(0, 2).toUpperCase();
-        setCurrentUser({ nombre, initials, avatar_url: perfil?.avatar_url || null });
+        setCurrentUser({ id: user.id, nombre, initials, avatar_url: perfil?.avatar_url || null });
       }
     };
     fetchUser();
   }, [supabase]);
 
-  const handleAddPost = () => {
+  // Recover draft from Map
+  useEffect(() => {
+    const isDraft = searchParams.get("draft") === "true";
+    if (isDraft) {
+      const draftText = sessionStorage.getItem("muul_draft_text");
+      const draftImage = sessionStorage.getItem("muul_draft_image");
+      
+      if (draftText) setInputValue(draftText);
+      if (draftImage) {
+        setSelectedImage(draftImage);
+        // Convert base64 to File object for the real upload
+        fetch(draftImage)
+          .then(res => res.blob())
+          .then(blob => {
+            const file = new File([blob], "ruta-compartida.png", { type: "image/png" });
+            setSelectedImageFile(file);
+          });
+      }
+      
+      // Clear draft from storage so it doesn't reappear on refresh
+      sessionStorage.removeItem("muul_draft_text");
+      sessionStorage.removeItem("muul_draft_image");
+    }
+  }, [searchParams]);
+
+  const handleAddPost = async () => {
     if (!inputValue.trim()) return;
     
     setIsPublishing(true);
     
-    setTimeout(() => {
-      const userName = currentUser?.nombre || 'Usuario';
-      const userInitials = currentUser?.initials || 'US';
-      const newPost: SocialPost = {
-        id: `post_new_${Date.now()}`,
-        user_id: 'me',
-        content: inputValue,
-        image_urls: selectedImage ? [selectedImage] : [],
-        likes: 0,
-        dislikes: 0,
-        comments: 0,
-        created_at: 'Justo ahora',
-        is_friend: true,
-        user: {
-          id: 'me',
-          username: `@${userName.split(' ')[0].toLowerCase()}`,
-          full_name: userName,
-          avatar_url: currentUser?.avatar_url || `https://ui-avatars.com/api/?name=${userInitials}&background=003e6f&color=fff&size=200&bold=true`,
-          points: 50,
-          level: 'Explorador'
-        }
-      };
+    try {
+      let finalImageUrls: string[] = [];
       
-      setPosts(prev => {
-        const updated = [newPost, ...prev];
-        // Persist user-created posts to localStorage
-        const userPosts = updated.filter(p => p.user_id === 'me');
-        try { localStorage.setItem('muul_user_posts', JSON.stringify(userPosts)); } catch(_) {}
-        return updated;
-      });
+      // If there is a file selected, upload it to real storage
+      if (selectedImageFile) {
+        const publicUrl = await SocialService.uploadImage(selectedImageFile);
+        if (publicUrl) {
+          finalImageUrls = [publicUrl];
+        }
+      }
+
+      const userId = currentUser?.initials ? 'me' : 'anon';
+      const newPost = await SocialService.createPost(userId, inputValue, finalImageUrls);
+      
+      // Fallback UI update if real data comes back lacking props
+      if (!newPost.user.avatar_url && currentUser?.avatar_url) {
+         newPost.user.avatar_url = currentUser.avatar_url;
+      }
+      if (newPost.user.username === '@me' && currentUser?.nombre) {
+         newPost.user.full_name = currentUser.nombre;
+         newPost.user.username = `@${currentUser.nombre.split(' ')[0].toLowerCase()}`;
+      }
+
+      setPosts(prev => [newPost, ...prev]);
       setInputValue("");
       setSelectedImage(null);
       setSelectedImageFile(null);
+    } catch (error) {
+      console.error("Error publishing post:", error);
+    } finally {
       setIsPublishing(false);
-    }, 600);
+    }
   };
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -299,14 +339,14 @@ export default function ComunidadPage() {
             <div className="flex flex-col">
               <h2 className="font-headline font-black text-xl text-[#003e6f] mb-6">{t("publicaciones")}</h2>
               {posts.map(post => (
-                <PostCard key={post.id} post={post} />
+                <PostCard key={post.id} post={post} currentUserId={currentUser?.id} />
               ))}
             </div>
           </div>
 
           {/* Right Sidebar - Ranking */}
           <div className="w-full lg:w-[400px] shrink-0">
-            <RankingBoard users={DUMMY_RANKING} />
+            <RankingBoard users={ranking} />
           </div>
 
         </div>

@@ -5,6 +5,7 @@ import { Link } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useTranslations } from "next-intl";
 import type { Negocio } from "@/types/database";
+import { BusinessService } from "@/lib/services/business.service";
 
 const categoryEmojis: Record<string, string> = {
   comida: "🌮",
@@ -43,35 +44,75 @@ export default function NegocioDashboardPage() {
     categoria: "comida",
   });
 
-  useEffect(() => {
-    // HACKATHON ARCHITECTURE NOTE:
-    // Para motivos del pitch y asegurar agilidad sin depender de latencia de BD,
-    // hemos comentado la capa de Auth de Supabase real. 
-    // Si quisieramos usar datos reales en produccion, aquí usaríamos:
-    // 
-    // const { data: { user } } = await supabase.auth.getUser();
-    // const { data } = await supabase.from('negocios').select('*').eq('propietario_id', user.id);
-    // setNegocio(data[0]);
+  const [stats, setStats] = useState({ visitas: 0, productos: 0, calificacion: 0 });
 
-    setAuthenticated(true);
-    setLoading(false);
+  useEffect(() => {
+    const load = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        setAuthenticated(false);
+        setLoading(false);
+        return;
+      }
+      setAuthenticated(true);
+
+      // Try to fetch existing business for this user
+      const { data } = await supabase
+        .from('negocios')
+        .select('*')
+        .eq('usuario_id', session.user.id)
+        .single();
+      
+      if (data) {
+        setNegocio(data);
+        setFotoPerfil(data.foto_url || "");
+        setBanner(data.banner_url || "");
+      }
+      
+      setLoading(false);
+    };
+    load();
   }, [supabase]);
+
+  // When a negocio is set, load any previously saved overrides from BusinessService
+  useEffect(() => {
+    if (!negocio) return;
+    BusinessService.getLocalOverrides(negocio.id).then(saved => {
+      if (!saved) return;
+      if (saved.updates?.foto_url)     setFotoPerfil(saved.updates.foto_url);
+      if (saved.updates?.banner_url)   setBanner(saved.updates.banner_url);
+      if (saved.updates?.instagram_url) setInstagram(saved.updates.instagram_url);
+      if (saved.updates?.facebook_url)  setFacebook(saved.updates.facebook_url);
+      if (saved.caracteristicas)       setCaracteristicas(saved.caracteristicas);
+    });
+    BusinessService.getStats(negocio.id).then(setStats);
+  }, [negocio?.id]);
 
   const handleGuardar = async () => {
     if (!negocio) return;
 
-    // HACKATHON: Mock save function instead of supabase.update() to avoid failing on dummy businesses
-    setIsEditing(false);
-    setSaveMessage(`✓ ${t("dashboardSaved") || "Cambios guardados exitosamente"}`);
-    setNegocio({
-      ...negocio,
-      foto_url: fotoPerfil,
-      banner_url: banner,
-      instagram,
-      facebook,
-      caracteristicas,
-    } as any);
-    setTimeout(() => setSaveMessage(""), 3000);
+    setSaveMessage('...');
+
+    // Persist fields AND caracteristicas via BusinessService
+    // SUPABASE SWAP: BusinessService.updateNegocio → supabase.from('negocios').update(...)
+    const [fieldResult, caracResult] = await Promise.all([
+      BusinessService.updateNegocio(negocio.id, {
+        foto_url: fotoPerfil || undefined,
+        banner_url: banner || undefined,
+        instagram_url: instagram || undefined,
+        facebook_url: facebook || undefined,
+      }),
+      BusinessService.updateCaracteristicas(negocio.id, caracteristicas),
+    ]);
+
+    if (fieldResult.success && caracResult.success) {
+      setIsEditing(false);
+      setNegocio({ ...negocio, foto_url: fotoPerfil, banner_url: banner } as any);
+      setSaveMessage(`✓ ${t("dashboardSaved") || "Cambios guardados exitosamente"}`);
+    } else {
+      setSaveMessage('❌ Error al guardar. Intenta de nuevo.');
+    }
+    setTimeout(() => setSaveMessage(''), 3000);
   };
 
   if (loading) {
@@ -145,10 +186,11 @@ export default function NegocioDashboardPage() {
             
             <button 
               disabled={!createForm.nombre.trim()}
-              onClick={() => {
-                setNegocio({
-                  id: `dummy-b2b-${Date.now()}`,
-                  propietario_id: "me",
+              onClick={async () => {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (!session) return;
+                const { data, error } = await supabase.from('negocios').insert({
+                  usuario_id: session.user.id,
                   nombre: createForm.nombre,
                   descripcion: createForm.descripcion || "Un excelente lugar listo para recibir viajeros.",
                   categoria: createForm.categoria,
@@ -156,9 +198,12 @@ export default function NegocioDashboardPage() {
                   longitud: -99.1332,
                   activo: true,
                   verificado: false,
-                  seguidores: 0,
-                  creado_en: new Date().toISOString(),
-                } as any);
+                }).select().single();
+                if (error) {
+                  alert("Error al registrar negocio");
+                  return;
+                }
+                if (data) setNegocio(data);
               }}
               className="w-full py-4 mt-6 bg-[#fed000] text-[#003e6f] rounded-full font-headline font-black tracking-widest uppercase hover:bg-[#ffdf40] shadow-lg shadow-[#fed000]/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm"
             >
@@ -305,15 +350,15 @@ export default function NegocioDashboardPage() {
         {/* Estadísticas */}
         <section className="grid grid-cols-3 gap-6 mb-12">
           <div className="bg-primary/10 rounded-3xl p-6 text-center">
-            <div className="text-3xl font-bold text-primary">245</div>
+            <div className="text-3xl font-bold text-primary">{stats.visitas}</div>
             <div className="text-sm text-gray-600">{t("dashboardVisits")}</div>
           </div>
           <div className="bg-secondary/10 rounded-3xl p-6 text-center">
-            <div className="text-3xl font-bold text-secondary">18</div>
+            <div className="text-3xl font-bold text-secondary">{stats.productos}</div>
             <div className="text-sm text-gray-600">{t("dashboardProducts")}</div>
           </div>
           <div className="bg-tertiary/10 rounded-3xl p-6 text-center">
-            <div className="text-3xl font-bold text-tertiary">4.8</div>
+            <div className="text-3xl font-bold text-tertiary">{stats.calificacion.toFixed(1)}</div>
             <div className="text-sm text-gray-600">{t("dashboardRating")}</div>
           </div>
         </section>

@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "@/i18n/navigation";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 export default function AuthPage() {
   const router = useRouter();
   const locale = useLocale();
+  const t = useTranslations("auth");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -34,41 +35,40 @@ export default function AuthPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validaciones
     if (!formData.nombre.trim()) {
-      setError("El nombre es requerido");
+      setError(t("errors.nombreRequired"));
       return;
     }
     if (!formData.apellido.trim()) {
-      setError("El apellido es requerido");
+      setError(t("errors.apellidoRequired"));
       return;
     }
     if (!formData.username.trim()) {
-      setError("El nombre de usuario es requerido");
+      setError(t("errors.usernameRequired"));
       return;
     }
     if (!formData.email.trim()) {
-      setError("El correo es requerido");
+      setError(t("errors.emailRequired"));
       return;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      setError("El correo no es válido");
+      setError(t("errors.emailInvalid"));
       return;
     }
     if (!formData.telefono.trim()) {
-      setError("El teléfono es requerido");
+      setError(t("errors.telefonoRequired"));
       return;
     }
     if (formData.password.length < 6) {
-      setError("La contraseña debe tener al menos 6 caracteres");
+      setError(t("errors.passwordLength"));
       return;
     }
     if (formData.password !== formData.confirmPassword) {
-      setError("Las contraseñas no coinciden");
+      setError(t("errors.passwordMismatch"));
       return;
     }
     if (!formData.terms) {
-      setError("Debes aceptar los términos y condiciones");
+      setError(t("errors.termsRequired"));
       return;
     }
 
@@ -93,14 +93,14 @@ export default function AuthPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error || "Error al registrar");
+        setError(data.error || t("errors.signupFailed"));
         return;
       }
 
       setSuccess(true);
       setTimeout(() => router.push("/perfil"), 2000);
     } catch (err) {
-      setError("Error al registrar la cuenta");
+      setError(t("errors.signupAccountFailed"));
     } finally {
       setLoading(false);
     }
@@ -120,7 +120,7 @@ export default function AuthPage() {
           </span>
           <div className="h-4 w-[1px] bg-outline-variant/30 mx-4"></div>
           <span className="font-label text-xs tracking-widest text-primary uppercase">
-            Registro Turista
+            {t("touristRegistration")}
           </span>
         </div>
       </header>
@@ -132,13 +132,13 @@ export default function AuthPage() {
           <div className="hidden lg:flex lg:col-span-6 flex-col space-y-8 pr-12">
             <div className="space-y-4">
               <span className="font-label text-primary text-sm font-bold tracking-tighter uppercase">
-                Inteligencia en Movimiento
+                {t("tagline")}
               </span>
               <h1 className="text-6xl font-headline italic text-primary leading-tight">
-                Únete a MUUL
+                {t("heroTitle")}
               </h1>
               <p className="text-on-surface-variant text-lg max-w-md leading-relaxed">
-                Crea tu cuenta y comienza a explorar las mejores rutas. Descubre experiencias curadas por inteligencia artificial.
+                {t("heroDescription")}
               </p>
             </div>
 
@@ -146,13 +146,13 @@ export default function AuthPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-surface-container-low p-6 rounded-xl space-y-2 border border-outline-variant/10">
                 <span className="material-symbols-outlined text-primary text-3xl">map</span>
-                <h3 className="font-headline italic text-xl text-primary">Explora Rutas</h3>
-                <p className="text-sm text-on-surface-variant">Descubre nuevos lugares inteligentemente.</p>
+                <h3 className="font-headline italic text-xl text-primary">{t("benefitRoutesTitle")}</h3>
+                <p className="text-sm text-on-surface-variant">{t("benefitRoutesDescription")}</p>
               </div>
               <div className="bg-primary text-white p-6 rounded-xl space-y-2">
                 <span className="material-symbols-outlined text-3xl">community</span>
-                <h3 className="font-headline italic text-xl">Comunidad</h3>
-                <p className="text-sm opacity-80">Conecta con otros viajeros como tú.</p>
+                <h3 className="font-headline italic text-xl">{t("benefitCommunityTitle")}</h3>
+                <p className="text-sm opacity-80">{t("benefitCommunityDescription")}</p>
               </div>
             </div>
           </div>
@@ -173,10 +173,10 @@ export default function AuthPage() {
                 {/* Title */}
                 <div className="text-center mb-10">
                   <h2 className="text-3xl font-headline italic text-primary mb-2">
-                    Crear Cuenta
+                    {t("createAccount")}
                   </h2>
                   <p className="font-label text-xs text-on-surface-variant uppercase tracking-widest">
-                    Registra tu cuenta de turista
+                    {t("registerTouristAccount")}
                   </p>
                 </div>
 
@@ -191,7 +191,7 @@ export default function AuthPage() {
                 {success && (
                   <div className="mb-6 p-4 bg-tertiary/10 border border-tertiary rounded-xl">
                     <p className="text-tertiary text-sm font-medium">
-                      ✅ ¡Cuenta creada! Redirigiendo...
+                      {t("successMessage")}
                     </p>
                   </div>
                 )}
@@ -201,7 +201,7 @@ export default function AuthPage() {
                   {/* Nombre */}
                   <div className="space-y-1.5">
                     <label className="font-label text-xs font-bold text-primary px-1" htmlFor="nombre">
-                      NOMBRE
+                      {t("fields.nombre")}
                     </label>
                     <input
                       className="w-full h-12 px-4 bg-surface-container-low border-0 rounded-xl focus:ring-2 focus:ring-secondary-container transition-all text-on-surface placeholder:text-outline-variant"
@@ -218,7 +218,7 @@ export default function AuthPage() {
                   {/* Apellido */}
                   <div className="space-y-1.5">
                     <label className="font-label text-xs font-bold text-primary px-1" htmlFor="apellido">
-                      APELLIDO
+                      {t("fields.apellido")}
                     </label>
                     <input
                       className="w-full h-12 px-4 bg-surface-container-low border-0 rounded-xl focus:ring-2 focus:ring-secondary-container transition-all text-on-surface placeholder:text-outline-variant"
@@ -235,7 +235,7 @@ export default function AuthPage() {
                   {/* Username */}
                   <div className="space-y-1.5">
                     <label className="font-label text-xs font-bold text-primary px-1" htmlFor="username">
-                      NOMBRE DE USUARIO
+                      {t("fields.username")}
                     </label>
                     <div className="flex items-center h-12 px-4 bg-surface-container-low rounded-xl border border-transparent focus-within:ring-2 focus-within:ring-secondary-container transition-all">
                       <span className="text-outline-variant font-label text-sm">@</span>
@@ -255,7 +255,7 @@ export default function AuthPage() {
                   {/* Email */}
                   <div className="space-y-1.5">
                     <label className="font-label text-xs font-bold text-primary px-1" htmlFor="email">
-                      CORREO ELECTRÓNICO
+                      {t("fields.email")}
                     </label>
                     <input
                       className="w-full h-12 px-4 bg-surface-container-low border-0 rounded-xl focus:ring-2 focus:ring-secondary-container transition-all text-on-surface placeholder:text-outline-variant"
@@ -272,7 +272,7 @@ export default function AuthPage() {
                   {/* Telefono */}
                   <div className="space-y-1.5">
                     <label className="font-label text-xs font-bold text-primary px-1" htmlFor="telefono">
-                      TELÉFONO
+                      {t("fields.telefono")}
                     </label>
                     <input
                       className="w-full h-12 px-4 bg-surface-container-low border-0 rounded-xl focus:ring-2 focus:ring-secondary-container transition-all text-on-surface placeholder:text-outline-variant"
@@ -289,7 +289,7 @@ export default function AuthPage() {
                   {/* Password */}
                   <div className="space-y-1.5">
                     <label className="font-label text-xs font-bold text-primary px-1" htmlFor="password">
-                      CONTRASEÑA
+                      {t("fields.password")}
                     </label>
                     <input
                       className="w-full h-12 px-4 bg-surface-container-low border-0 rounded-xl focus:ring-2 focus:ring-secondary-container transition-all text-on-surface"
@@ -306,7 +306,7 @@ export default function AuthPage() {
                   {/* Confirm Password */}
                   <div className="space-y-1.5">
                     <label className="font-label text-xs font-bold text-primary px-1" htmlFor="confirmPassword">
-                      CONFIRMAR CONTRASEÑA
+                      {t("fields.confirmPassword")}
                     </label>
                     <input
                       className="w-full h-12 px-4 bg-surface-container-low border-0 rounded-xl focus:ring-2 focus:ring-secondary-container transition-all text-on-surface"
@@ -332,13 +332,13 @@ export default function AuthPage() {
                       disabled={loading}
                     />
                     <label className="font-body text-xs text-on-surface-variant leading-relaxed" htmlFor="terms">
-                      Acepto los{" "}
+                      {t("terms.acceptPrefix")} {""}
                       <a className="text-primary font-bold hover:underline" href="#">
-                        términos y condiciones
+                        {t("terms.termsLink")}
                       </a>{" "}
-                      y la{" "}
+                      {t("terms.andPrefix")} {""}
                       <a className="text-primary font-bold hover:underline" href="#">
-                        política de privacidad
+                        {t("terms.privacyLink")}
                       </a>
                     </label>
                   </div>
@@ -349,7 +349,7 @@ export default function AuthPage() {
                     type="submit"
                     disabled={loading}
                   >
-                    <span className="font-body">{loading ? "Registrando..." : "Registrarse"}</span>
+                    <span className="font-body">{loading ? t("actions.registering") : t("actions.register")}</span>
                     <span className="material-symbols-outlined text-lg">arrow_forward</span>
                   </button>
                 </form>
@@ -361,7 +361,7 @@ export default function AuthPage() {
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
                     <span className="bg-surface-container-lowest px-4 text-outline-variant font-label">
-                      O regístrate con
+                      {t("orSignUpWith")}
                     </span>
                   </div>
                 </div>
@@ -374,11 +374,11 @@ export default function AuthPage() {
                     disabled={loading}
                   >
                     <img
-                      alt="Google"
+                      alt={t("providers.googleAlt")}
                       className="w-5 h-5"
                       src="https://lh3.googleusercontent.com/aida-public/AB6AXuBnQR8mFjs3poEa1YLSA32bkwizQNWrIXeRDq329ftSailTU5hK6HSGsFTczG6vH26g703bwz98AN1aLhV1ZwB0hYW1ZwKRZLO9o1Pas_25_GSOdf8g7FIdf6igCwO49AE2Ap-jqY7felnLk6lorbEQICTaCrwGxO8gt2v7p69ZcAbw_dheRqhk9qU7ZvGf4onWvVu-3o5Ri5NDPGRCBmq9yvN1vElBo3Ch9HI3kMg-3dc79qdbvxrKTysVzeYjAe9qDEiEFrhvkSI"
                     />
-                    <span className="font-body font-bold text-sm text-on-surface">Google</span>
+                    <span className="font-body font-bold text-sm text-on-surface">{t("providers.google")}</span>
                   </button>
                   <button
                     className="flex items-center justify-center space-x-3 h-14 bg-surface-container-low rounded-full border border-outline-variant/10 hover:bg-surface-container-high transition-colors active:scale-95"
@@ -388,19 +388,19 @@ export default function AuthPage() {
                     <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>
                       ios
                     </span>
-                    <span className="font-body font-bold text-sm text-on-surface">Apple</span>
+                    <span className="font-body font-bold text-sm text-on-surface">{t("providers.apple")}</span>
                   </button>
                 </div>
 
                 {/* Link to Login */}
                 <div className="mt-8 text-center">
                   <p className="text-sm text-on-surface-variant">
-                    ¿Ya tienes cuenta?{" "}
+                    {t("loginPrompt")} {" "}
                     <a
                       className="text-primary font-bold hover:text-secondary transition-colors underline decoration-secondary-container decoration-2 underline-offset-4"
                       href="#"
                     >
-                      Inicia sesión
+                      {t("loginLink")}
                     </a>
                   </p>
                 </div>
@@ -416,18 +416,18 @@ export default function AuthPage() {
           <div className="flex items-center space-x-6">
             <span className="text-xl font-black text-primary font-headline italic">MUUL</span>
             <span className="text-xs text-on-surface-variant font-label">
-              © 2024 MUUL by Coppel. Todos los derechos reservados.
+              {t("footerCopyright")}
             </span>
           </div>
           <nav className="flex space-x-8">
             <a className="text-xs font-label text-on-surface-variant hover:text-primary transition-colors" href="#">
-              Privacidad
+              {t("footerPrivacy")}
             </a>
             <a className="text-xs font-label text-on-surface-variant hover:text-primary transition-colors" href="#">
-              Términos
+              {t("footerTerms")}
             </a>
             <a className="text-xs font-label text-on-surface-variant hover:text-primary transition-colors" href="#">
-              Ayuda
+              {t("footerHelp")}
             </a>
           </nav>
         </div>

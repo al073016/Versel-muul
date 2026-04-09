@@ -43,7 +43,7 @@ export default function Footer() {
               <span className="material-symbols-outlined text-white text-3xl">volunteer_activism</span>
             </div>
             <div className="flex flex-col">
-              <span className="text-[10px] font-black tracking-widest !text-[#fed000] uppercase leading-none font-label">Fundación</span>
+              <span className="text-[10px] font-black tracking-widest !text-[#fed000] uppercase leading-none font-label">{t("foundation")}</span>
               <span className="text-2xl font-black tracking-tighter text-white leading-tight font-body">Coppel</span>
             </div>
           </a>
@@ -58,7 +58,7 @@ export default function Footer() {
             </div>
             <div className="flex flex-col">
               <span className="text-2xl font-black tracking-tighter text-white leading-tight font-body">Coppel</span>
-              <span className="text-[10px] font-black tracking-widest !text-[#fed000] uppercase leading-none font-label">Emprende</span>
+              <span className="text-[10px] font-black tracking-widest !text-[#fed000] uppercase leading-none font-label">{t("entrepreneurship")}</span>
             </div>
           </a>
 
@@ -74,7 +74,7 @@ export default function Footer() {
                 <div className="w-9 h-[3px] bg-white rounded-full"></div>
                 <div className="w-5 h-[2px] bg-white/50 rounded-full"></div>
               </div>
-              <span className="text-white font-black text-xs tracking-[0.25em]">MEXICO</span>
+              <span className="text-white font-black text-xs tracking-[0.25em]">{t("mexico")}</span>
             </div>
           </a>
         </div>
