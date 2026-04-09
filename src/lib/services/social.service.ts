@@ -8,6 +8,8 @@
  */
 import { DUMMY_POSTS, DUMMY_SOCIAL_USERS, type SocialPost } from "../social-dummy";
 
+const LOCAL_POSTS_KEY = "muul_local_posts";
+
 const SUPABASE_POST_TO_SOCIAL_POST = (row: any): SocialPost => ({
   id: row.id,
   user_id: row.usuario_id,
@@ -32,73 +34,114 @@ const SUPABASE_POST_TO_SOCIAL_POST = (row: any): SocialPost => ({
 
 export const SocialService = {
   async getFeedPosts(): Promise<SocialPost[]> {
-    try {
-      const { createClient } = await import("../supabase/client");
-      const supabase = createClient();
-      const { data, error } = await supabase.rpc("get_feed_publicaciones", { p_limit: 50 });
+    let posts: SocialPost[] = [];
+    
+    const supabaseTimeout = new Promise<SocialPost[]>((_, reject) => 
+      setTimeout(() => reject(new Error("Supabase Timeout")), 3000)
+    );
 
-      if (!error && data && data.length > 0) {
-        return data.map(SUPABASE_POST_TO_SOCIAL_POST);
-      }
+    try {
+      const fetchFromSupabase = async (): Promise<SocialPost[]> => {
+        const { createClient } = await import("../supabase/client");
+        const supabase = createClient();
+        const { data, error } = await supabase.rpc("get_feed_publicaciones", { p_limit: 50 });
+        if (!error && data) return data.map(SUPABASE_POST_TO_SOCIAL_POST);
+        return [];
+      };
+
+      posts = await Promise.race([fetchFromSupabase(), supabaseTimeout]);
     } catch (e) {
-      console.warn("[SocialService] Supabase unavailable, using local seed", e);
+      console.warn("[SocialService] Supabase unavailable or timeout, using local/dummy only", e);
     }
 
-    // Fallback: seed data so feed never looks empty
-    return [...DUMMY_POSTS];
+    // Merge with local posts from localStorage
+    const localPostsRaw = typeof window !== 'undefined' ? localStorage.getItem(LOCAL_POSTS_KEY) : null;
+    if (localPostsRaw) {
+      try {
+        const localPosts = JSON.parse(localPostsRaw);
+        posts = [...localPosts, ...posts];
+      } catch (e) {
+        console.error("[SocialService] Error parsing local posts", e);
+      }
+    }
+
+    // Final merge: DUMMY_POSTS + Supabase + Local
+    // We unique them by ID to avoid duplicates
+    const allPosts = [...posts];
+    const dummyIds = new Set(allPosts.map(p => p.id));
+    
+    for (const d of DUMMY_POSTS) {
+      if (!dummyIds.has(d.id)) {
+        allPosts.push(d);
+      }
+    }
+
+    return allPosts.sort((a, b) => {
+      // Keep local posts at the top, then by date
+      if (a.id.startsWith('local_') && !b.id.startsWith('local_')) return -1;
+      if (!a.id.startsWith('local_') && b.id.startsWith('local_')) return 1;
+      return 0; // Or refine by date if needed
+    });
   },
 
   async createPost(userId: string, content: string, imageUrls: string[] = []): Promise<SocialPost> {
     try {
-      const { createClient } = await import("../supabase/client");
-      const supabase = createClient();
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 6000));
+      const createAction = async () => {
+        const { createClient } = await import("../supabase/client");
+        const supabase = createClient();
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        if (!authUser) throw new Error("Not authenticated");
 
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
+        const { data, error } = await supabase
+          .from("publicaciones")
+          .insert({ usuario_id: authUser.id, contenido: content, imagen_urls: imageUrls })
+          .select()
+          .single();
 
-      const { data, error } = await supabase
-        .from("publicaciones")
-        .insert({ usuario_id: user.id, contenido: content, imagen_urls: imageUrls })
-        .select()
-        .single();
+        if (error) throw error;
 
-      if (error) throw error;
+        const { data: feedRow } = await supabase
+          .rpc("get_feed_publicaciones", { p_limit: 1 })
+          .eq("id", data.id)
+          .single();
 
-      // Re-fetch with joined author data for the newly created post
-      const { data: feedRow } = await supabase
-        .rpc("get_feed_publicaciones", { p_limit: 1 })
-        .eq("id", data.id)
-        .single();
+        return SUPABASE_POST_TO_SOCIAL_POST(feedRow ?? data);
+      };
 
-      return SUPABASE_POST_TO_SOCIAL_POST(feedRow ?? data);
-    } catch (e) {
-      console.warn("[SocialService] createPost fallback to local", e);
+      return (await Promise.race([createAction(), timeoutPromise])) as SocialPost;
+    } catch (e: any) {
+      console.error("[SocialService] Error en createPost (using resilience fallback):", e);
+      
+      // PERSISTENCE FALLBACK: Save to LocalStorage if Supabase fails/denied
+      const localPost: SocialPost = {
+        id: `local_${Date.now()}`,
+        user_id: userId,
+        content,
+        image_urls: imageUrls,
+        likes: 0,
+        dislikes: 0,
+        comments: 0,
+        created_at: "Demo Mode (Local)",
+        is_friend: true,
+        user: {
+          id: userId,
+          username: "@yo",
+          full_name: "Tú",
+          avatar_url: `https://ui-avatars.com/api/?name=Yo&background=003e6f&color=fff&bold=true&size=200`,
+          points: 0,
+          level: "Modo Local",
+        },
+      };
+
+      if (typeof window !== 'undefined') {
+        const existing = localStorage.getItem(LOCAL_POSTS_KEY);
+        const posts = existing ? JSON.parse(existing) : [];
+        localStorage.setItem(LOCAL_POSTS_KEY, JSON.stringify([localPost, ...posts]));
+      }
+      
+      return localPost;
     }
-
-    // Local fallback
-    const { data: { user: authUser } } = await (await import("../supabase/client")).createClient().auth.getUser();
-    
-    const user = {
-      id: userId,
-      username: authUser?.user_metadata?.username ? `@${authUser.user_metadata.username}` : (authUser?.email?.split('@')[0] || "@usuario"),
-      full_name: authUser?.user_metadata?.nombre_completo || authUser?.email || "Tú",
-      avatar_url: authUser?.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(authUser?.email || "U")}&background=003e6f&color=fff&bold=true&size=200`,
-      points: 0,
-      level: "Explorador",
-    };
-
-    return {
-      id: `post_local_${Date.now()}`,
-      user_id: userId,
-      content,
-      image_urls: imageUrls,
-      likes: 0,
-      dislikes: 0,
-      comments: 0,
-      created_at: "Justo ahora",
-      is_friend: true,
-      user,
-    };
   },
 
   async toggleLike(postId: string): Promise<boolean> {
@@ -117,23 +160,34 @@ export const SocialService = {
       const { createClient } = await import("../supabase/client");
       const supabase = createClient();
       
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `${fileName}`;
+      const fileExt = file.name.split('.').pop() || 'png';
+      const { data: { user } } = await supabase.auth.getUser();
+      const userId = user?.id || 'anon';
+      const fileName = `${userId}_${Date.now()}_${Math.floor(Math.random() * 1000)}.${fileExt}`;
+      const filePath = fileName;
 
-      const { error: uploadError } = await supabase.storage
+      console.log("[SocialService] Subiendo imagen:", filePath);
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
         .from('publicaciones')
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error("[SocialService] Error en storage.upload:", uploadError);
+        throw uploadError;
+      }
 
       const { data } = supabase.storage
         .from('publicaciones')
         .getPublicUrl(filePath);
 
+      console.log("[SocialService] Imagen subida exitosamente:", data.publicUrl);
       return data.publicUrl;
     } catch (e) {
-      console.error("[SocialService] Error uploading image:", e);
+      console.error("[SocialService] Error detallado en uploadImage:", e);
       return null;
     }
   }

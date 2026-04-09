@@ -24,7 +24,7 @@ type TabType = "cuenta" | "publicaciones" | "amigos" | "rutas" | "medallas" | "a
 
 export default function PerfilPage() {
   return (
-    <Suspense fallback={<div>Cargando perfil...</div>}>
+    <Suspense fallback={<PerfilSkeleton />}>
       <PerfilContent />
     </Suspense>
   );
@@ -197,16 +197,7 @@ function PerfilContent() {
     fetchPerfil();
   }, [supabase, profileId]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-surface">
-        <div className="animate-pulse flex flex-col items-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-primary/20"></div>
-          <p className="text-on-surface-variant font-medium tracking-widest uppercase text-xs">{t("cargando")}</p>
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <PerfilSkeleton />;
 
   if (isPublicView && publicProfileData) {
     return (
@@ -351,10 +342,10 @@ function PerfilContent() {
                 className="w-full h-full object-cover"
               />
             </div>
-            <div>
-              <p className="text-primary font-headline italic text-lg leading-tight">Hola, <span className="font-bold">{perfil?.nombre_completo?.split(" ")[0] || "Usuario"}</span></p>
+            <div className="min-w-0 flex-1">
+              <p className="text-primary font-headline italic text-lg leading-tight truncate">Hola, <span className="font-bold">{perfil?.nombre_completo?.split(" ")[0] || "Usuario"}</span></p>
               {perfil?.username && (
-                <p className="mt-1 inline-block bg-[#003e6f]/10 text-[#003e6f] text-[10px] font-bold tracking-wider px-2 py-0.5 rounded-md">
+                <p className="mt-1 inline-block bg-[#003e6f]/10 text-[#003e6f] text-[10px] font-bold tracking-wider px-2 py-0.5 rounded-md truncate max-w-full">
                   @{perfil.username}
                 </p>
               )}
@@ -508,68 +499,86 @@ function PerfilContent() {
 
         {activeTab === "amigos" && (
           <div className="space-y-8 animate-fade-in-up">
-            <h2 className="text-4xl font-headline italic text-primary">Mis Amigos</h2>
-            <div className="bg-white rounded-[2rem] p-8 border border-outline-variant/10 shadow-sm min-h-[400px]">
-              <div className="flex justify-between items-center mb-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-4xl font-headline italic text-primary">Mis Amigos</h2>
+              <div className="flex -space-x-3">
+                {friendsList.slice(0, 4).map((f, i) => (
+                  <div key={i} className="w-10 h-10 rounded-full border-2 border-white overflow-hidden shadow-sm">
+                    <img src={f.avatar} alt="f" className="w-full h-full object-cover" />
+                  </div>
+                ))}
+                {friendsList.length > 4 && (
+                  <div className="w-10 h-10 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-500 shadow-sm">
+                    +{friendsList.length - 4}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="bg-white rounded-[2.5rem] p-8 md:p-10 border border-outline-variant/10 shadow-sm min-h-[500px]">
+              <div className="relative mb-8 group">
+                <span className="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 text-neutral-400 group-focus-within:text-primary transition-colors">search</span>
                 <input 
                   type="text" 
                   value={friendSearch}
                   onChange={(e) => setFriendSearch(e.target.value)}
-                  placeholder="Buscar amigos por @nombre..." 
-                  className="bg-neutral-100 border border-transparent focus:bg-white focus:border-[#fed000] px-6 py-3 rounded-full w-full max-w-md font-body text-sm outline-none transition-colors"
+                  placeholder="Buscar amigos por nombre o @usuario..." 
+                  className="bg-neutral-50 border border-neutral-100 focus:bg-white focus:border-[#fed000] pl-14 pr-6 py-4 rounded-2xl w-full font-body text-sm outline-none transition-all shadow-inner"
                 />
               </div>
               
               {friendSearch.length > 0 ? (
-                <div className="animate-fade-in-up mt-8">
-                  <div className="flex items-center justify-between bg-neutral-50 p-4 rounded-2xl border border-neutral-100">
+                <div className="animate-fade-in-up space-y-3">
+                  <div className="flex items-center justify-between bg-neutral-50 p-5 rounded-3xl border border-neutral-100 hover:shadow-md transition-all">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200">
+                      <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-200 shadow-sm">
                         <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&h=200&auto=format&fit=crop" alt="Sofia" className="w-full h-full object-cover" />
                       </div>
                       <div>
-                        <p className="font-headline font-bold text-[#003e6f]">Sofía Navarro</p>
+                        <p className="font-headline font-bold text-[#003e6f] text-lg">Sofía Navarro</p>
                         <p className="text-xs text-neutral-500">@sofia_cdmx</p>
                       </div>
                     </div>
                     <button 
                       onClick={() => setRequestSent(true)}
                       disabled={requestSent}
-                      className={`px-6 py-2 rounded-full font-bold text-sm transition-colors ${requestSent ? 'bg-neutral-200 text-neutral-500 cursor-not-allowed' : 'bg-[#003e6f] text-white hover:bg-[#005596]'}`}
+                      className={`px-8 py-3 rounded-full font-headline font-black text-xs uppercase tracking-widest transition-all ${requestSent ? 'bg-neutral-200 text-neutral-500 cursor-not-allowed' : 'bg-[#003e6f] text-white hover:bg-[#005596] shadow-lg shadow-[#003e6f]/20'}`}
                     >
                       {requestSent ? 'Enviada' : 'Agregar'}
                     </button>
                   </div>
                 </div>
               ) : friendsList.length > 0 ? (
-                <div className="animate-fade-in-up mt-8 space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {friendsList.map((friend) => (
-                    <div key={friend.id} className={`flex items-center justify-between p-4 rounded-2xl border border-outline-variant/10 hover:bg-neutral-50 transition-colors ${!friend.online ? 'opacity-70' : ''}`}>
+                    <div key={friend.id} className={`group flex items-center justify-between p-5 rounded-3xl border border-neutral-50 bg-neutral-50/30 hover:bg-white hover:shadow-xl hover:border-primary/10 transition-all duration-300 ${!friend.online ? 'opacity-70' : ''}`}>
                       <div className="flex items-center gap-4">
-                        <div className="relative w-12 h-12 rounded-full overflow-hidden bg-gray-200 border-2 border-transparent">
+                        <div className="relative w-14 h-14 rounded-2xl overflow-hidden bg-gray-200 shadow-inner group-hover:scale-105 transition-transform duration-300">
                           <img src={friend.avatar} alt={friend.name} className={`w-full h-full object-cover ${!friend.online ? 'grayscale' : ''}`} />
-                          {friend.online && <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>}
+                          {friend.online && <div className="absolute top-1 right-1 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white shadow-sm animate-pulse"></div>}
                         </div>
-                        <div>
-                          <p className="font-headline font-bold text-[#003e6f] flex items-center gap-2">{friend.name}</p>
-                          <p className="text-xs text-neutral-500">{friend.username} • {friend.status}</p>
+                        <div className="min-w-0">
+                          <p onClick={() => window.location.href = `/perfil?id=${friend.id}`} className="font-headline font-bold text-[#003e6f] text-base truncate cursor-pointer hover:text-secondary transition-colors">{friend.name}</p>
+                          <div className="flex items-center gap-1.5 text-neutral-400 mt-0.5">
+                            <span className="material-symbols-outlined text-[14px]">{friend.online ? 'location_on' : 'schedule'}</span>
+                            <p className="text-[10px] font-bold uppercase tracking-wider truncate">{friend.status}</p>
+                          </div>
                         </div>
                       </div>
-                      <button 
-                        onClick={() => setFriendsList(friendsList.filter(f => f.id !== friend.id))}
-                        className="text-neutral-400 hover:text-red-500 bg-transparent hover:bg-red-50 transition-all p-2 rounded-full flex items-center justify-center shrink-0"
-                        title="Eliminar amigo"
-                      >
-                        <span className="material-symbols-outlined text-[20px]">person_remove</span>
-                      </button>
+                      
+                      <div className="flex items-center gap-2">
+                        <button className="text-neutral-300 hover:text-primary transition-colors p-2">
+                          <span className="material-symbols-outlined text-[20px]">more_vert</span>
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center py-16 animate-fade-in">
-                  <span className="material-symbols-outlined text-6xl text-neutral-300 mb-4">group_off</span>
-                  <p className="font-headline text-2xl text-[#003e6f] font-bold mb-2">Lista Vacía</p>
-                  <p className="text-neutral-500 font-body text-center max-w-sm">Has eliminado a todos tus amigos de la lista.</p>
+                <div className="flex flex-col items-center justify-center py-20 animate-fade-in text-center">
+                  <span className="material-symbols-outlined text-7xl text-neutral-200 mb-6 font-thin">group_off</span>
+                  <p className="font-headline text-3xl text-[#003e6f] font-black mb-3">Tu red está tranquila</p>
+                  <p className="text-neutral-400 font-body text-base max-w-sm">Busca a otros exploradores para ver sus rutas y compartir aventuras.</p>
                 </div>
               )}
             </div>
@@ -766,5 +775,31 @@ function PerfilContent() {
         />
       )}
     </main>
+  );
+}
+
+function PerfilSkeleton() {
+  return (
+    <div className="min-h-screen bg-surface flex flex-col lg:flex-row animate-pulse">
+      <div className="w-80 h-full border-r border-outline-variant/10 p-8 hidden lg:flex flex-col gap-10 bg-white/50">
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 rounded-full bg-slate-200"></div>
+          <div className="space-y-2 flex-1">
+            <div className="h-4 bg-slate-200 rounded w-20"></div>
+            <div className="h-3 bg-slate-200 rounded w-16"></div>
+          </div>
+        </div>
+        <div className="space-y-4 pt-10">
+          {[1, 2, 3, 4, 5].map(i => <div key={i} className="h-12 bg-slate-100/50 rounded-full w-full"></div>)}
+        </div>
+      </div>
+      <div className="flex-1 p-8 lg:p-12 space-y-12 bg-slate-50/30">
+        <div className="w-full aspect-[21/9] bg-slate-200 rounded-[2.5rem]"></div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {[1, 2, 3].map(i => <div key={i} className="h-40 bg-slate-100 rounded-[2.5rem]"></div>)}
+        </div>
+        <div className="h-64 bg-slate-50 rounded-[2.5rem]"></div>
+      </div>
+    </div>
   );
 }

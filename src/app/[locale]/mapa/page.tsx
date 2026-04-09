@@ -7,7 +7,8 @@ import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { createClient } from "@/lib/supabase/client";
 import { getPerfilCompat } from "@/lib/supabase/profileCompat";
-import type { POI } from "@/types/database";
+
+import type { POI, RutaGuardada, Producto } from "@/types/database";
 import html2canvas from "html2canvas";
 import ChatModal from "@/components/ui/ChatModal";
 import { useTranslations, useLocale } from "next-intl";
@@ -19,7 +20,8 @@ import { useMapboxOptimization, type TransportMode } from "@/hooks/useMapboxOpti
 import { useAccessibleRoute } from "@/hooks/useAccessibleRoute";
 import { usePartyMode } from "@/hooks/usePartyMode";
 import { useSorprendeme } from "@/hooks/useSorprendeme";
-import TransportSelector, { getRouteColorForMode } from "@/components/map/TransportSelector";
+import TransportSelector, { getRouteColorForMode, type RouteMode } from "@/components/map/TransportSelector";
+import { useMetroRoute, getMetroCityByLocation } from "@/hooks/useMetroRoute";
 import POICard from "@/components/map/POICard";
 import PartyModeModal from "@/components/map/PartyModeModal";
 import AccessibilityFeaturesLayer from "@/components/map/AccessibilityFeaturesLayer";
@@ -72,8 +74,9 @@ function isOpenNow(poi: POI): boolean {
   return cur >= apertura && cur <= cierre;
 }
 
-function isUuid(value: string): boolean {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+// Utility to check if a string is a valid UUID
+function isUuid(val: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(val);
 }
 
 function isMissingColumnError(error: unknown, column: string): boolean {
@@ -169,6 +172,67 @@ async function insertRutaCompatible(
   return { data: null, error: new Error("No se pudo guardar la ruta tras varios intentos de compatibilidad") };
 }
 
+// Robust insert helper for the hackathon
+async function safeInsertRuta(supabase: any, payload: any) {
+  let currentPayload = { ...payload };
+  const maxAttempts = 3;
+  
+  const getSupabaseErrorMessage = (err: any) => {
+    if (typeof err === "string") return err;
+    return err?.message || JSON.stringify(err);
+  };
+
+  const getMissingColumnName = (err: any) => {
+    const msg = getSupabaseErrorMessage(err);
+    const match = msg.match(/column "(.*?)" is not/);
+    return match ? match[1] : null;
+  };
+
+  for (let i = 0; i < maxAttempts; i++) {
+    const result = await supabase.from("rutas_guardadas").insert(currentPayload).select("id");
+    
+    if (!result.error) {
+      return { data: result.data as { id: string }, error: null };
+    }
+
+    const missingCol = getMissingColumnName(result.error);
+    if (missingCol && missingCol in currentPayload) {
+      delete currentPayload[missingCol];
+      continue;
+    }
+
+    const msg = getSupabaseErrorMessage(result.error).toLowerCase();
+    
+    // RLS Permission Denied Fix for Hackathon
+    if (msg.includes("permission denied") || msg.includes("row-level security")) {
+      try {
+        const localRoutes = JSON.parse(localStorage.getItem("muul_local_routes") || "[]");
+        const newLocalRoute = { 
+          ...currentPayload, 
+          id: `local_${Date.now()}`, 
+          created_at: new Date().toISOString(),
+          is_local: true 
+        };
+        localStorage.setItem("muul_local_routes", JSON.stringify([newLocalRoute, ...localRoutes]));
+        return { data: { id: newLocalRoute.id }, error: null, isLocal: true } as any;
+      } catch (e) {
+        console.error("Local storage fail:", e);
+      }
+    }
+
+    if (msg.includes("invalid input syntax for type uuid") && "pois_ids" in currentPayload) {
+      // Clean non-uuid IDs
+      const rawPoisIds = Array.isArray(currentPayload.pois_ids) ? (currentPayload.pois_ids as string[]) : [];
+      currentPayload = { ...currentPayload, pois_ids: rawPoisIds.filter(isUuid) };
+      continue;
+    }
+
+    return { data: null, error: result.error };
+  }
+
+  return { data: null, error: new Error("No se pudo guardar la ruta tras varios intentos de compatibilidad") };
+}
+
 function calcularHorasLlegada(poisRuta: POI[], duracionSegundos: number): string[] {
   if (poisRuta.length === 0) return [];
   const ahora = new Date();
@@ -189,7 +253,8 @@ const ordenarPorCercaniaAlOrigen = (
   pois: POI[],
   origen: [number, number] | null
 ): POI[] => {
-  if (!origen || pois.length <= 1) return pois;
+  if (!Array.isArray(pois) || pois.length === 0) return [];
+  if (!origen || pois.length <= 1) return [...pois];
 
   return [...pois].sort(
     (a, b) =>
@@ -232,6 +297,7 @@ export default function MapaPage() {
   // ── Feature hooks ──
   const mapboxOpt = useMapboxOptimization();
   const accessibleRoute = useAccessibleRoute();
+  const metroRoute = useMetroRoute();
   const partyMode = usePartyMode();
   const sorprendeme = useSorprendeme();
   const { buscarLugarGlobal, buscandoGlobal } = useGlobalSearch();
@@ -239,6 +305,53 @@ export default function MapaPage() {
 
   // ── State ──
   const [allPois, setAllPois] = useState<POI[]>(dummyPois as any);
+
+  useEffect(() => {
+    const fetchSupabaseNegocios = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("negocios")
+          .select("*")
+          .eq("activo", true);
+        
+        if (!error && data) {
+          const supabasePois: POI[] = data.map(n => {
+            const isTino = n.nombre.toLowerCase().includes("tino") || n.nombre.toLowerCase().includes("justino");
+            const lat = isTino ? 19.3615 : n.latitud;
+            const lng = isTino ? -99.2740 : n.longitud;
+            
+            return {
+              id: n.id,
+              nombre: n.nombre,
+              descripcion: n.descripcion ?? null,
+              categoria: n.categoria as POI["categoria"],
+              latitud: lat,
+              longitud: lng,
+              direccion: isTino ? "Santa Fe (Puesto Muul)" : (n.direccion || ""),
+              emoji: n.categoria === "comida" ? "🌮" : n.categoria === "tienda" ? "🛍️" : "📍",
+              foto_url: n.foto_url || null,
+              verificado: n.verificado,
+              precio_rango: n.precio_rango ?? null,
+              negocio_id: n.negocio_id ?? n.id,
+              horario_apertura: n.horario_apertura || "09:00",
+              horario_cierre: n.horario_cierre || "21:00",
+              created_at: n.created_at || new Date().toISOString(),
+            } satisfies POI;
+          });
+
+          setAllPois(prev => {
+            const existingIds = new Set(prev.map(p => p.id));
+            const newOnes = supabasePois.filter(p => !existingIds.has(p.id));
+            return [...prev, ...newOnes];
+          });
+        }
+      } catch (err) {
+        console.error("Error fetching negocios from Supabase:", err);
+      }
+    };
+
+    fetchSupabaseNegocios();
+  }, [supabase]);
 
   const [filteredPois, setFilteredPois] = useState<POI[]>([]);
   const [selectedPoi, setSelectedPoi] = useState<POI | null>(null);
@@ -259,18 +372,49 @@ export default function MapaPage() {
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [compartirMenuOpen, setCompartirMenuOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
-  const [transportMode, setTransportMode] = useState<TransportMode | "accessible">("walking");
+  const [transportMode, setTransportMode] = useState<RouteMode>("walking");
   const [partyModalOpen, setPartyModalOpen] = useState(false);
   const [savedRouteIdForParty, setSavedRouteIdForParty] = useState<string | undefined>();
   const [showAccessibilityFeatures, setShowAccessibilityFeatures] = useState(true);
 
   /* ── Derived ── */
   const isAccessibleMode = transportMode === "accessible";
-  const activeRoute = isAccessibleMode ? accessibleRoute.route : mapboxOpt.route;
-  const activeLoading = isAccessibleMode ? accessibleRoute.loading : mapboxOpt.loading;
+  const isMetroMode = transportMode === "metro";
+  const metroCity = useMemo(() => getMetroCityByLocation(ubicacionUsuario), [ubicacionUsuario]);
+  const metroEnabled = Boolean(metroCity);
+
+  const activeRoute = isAccessibleMode
+    ? accessibleRoute.route
+    : isMetroMode
+      ? metroRoute.route
+      : mapboxOpt.route;
+
+  const activeLoading = isAccessibleMode
+    ? accessibleRoute.loading
+    : isMetroMode
+      ? metroRoute.loading
+      : mapboxOpt.loading;
+
+  const metroErrorText = useMemo(() => {
+    if (!metroRoute.error) return "";
+    if (metroRoute.error === "metro_unavailable_city") return t("metroUnavailableCity");
+    if (metroRoute.error === "metro_no_nearby_station") return t("metroNoStationsNearby");
+    if (metroRoute.error === "metro_no_path") return t("metroNoCoverage");
+    if (metroRoute.error === "metro_no_location") return t("requireUserLocation");
+    return t("errorGeneric");
+  }, [metroRoute.error, t]);
+
   const activeError = isAccessibleMode
     ? (accessibleRoute.error || sorprendeme.error)
-    : (mapboxOpt.error || sorprendeme.error);
+    : isMetroMode
+      ? (metroErrorText || sorprendeme.error)
+      : (mapboxOpt.error || sorprendeme.error);
+
+  useEffect(() => {
+    if (isMetroMode && !metroEnabled) {
+      setTransportMode("walking");
+    }
+  }, [isMetroMode, metroEnabled]);
 
   const lugaresCercanosMuul = useMemo(() => {
     if (!ubicacionUsuario) return [];
@@ -310,19 +454,23 @@ export default function MapaPage() {
   /* ── Load POIs ── */
   useEffect(() => {
     const fetchPois = async () => {
-      const { data } = await supabase.from("pois").select("*").order("created_at", { ascending: false });
-      const dbPois = data || [];
-      
-      // Merge with dummy POIs
-      const mergedPois = [...dbPois];
-      dummyPois.forEach(d => {
-        if (!mergedPois.find(p => p.id === d.id)) mergedPois.push(d as any);
-      });
-      
-      setAllPois(mergedPois);
+      try {
+        const { data } = await supabase.from("pois").select("*").order("created_at", { ascending: false });
+        const dbPois = data || [];
+        
+        setAllPois(prev => {
+          const merged = [...prev];
+          dbPois.forEach(d => {
+            if (!merged.find(p => p.id === d.id)) merged.push(d as any);
+          });
+          return merged;
+        });
+      } catch (err) {
+        console.error("Error fetching supplemental POIs:", err);
+      }
     };
     fetchPois();
-  }, [dummyPois, supabase]);
+  }, [supabase]);
 
   /* ── Party URL param ── */
   useEffect(() => {
@@ -341,7 +489,13 @@ export default function MapaPage() {
 
     const { merged } = await buscarCercanos([center.lat, center.lng], zoom);
     if (merged.length > 0) {
-      setAllPois(merged);
+      setAllPois(prev => {
+        const result = [...prev];
+        merged.forEach(m => {
+          if (!result.find(r => r.id === m.id)) result.push(m);
+        });
+        return result;
+      });
     }
   }, [buscarCercanos]);
 
@@ -370,7 +524,10 @@ export default function MapaPage() {
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       result = result.filter(
-        (p) => p.nombre.toLowerCase().includes(q) || p.descripcion?.toLowerCase().includes(q)
+        (p) => 
+          p.nombre.toLowerCase().includes(q) || 
+          p.descripcion?.toLowerCase().includes(q) || 
+          p.categoria?.toLowerCase().includes(q)
       );
     }
 
@@ -393,6 +550,7 @@ export default function MapaPage() {
       style: "mapbox://styles/mapbox/light-v11",
       center: [-99.1332, 19.4326],
       zoom: 11.5,
+      preserveDrawingBuffer: true,
     });
     map.addControl(new mapboxgl.NavigationControl(), "top-right");
     map.addControl(new mapboxgl.GeolocateControl({ positionOptions: { enableHighAccuracy: true }, trackUserLocation: true }), "top-right");
@@ -494,8 +652,9 @@ export default function MapaPage() {
     setMostrarItinerario(false);
     mapboxOpt.clearRoute();
     accessibleRoute.clearRoute();
+    metroRoute.clearRoute();
     mapboxOpt.setError("");
-  }, []);
+  }, [metroRoute]);
 
   const handleSelectPoi = useCallback((poi: POI) => {
     setSelectedPoi(poi);
@@ -503,14 +662,15 @@ export default function MapaPage() {
   }, []);
 
   /* ── Calculate route ── */
-  const calcularRuta = async () => {
-    if (poisEnRuta.length < 1) {
+  const calcularRuta = async (overridePois?: POI[]) => {
+    const targetPois = overridePois || poisEnRuta;
+    if (targetPois.length < 1) {
       mapboxOpt.setError(t("errorMinPuntos"));
       return;
     }
 
     // Forzar que la primera parada sea la más cercana al usuario
-    const poisBase = ordenarPorCercaniaAlOrigen(poisEnRuta, ubicacionUsuario);
+    const poisBase = ordenarPorCercaniaAlOrigen(targetPois, ubicacionUsuario);
 
     if (isAccessibleMode) {
       const result = await accessibleRoute.calculateAccessibleRoute(poisBase, ubicacionUsuario);
@@ -518,7 +678,19 @@ export default function MapaPage() {
         setPoisEnRuta(poisBase);
         setMostrarItinerario(true);
         setMobileSheetOpen(false);
-        setShowAccessibilityFeatures(false); // ✅ No mostrar puntos automáticamente
+        setShowAccessibilityFeatures(false);
+        if (mapRef.current) {
+          const bounds = new mapboxgl.LngLatBounds();
+          (result.geometry.coordinates as [number, number][]).forEach((c) => bounds.extend(c));
+          mapRef.current.fitBounds(bounds, { padding: 80, duration: 1000 });
+        }
+      }
+    } else if (isMetroMode) {
+      const result = await metroRoute.calculateMetroRoute(poisBase, ubicacionUsuario);
+      if (result) {
+        setPoisEnRuta(poisBase);
+        setMostrarItinerario(true);
+        setMobileSheetOpen(false);
         if (mapRef.current) {
           const bounds = new mapboxgl.LngLatBounds();
           (result.geometry.coordinates as [number, number][]).forEach((c) => bounds.extend(c));
@@ -543,6 +715,7 @@ export default function MapaPage() {
     setPoisEnRuta([]);
     mapboxOpt.clearRoute();
     accessibleRoute.clearRoute();
+    metroRoute.clearRoute();
     setMostrarItinerario(false);
     setSavedRouteIdForParty(undefined);
     clearMapRoutes();
@@ -550,43 +723,151 @@ export default function MapaPage() {
 
   const clearMapRoutes = () => {
     if (!mapRef.current) return;
-    ["main-glow", "main-base", "main-dash"].forEach((id) => {
+    ["main-glow", "main-base", "main-dash", "route-markers-circles", "route-markers-labels"].forEach((id) => {
       if (mapRef.current!.getLayer(id)) mapRef.current!.removeLayer(id);
     });
-    if (mapRef.current.getSource("main-route")) mapRef.current.removeSource("main-route");
+    ["main-route", "route-markers-source"].forEach((id) => {
+      if (mapRef.current!.getSource(id)) mapRef.current!.removeSource(id);
+    });
   };
 
   /* ── Save route ── */
   const guardarRuta = async () => {
+    if (guardando) return;
     setGuardando(true);
-    setGuardadoMsg(t("rutaGuardada"));
-    setTimeout(() => {
+    setGuardadoMsg(t("guardando") + "...");
+
+    // Backup reset to avoid getting stuck
+    const securityTimeout = setTimeout(() => {
       setGuardando(false);
-      setGuardadoMsg("");
-    }, 1200);
+      setGuardadoMsg("✕ Error: Timeout");
+      setTimeout(() => setGuardadoMsg(""), 3000);
+    }, 8000);
+
+    try {
+      if (!userInfo) {
+        clearTimeout(securityTimeout);
+        setGuardadoMsg(t("loginParaGuardar"));
+        setGuardando(false);
+        setTimeout(() => setGuardadoMsg(""), 3000);
+        return;
+      }
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        clearTimeout(securityTimeout);
+        setGuardadoMsg(t("loginParaGuardar"));
+        setGuardando(false);
+        setTimeout(() => setGuardadoMsg(""), 3000);
+        return;
+      }
+
+      if (poisEnRuta.length === 0 || !activeRoute) {
+        clearTimeout(securityTimeout);
+        setGuardadoMsg(t("errorMinPuntos"));
+        setGuardando(false);
+        return;
+      }
+
+      const nombreRuta = `${t("itinerario")} — ${new Date().toLocaleDateString()}`;
+      
+      const payload = {
+        usuario_id: user.id,
+        nombre: nombreRuta,
+        pois_ids: poisEnRuta.map(p => p.id),
+        pois_data: poisEnRuta.map(p => ({
+          id: p.id,
+          nombre: p.nombre,
+          emoji: p.emoji,
+          categoria: p.categoria
+        })),
+        distancia_texto: activeRoute.distancia_texto,
+        duracion_texto: activeRoute.duracion_texto,
+        es_publica: false
+      };
+
+      const { error, isLocal } = (await safeInsertRuta(supabase, payload)) as any;
+
+      clearTimeout(securityTimeout);
+
+      if (error) throw error;
+
+      setGuardadoMsg(isLocal ? "✓ " + t("rutaGuardada") + " (Local)" : "✓ " + t("rutaGuardada"));
+      setTimeout(() => {
+        setGuardando(false);
+        setGuardadoMsg("");
+        cargarRutasGuardadas();
+      }, 1000);
+
+    } catch (err: any) {
+      clearTimeout(securityTimeout);
+      console.error("Error saving route:", err);
+      setGuardadoMsg("✕ Error: " + (err.message || "DB"));
+      setGuardando(false);
+      setTimeout(() => setGuardadoMsg(""), 4000);
+    }
   };
 
   const cargarRutasGuardadas = async () => {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-    const { data } = await supabase.from("rutas_guardadas").select("*").eq("usuario_id", user.id).order("created_at", { ascending: false });
-    if (data) setRutasGuardadas(data);
+    let allMergedRoutes: any[] = [];
+    
+    // 1. Get from Supabase
+    if (user) {
+      const { data: dbData } = await supabase.from("rutas_guardadas").select("*").eq("usuario_id", user.id).order("created_at", { ascending: false });
+      if (dbData) allMergedRoutes = [...dbData];
+    }
+
+    // 2. Merge with Local (resilience mode)
+    try {
+      const localData = JSON.parse(localStorage.getItem("muul_local_routes") || "[]");
+      // Filter out those already in DB if they were synced (future)
+      allMergedRoutes = [...localData, ...allMergedRoutes];
+    } catch (e) {}
+
+    setRutasGuardadas(allMergedRoutes);
     setMostrarGuardadas(true);
   };
 
-  const eliminarRutaGuardada = async (id: string) => {
-    await supabase.from("rutas_guardadas").delete().eq("id", id);
+  const eliminarRutaGuardada = async (id: string | number) => {
+    if (String(id).startsWith("local_")) {
+      const localData = JSON.parse(localStorage.getItem("muul_local_routes") || "[]");
+      localStorage.setItem("muul_local_routes", JSON.stringify(localData.filter((r: any) => r.id !== id)));
+    } else {
+      await supabase.from("rutas_guardadas").delete().eq("id", id);
+    }
     setRutasGuardadas((prev) => prev.filter((r) => r.id !== id));
   };
 
-  const cargarRutaEnMapa = (pois_data: { id: string; nombre: string; emoji: string; categoria: string }[]) => {
-    const poisParaRuta = pois_data.map((d) => allPois.find((p) => p.id === d.id)).filter(Boolean) as POI[];
-    if (poisParaRuta.length < 1) { mapboxOpt.setError(t("errorGeneric")); return; }
+  const cargarRutaEnMapa = async (pois_info: any[]) => {
+    if (!pois_info || pois_info.length === 0) return;
+    
+    // Resolve full objects from IDs or partial objects
+    const poisParaRuta = pois_info.map((item) => {
+      const targetId = typeof item === 'string' ? item : (item.id || item);
+      return allPois.find((p) => p.id === targetId);
+    }).filter(Boolean) as POI[];
+
+    if (poisParaRuta.length < 1) {
+      mapboxOpt.setError(t("errorMinPuntos"));
+      return;
+    }
+
+    // 1. Sync state
     setPoisEnRuta(poisParaRuta);
+    setMostrarGuardadas(false);
+    setMostrarItinerario(true);
+    setMobileSheetOpen(false);
+
+    // 2. Clear previous and calculate new immediately
     mapboxOpt.clearRoute();
     accessibleRoute.clearRoute();
-    setMostrarItinerario(false);
-    setMostrarGuardadas(false);
+    metroRoute.clearRoute();
+    
+    // Tiny delay to ensure state starts transition, but we use direct reference for calculation
+    setTimeout(() => {
+      calcularRuta(poisParaRuta);
+    }, 100);
   };
 
   /* ── Sorpréndeme ── */
@@ -622,6 +903,7 @@ export default function MapaPage() {
     clearMapRoutes();
     mapboxOpt.clearRoute();
     accessibleRoute.clearRoute();
+    metroRoute.clearRoute();
     setMostrarItinerario(false);
 
     // 4️⃣ Hacer scroll al listado (mobile)
@@ -636,6 +918,21 @@ export default function MapaPage() {
     const horas = calcularHorasLlegada(poisEnRuta, activeRoute.duracion_segundos);
     let texto = `🗺️ MUUL — ${t("itinerario")}${isAccessibleMode ? " ♿ ACCESIBLE" : ""}\n`;
     texto += `📏 ${activeRoute.distancia_texto} · ⏱ ${activeRoute.duracion_texto}\n\n`;
+    if (isMetroMode && metroRoute.route?.instructions.length) {
+      texto += `${t("metroMode")}\n`;
+      metroRoute.route.instructions.forEach((ins) => {
+        if (ins.type === "walk_to_board") {
+          texto += `- ${t("metroWalkToBoard", { station: ins.station || "", min: ins.minutes || 0 })}\n`;
+        } else if (ins.type === "board") {
+          texto += `- ${t("metroBoardLine", { line: ins.line || "", station: ins.station || "", direction: ins.direction || "" })}\n`;
+        } else if (ins.type === "transfer") {
+          texto += `- ${t("metroTransfer", { station: ins.station || "", line: ins.line || "" })}\n`;
+        } else {
+          texto += `- ${t("metroExitWalk", { station: ins.station || "", min: ins.minutes || 0 })}\n`;
+        }
+      });
+      texto += "\n";
+    }
     poisEnRuta.forEach((poi, i) => {
       texto += `${i + 1}. ${poi.emoji || "📍"} ${poi.nombre}\n   🕐 ~${horas[i]} · ⏱ ${DURACION_VISITA[poi.categoria] || 30} min\n`;
     });
@@ -678,9 +975,9 @@ export default function MapaPage() {
   const publicarEnComunidad = async () => {
     if (poisEnRuta.length === 0 || !activeRoute || !itinerarioRef.current) return;
     
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
+    if (!userInfo) {
       setGuardadoMsg(t("loginParaGuardar"));
+      setTimeout(() => setGuardadoMsg(""), 3000);
       return;
     }
 
@@ -688,24 +985,19 @@ export default function MapaPage() {
     setGuardando(true);
 
     try {
-      // 1. Capture the itinerary as an image
-      const canvas = await html2canvas(itinerarioRef.current, { 
-        backgroundColor: "#f8f9ff", 
-        scale: 2,
-        useCORS: true,
-        logging: false
-      });
+      // 1. Capture the map journey as an image
+      if (!mapRef.current) throw new Error("Mapa no listo");
       
-      const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/png'));
-      if (!blob) throw new Error("Canvas to blob failed");
-
+      const mapCanvas = mapRef.current.getCanvas();
+      const mapImageData = mapCanvas.toDataURL("image/png");
+      
       // 2. Prepare the post data to send via draft
       const nombres = poisEnRuta.map(p => p.nombre).join(" → ");
-      const text = `🗺️ ¡Acabo de crear una nueva ruta en Muul! \n\n📍 Recorrido: ${nombres}\n📏 Distancia: ${activeRoute.distancia_texto}\n⏱️ Tiempo estimado: ${activeRoute.duracion_texto}\n\n#Muul #Aventura #Turismo`;
+      const text = `🗺️ ¡Acabo de crear una nueva ruta en Muul! 📍 Recorrido: ${nombres}\n📏 Distancia: ${activeRoute.distancia_texto} ⏱️ Tiempo estimado: ${activeRoute.duracion_texto}\n\n#Muul #Aventura #Turismo`;
 
       // 3. Save to draft in sessionStorage
       sessionStorage.setItem("muul_draft_text", text);
-      sessionStorage.setItem("muul_draft_image", canvas.toDataURL("image/png"));
+      sessionStorage.setItem("muul_draft_image", mapImageData);
       
       setGuardadoMsg("✨ Preparando borrador...");
       setTimeout(() => {
@@ -816,6 +1108,45 @@ export default function MapaPage() {
       };
       animationRef.current = requestAnimationFrame(animate);
     }
+
+    // ✅ Add markers for the photo/capture
+    const markersGeoJSON: any = {
+      type: "FeatureCollection",
+      features: poisEnRuta.map((poi, idx) => ({
+        type: "Feature",
+        geometry: { type: "Point", coordinates: [poi.longitud, poi.latitud] },
+        properties: { index: (idx + 1).toString() }
+      }))
+    };
+
+    mapRef.current.addSource("route-markers-source", { type: "geojson", data: markersGeoJSON });
+    
+    mapRef.current.addLayer({
+      id: "route-markers-circles",
+      type: "circle",
+      source: "route-markers-source",
+      paint: {
+        "circle-radius": 12,
+        "circle-color": color,
+        "circle-stroke-width": 2,
+        "circle-stroke-color": "#ffffff"
+      }
+    });
+
+    mapRef.current.addLayer({
+      id: "route-markers-labels",
+      type: "symbol",
+      source: "route-markers-source",
+      layout: {
+        "text-field": ["get", "index"],
+        "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
+        "text-size": 12,
+        "text-allow-overlap": true
+      },
+      paint: {
+        "text-color": "#ffffff"
+      }
+    });
 
     const bounds = new mapboxgl.LngLatBounds();
     (activeRoute.geometry.coordinates as [number, number][]).forEach((c) => bounds.extend(c));
@@ -979,11 +1310,11 @@ export default function MapaPage() {
                       <button onClick={limpiarRuta} className="text-xs text-on-surface-variant hover:text-tertiary transition-colors font-bold">{t("limpiar")}</button>
                     )}
                   </div>
-                  <TransportSelector value={transportMode} onChange={setTransportMode} />
+                  <TransportSelector value={transportMode} onChange={setTransportMode} enableMetro={metroEnabled} />
                   <div className="flex gap-2">
-                    <button onClick={calcularRuta} disabled={poisEnRuta.length < 1 || activeLoading}
+                    <button onClick={() => calcularRuta()} disabled={poisEnRuta.length < 1 || activeLoading}
                       className={`flex-1 py-4 rounded-xl font-headline font-black uppercase tracking-widest transition-all shadow-lg disabled:opacity-40 disabled:cursor-not-allowed ${isAccessibleMode ? "bg-[#fed000] text-[#003e6f] shadow-[#fed000]/20 hover:bg-yellow-400" : "bg-secondary hover:bg-secondary-fixed text-on-secondary shadow-secondary/10"}`}>
-                      {activeLoading ? (isAccessibleMode ? t("analyzingAccessible") : t("calculando")) : (isAccessibleMode ? t("accessibleRouteCta") : t("calcularRuta"))}
+                      {activeLoading ? (isAccessibleMode ? t("analyzingAccessible") : t("calculando")) : (isAccessibleMode ? t("accessibleRouteCta") : isMetroMode ? t("metroRouteCta") : t("calcularRuta"))}
                     </button>
                   </div>
                 </div>
@@ -1002,11 +1333,11 @@ export default function MapaPage() {
                       </button>
                     </div>
                     {activeRoute && (
-                      <div className={`p-3 rounded-xl flex items-center gap-3 ${isAccessibleMode ? "bg-[#fed000]/20 border border-[#fed000]/30" : "bg-surface-container-high"}`}>
+                      <div className={`p-3 rounded-xl flex items-center gap-3 ${isAccessibleMode ? "bg-[#fed000]/20 border border-[#fed000]/30" : isMetroMode ? "bg-[#e11d8a]/10 border border-[#e11d8a]/30" : "bg-surface-container-high"}`}>
                         <div className="w-3 h-3 rounded-full shrink-0" style={{ background: getRouteColorForMode(transportMode) }} />
                         <div className="flex-1">
                           <p className="text-sm font-bold text-on-surface capitalize">
-                            {transportMode === "walking" ? t("caminando") : transportMode === "cycling" ? t("bicicleta") : t("vehiculo")}
+                            {transportMode === "walking" ? t("caminando") : transportMode === "cycling" ? t("bicicleta") : transportMode === "metro" ? t("metroMode") : t("vehiculo")}
                           </p>
                           <p className="text-[10px] text-on-surface-variant">
                             {activeRoute.distancia_texto} · {activeRoute.duracion_texto}
@@ -1023,6 +1354,22 @@ export default function MapaPage() {
                         {accessibleRoute.route.warnings.map((w, i) => (
                           <div key={i} className="p-2 rounded-lg bg-surface-container-high text-[10px] text-on-surface-variant font-medium">{w}</div>
                         ))}
+                      </div>
+                    ) : null}
+                    {isMetroMode && metroRoute.route?.instructions.length ? (
+                      <div className="mt-3 space-y-1.5">
+                        {metroRoute.route.instructions.map((ins, i) => {
+                          if (ins.type === "walk_to_board") {
+                            return <div key={i} className="p-2 rounded-lg bg-surface-container-high text-[10px] text-on-surface-variant font-medium">{t("metroWalkToBoard", { station: ins.station || "", min: ins.minutes || 0 })}</div>;
+                          }
+                          if (ins.type === "board") {
+                            return <div key={i} className="p-2 rounded-lg bg-surface-container-high text-[10px] text-on-surface-variant font-medium">{t("metroBoardLine", { line: ins.line || "", station: ins.station || "", direction: ins.direction || "" })}</div>;
+                          }
+                          if (ins.type === "transfer") {
+                            return <div key={i} className="p-2 rounded-lg bg-surface-container-high text-[10px] text-on-surface-variant font-medium">{t("metroTransfer", { station: ins.station || "", line: ins.line || "" })}</div>;
+                          }
+                          return <div key={i} className="p-2 rounded-lg bg-surface-container-high text-[10px] text-on-surface-variant font-medium">{t("metroExitWalk", { station: ins.station || "", min: ins.minutes || 0 })}</div>;
+                        })}
                       </div>
                     ) : null}
                     {isAccessibleMode && accessibleRoute.route && (
@@ -1046,6 +1393,25 @@ export default function MapaPage() {
                   </div>
                   <div className="flex-1 overflow-y-auto p-6" style={{ scrollbarWidth: "none" }}>
                     <h3 className="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-4">{t("paradasTitulo")}</h3>
+                    {isMetroMode && metroRoute.route?.instructions.length ? (
+                      <div className="mb-4 p-3 rounded-xl border border-[#e11d8a]/30 bg-[#e11d8a]/10 space-y-2">
+                        <p className="text-[11px] font-black uppercase tracking-wider text-[#9d174d]">{t("metroMode")}</p>
+                        <div className="space-y-1.5">
+                          {metroRoute.route.instructions.map((ins, i) => {
+                            if (ins.type === "walk_to_board") {
+                              return <p key={i} className="text-[11px] font-medium text-on-surface">{t("metroWalkToBoard", { station: ins.station || "", min: ins.minutes || 0 })}</p>;
+                            }
+                            if (ins.type === "board") {
+                              return <p key={i} className="text-[11px] font-medium text-on-surface">{t("metroBoardLine", { line: ins.line || "", station: ins.station || "", direction: ins.direction || "" })}</p>;
+                            }
+                            if (ins.type === "transfer") {
+                              return <p key={i} className="text-[11px] font-medium text-on-surface">{t("metroTransfer", { station: ins.station || "", line: ins.line || "" })}</p>;
+                            }
+                            return <p key={i} className="text-[11px] font-medium text-on-surface">{t("metroExitWalk", { station: ins.station || "", min: ins.minutes || 0 })}</p>;
+                          })}
+                        </div>
+                      </div>
+                    ) : null}
                     <div className="space-y-4 relative">
                       <div className="absolute left-[11px] top-4 bottom-4 w-px bg-outline-variant/30" />
                       {ubicacionUsuario && (
@@ -1248,13 +1614,30 @@ export default function MapaPage() {
               <>
                 <div className="flex-1 overflow-y-auto px-4 space-y-3" style={{ scrollbarWidth: "none" }}>
                   {activeRoute && (
-                    <div className={`p-3 rounded-xl flex items-center gap-3 ${isAccessibleMode ? "bg-[#fed000]/20 border border-[#fed000]/30" : "bg-surface-container-high"}`}>
+                    <div className={`p-3 rounded-xl flex items-center gap-3 ${isAccessibleMode ? "bg-[#fed000]/20 border border-[#fed000]/30" : isMetroMode ? "bg-[#e11d8a]/10 border border-[#e11d8a]/30" : "bg-surface-container-high"}`}>
                       <div className="w-3 h-3 rounded-full shrink-0" style={{ background: getRouteColorForMode(transportMode) }} />
-                      <div className="flex-1"><p className="text-xs font-bold text-on-surface">{isAccessibleMode ? "♿ Accesible" : transportMode}</p><p className="text-[10px] text-on-surface-variant">{activeRoute.distancia_texto} · {activeRoute.duracion_texto}</p></div>
+                      <div className="flex-1"><p className="text-xs font-bold text-on-surface">{isAccessibleMode ? "♿ Accesible" : isMetroMode ? t("metroMode") : transportMode}</p><p className="text-[10px] text-on-surface-variant">{activeRoute.distancia_texto} · {activeRoute.duracion_texto}</p></div>
                       {isAccessibleMode && accessibleRoute.route && <AccessibilityScoreBadge score={accessibleRoute.route.accessibilityScore} />}
                     </div>
                   )}
                   {isAccessibleMode && accessibleRoute.route?.warnings.map((w, i) => (<div key={i} className="p-2 rounded-lg bg-surface-container-high text-[10px] text-on-surface-variant font-medium">{w}</div>))}
+                  {isMetroMode && metroRoute.route?.instructions.map((ins, i) => {
+                    if (ins.type === "walk_to_board") {
+                      return <div key={i} className="p-2 rounded-lg bg-surface-container-high text-[10px] text-on-surface-variant font-medium">{t("metroWalkToBoard", { station: ins.station || "", min: ins.minutes || 0 })}</div>;
+                    }
+                    if (ins.type === "board") {
+                      return <div key={i} className="p-2 rounded-lg bg-surface-container-high text-[10px] text-on-surface-variant font-medium">{t("metroBoardLine", { line: ins.line || "", station: ins.station || "", direction: ins.direction || "" })}</div>;
+                    }
+                    if (ins.type === "transfer") {
+                      return <div key={i} className="p-2 rounded-lg bg-surface-container-high text-[10px] text-on-surface-variant font-medium">{t("metroTransfer", { station: ins.station || "", line: ins.line || "" })}</div>;
+                    }
+                    return <div key={i} className="p-2 rounded-lg bg-surface-container-high text-[10px] text-on-surface-variant font-medium">{t("metroExitWalk", { station: ins.station || "", min: ins.minutes || 0 })}</div>;
+                  })}
+                  {isMetroMode && metroRoute.route?.instructions.length ? (
+                    <div className="p-2 rounded-lg border border-[#e11d8a]/30 bg-[#e11d8a]/10">
+                      <p className="text-[10px] font-black uppercase tracking-wider text-[#9d174d]">{t("metroMode")}</p>
+                    </div>
+                  ) : null}
                   <div className="space-y-3 relative pt-1">
                     <div className="absolute left-[11px] top-4 bottom-4 w-px bg-outline-variant/30" />
                     {ubicacionUsuario && (
@@ -1348,11 +1731,11 @@ export default function MapaPage() {
                     </div>
                     {poisEnRuta.length > 0 && <button onClick={limpiarRuta} className="text-xs text-on-surface-variant hover:text-tertiary font-bold">{t("limpiar")}</button>}
                   </div>
-                  <TransportSelector value={transportMode} onChange={setTransportMode} />
+                  <TransportSelector value={transportMode} onChange={setTransportMode} enableMetro={metroEnabled} />
                   <div className="flex gap-2">
-                    <button onClick={calcularRuta} disabled={poisEnRuta.length < 1 || activeLoading}
+                    <button onClick={() => calcularRuta()} disabled={poisEnRuta.length < 1 || activeLoading}
                       className={`flex-1 py-3 rounded-xl font-headline font-black text-sm uppercase tracking-widest disabled:opacity-40 disabled:cursor-not-allowed ${isAccessibleMode ? "bg-[#fed000] text-[#003e6f]" : "bg-secondary text-on-secondary"}`}>
-                      {activeLoading ? (isAccessibleMode ? t("analyzingAccessible") : t("calculando")) : (isAccessibleMode ? t("accessibleRouteCta") : t("calcularRuta"))}
+                      {activeLoading ? (isAccessibleMode ? t("analyzingAccessible") : t("calculando")) : (isAccessibleMode ? t("accessibleRouteCta") : isMetroMode ? t("metroRouteCta") : t("calcularRuta"))}
                     </button>
                   </div>
                 </div>

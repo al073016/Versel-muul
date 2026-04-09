@@ -146,7 +146,7 @@ function ComunidadContent() {
   const searchParams = useSearchParams();
   const supabase = createClient();
   const [posts, setPosts] = useState<SocialPost[]>([]);
-  const [ranking, setRanking] = useState<SocialUser[]>(DUMMY_RANKING);
+  const [ranking, setRanking] = useState<SocialUser[]>(DUMMY_RANKING.slice(0, 5));
 
   // Load real ranking from Supabase (get_ranking RPC)
   useEffect(() => {
@@ -199,6 +199,8 @@ function ComunidadContent() {
   }, [supabase]);
 
   // Recover draft from Map
+  const [isDraftLoading, setIsDraftLoading] = useState(false);
+
   useEffect(() => {
     const isDraft = searchParams.get("draft") === "true";
     if (isDraft) {
@@ -207,56 +209,65 @@ function ComunidadContent() {
       
       if (draftText) setInputValue(draftText);
       if (draftImage) {
+        setIsDraftLoading(true);
         setSelectedImage(draftImage);
-        // Convert base64 to File object for the real upload
-        fetch(draftImage)
-          .then(res => res.blob())
-          .then(blob => {
-            const file = new File([blob], "ruta-compartida.png", { type: "image/png" });
+        
+        // Convert base64 to File object more reliably
+        const convertDataUrlToFile = async (dataUrl: string) => {
+          try {
+            const res = await fetch(dataUrl);
+            const blob = await res.blob();
+            const file = new File([blob], `ruta_${Date.now()}.png`, { type: "image/png" });
             setSelectedImageFile(file);
-          });
+          } catch (err) {
+            console.error("Error converting draft image:", err);
+          } finally {
+            setIsDraftLoading(false);
+          }
+        };
+        convertDataUrlToFile(draftImage);
       }
       
-      // Clear draft from storage so it doesn't reappear on refresh
+      // Clear draft from storage
       sessionStorage.removeItem("muul_draft_text");
       sessionStorage.removeItem("muul_draft_image");
     }
   }, [searchParams]);
 
   const handleAddPost = async () => {
-    if (!inputValue.trim()) return;
+    if (!inputValue.trim() || isDraftLoading) return;
     
     setIsPublishing(true);
     
     try {
       let finalImageUrls: string[] = [];
       
-      // If there is a file selected, upload it to real storage
       if (selectedImageFile) {
-        const publicUrl = await SocialService.uploadImage(selectedImageFile);
-        if (publicUrl) {
-          finalImageUrls = [publicUrl];
+        try {
+          const publicUrl = await SocialService.uploadImage(selectedImageFile);
+          if (publicUrl) {
+            finalImageUrls = [publicUrl];
+          } else {
+            // Fallback to local dataURL if cloud upload failed
+            if (selectedImage) finalImageUrls = [selectedImage];
+          }
+        } catch (uploadError) {
+          console.error("Upload error, using local fallback:", uploadError);
+          if (selectedImage) finalImageUrls = [selectedImage];
         }
       }
 
-      const userId = currentUser?.initials ? 'me' : 'anon';
+      const userId = currentUser?.id || 'me';
       const newPost = await SocialService.createPost(userId, inputValue, finalImageUrls);
       
-      // Fallback UI update if real data comes back lacking props
-      if (!newPost.user.avatar_url && currentUser?.avatar_url) {
-         newPost.user.avatar_url = currentUser.avatar_url;
-      }
-      if (newPost.user.username === '@me' && currentUser?.nombre) {
-         newPost.user.full_name = currentUser.nombre;
-         newPost.user.username = `@${currentUser.nombre.split(' ')[0].toLowerCase()}`;
-      }
-
+      // Update UI immediately (works for both real and local-fallback posts)
       setPosts(prev => [newPost, ...prev]);
       setInputValue("");
       setSelectedImage(null);
       setSelectedImageFile(null);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error publishing post:", error);
+      alert("La conexión con Supabase es inestable. El post se guardó localmente en este navegador para no perder tu aventura.");
     } finally {
       setIsPublishing(false);
     }
@@ -314,10 +325,10 @@ function ComunidadContent() {
                 </label>
                 <button 
                   onClick={handleAddPost}
-                  disabled={!inputValue.trim()}
+                  disabled={!inputValue.trim() || isDraftLoading}
                   className="bg-[#fed000] text-[#003e6f] h-12 px-6 rounded-full font-headline font-black text-sm uppercase tracking-widest transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-[0_0_15px_rgba(254,208,0,0.4)]"
                 >
-                  {isPublishing ? '...' : t("publicar")}
+                  {isDraftLoading ? 'Procesando...' : isPublishing ? '...' : t("publicar")}
                 </button>
               </div>
               {selectedImage && (

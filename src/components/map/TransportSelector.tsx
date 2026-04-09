@@ -3,9 +3,12 @@
 import { useTranslations } from "next-intl";
 import type { TransportMode } from "@/hooks/useMapboxOptimization";
 
+export type RouteMode = TransportMode | "accessible" | "metro";
+
 /* ── Route color per mode ── */
-export function getRouteColorForMode(mode: TransportMode | "accessible"): string {
+export function getRouteColorForMode(mode: RouteMode): string {
   if (mode === "accessible") return "#003e6f"; // azul
+  if (mode === "metro") return "#e11d8a"; // magenta metro
   if (mode === "walking") return "#22c55e"; // verde
   if (mode === "cycling" || mode === "driving") return "#fed000"; // amarillo
   return "#22c55e";
@@ -13,20 +16,26 @@ export function getRouteColorForMode(mode: TransportMode | "accessible"): string
 
 /* ── Props ── */
 interface TransportSelectorProps {
-  value: TransportMode | "accessible";
-  onChange: (mode: TransportMode | "accessible") => void;
+  value: RouteMode;
+  onChange: (mode: RouteMode) => void;
+  enableMetro?: boolean;
   className?: string;
 }
 
 /* ══════════════════════════════════════════════
    COMPONENT
    ══════════════════════════════════════════════ */
-export default function TransportSelector({ value, onChange, className = "" }: TransportSelectorProps) {
+export default function TransportSelector({
+  value,
+  onChange,
+  enableMetro = false,
+  className = "",
+}: TransportSelectorProps) {
   const t = useTranslations("mapa");
 
   /* ── Mode config ── */
   const OPTIONS: {
-    value: TransportMode;
+    value: TransportMode | "metro";
     label: string;
     icon: string;
   }[] = [
@@ -34,8 +43,12 @@ export default function TransportSelector({ value, onChange, className = "" }: T
     { value: "cycling", label: t("bicicleta"), icon: "directions_bike" },
     { value: "driving", label: t("vehiculoIcon"), icon: "directions_car" },
   ];
+
+  if (enableMetro) {
+    OPTIONS.push({ value: "metro", label: t("metroIcon"), icon: "subway" });
+  }
   return (
-    <div className="flex gap-1.5 w-full">
+    <div className={`flex gap-1.5 w-full ${className}`}>
       {OPTIONS.map((mode) => {
         const isActive = value === mode.value;
 
