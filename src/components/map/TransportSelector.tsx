@@ -30,9 +30,9 @@ export default function TransportSelector({ value, onChange, className = "" }: T
     label: string;
     icon: string;
   }[] = [
-    { value: "walking", label: "Caminando", icon: "directions_walk" },
-    { value: "cycling", label: "Bicicleta", icon: "directions_bike" },
-    { value: "driving", label: "Vehículo", icon: "directions_car" },
+    { value: "walking", label: t("caminandoIcon"), icon: "directions_walk" },
+    { value: "cycling", label: t("bicicleta"), icon: "directions_bike" },
+    { value: "driving", label: t("vehiculoIcon"), icon: "directions_car" },
   ];
   return (
     <div className="flex gap-1.5 w-full">

@@ -515,7 +515,114 @@
     "copied": "链接已复制",
     "shareError": "无法分享",
     "fifa": "Muul 2026",
+    "foundation": "基金会",
+    "entrepreneurship": "创业",
+    "mexico": "墨西哥",
     "copyright": "© 2026 Muul。保留所有权利。"
+  },
+  "partyMode": {
+    "title": "派对模式",
+    "subtitle": "用于组队出行的公开路线",
+    "shareTitle": "加入我在 Muul 的路线 🗺️",
+    "tabs": {
+      "myRoute": "我的路线",
+      "join": "加入",
+      "explore": "探索"
+    },
+    "activateDescription": "开启派对模式，这样你的朋友就可以查看并复制你的路线。",
+    "currentRoute": "当前路线",
+    "activating": "正在激活…",
+    "activateButton": "激活派对模式",
+    "routeCode": "路线代码",
+    "copied": "已复制！",
+    "copyLink": "复制链接",
+    "share": "分享",
+    "participants": "参与者（{count}）",
+    "noParticipants": "还没有人加入 👀",
+    "participantTitle": "参与者 {number}",
+    "joinDescription": "粘贴别人分享给你的代码或链接以加入路线。",
+    "joinPlaceholder": "在此粘贴 UUID 代码或完整链接…",
+    "joining": "正在加入…",
+    "joinRoute": "加入路线",
+    "noPublicRoutes": "还没有公开路线，做第一个吧！",
+    "copyThisRoute": "复制此路线",
+    "collabJoined": "Carlos R. 已加入你的路线",
+    "collabMode": "派对模式",
+    "collabTogether": "一起编辑",
+    "collabSolo": "只有你",
+    "success": {
+      "publicRoute": "公开路线已准备好！把代码分享给你的朋友 🎉",
+      "created": "派对路线已创建！🎉",
+      "joined": "你已加入这条路线！🎊"
+    },
+    "errors": {
+      "activateFailed": "无法激活派对模式",
+      "deactivateFailed": "停用派对模式失败",
+      "loginRequiredCreate": "你必须登录才能创建派对路线",
+      "createFailed": "创建派对路线失败",
+      "loginRequiredJoin": "你必须登录才能加入路线",
+      "routeNotFound": "未找到路线或该路线不是公开的"
+    }
+  },
+  "auth": {
+    "touristRegistration": "游客注册",
+    "tagline": "流动中的智能",
+    "heroTitle": "加入 MUUL",
+    "heroDescription": "创建账号并开始探索最佳路线。发现由人工智能策划的体验。",
+    "benefitRoutesTitle": "精选路线",
+    "benefitRoutesDescription": "智能发现新地点。",
+    "benefitCommunityTitle": "社区",
+    "benefitCommunityDescription": "与其他像你一样的旅行者建立联系。",
+    "benefitSafeTitle": "安全出行",
+    "benefitSafeDescription": "每一公里都有 Coppel 支持。",
+    "createAccount": "创建账号",
+    "registerTouristAccount": "注册你的游客账号",
+    "successMessage": "✅ 账号已创建！正在跳转...",
+    "fields": {
+      "nombre": "名",
+      "apellido": "姓",
+      "username": "用户名",
+      "email": "电子邮箱",
+      "telefono": "电话",
+      "password": "密码",
+      "confirmPassword": "确认密码"
+    },
+    "terms": {
+      "acceptPrefix": "我接受",
+      "termsLink": "条款与条件",
+      "andPrefix": "以及",
+      "privacyLink": "隐私政策"
+    },
+    "actions": {
+      "registering": "正在注册...",
+      "register": "注册"
+    },
+    "orSignUpWith": "或使用以下方式注册",
+    "providers": {
+      "googleAlt": "Google",
+      "google": "Google",
+      "apple": "Apple"
+    },
+    "loginPrompt": "已有账号？",
+    "loginLink": "登录",
+    "footerCopyright": "© 2024 MUUL by Coppel。保留所有权利。",
+    "footerPrivacy": "隐私",
+    "footerTerms": "条款",
+    "footerHelp": "帮助",
+    "errors": {
+      "nombreRequired": "姓名为必填项",
+      "apellidoRequired": "姓氏为必填项",
+      "usernameRequired": "用户名为必填项",
+      "emailRequired": "电子邮箱为必填项",
+      "emailInvalid": "电子邮箱无效",
+      "telefonoRequired": "电话号码为必填项",
+      "passwordLength": "密码至少需要 6 个字符",
+      "passwordMismatch": "两次输入的密码不一致",
+      "termsRequired": "你必须接受条款与条件",
+      "signupFailed": "注册失败",
+      "signupAccountFailed": "账户注册失败",
+      "googleConnectionFailed": "连接 Google 失败"
+    }
   },
   "legal": {
     "privacyTitle": "隐私",

@@ -515,7 +515,114 @@
     "copied": "Enlace copiado",
     "shareError": "No se pudo compartir",
     "fifa": "Muul 2026",
+    "foundation": "Fundación",
+    "entrepreneurship": "Emprende",
+    "mexico": "MÉXICO",
     "copyright": "© 2026 Muul. Todos los derechos reservados."
+  },
+  "partyMode": {
+    "title": "Modo Party",
+    "subtitle": "Rutas públicas para hacer en grupo",
+    "shareTitle": "Únete a mi ruta en Muul 🗺️",
+    "tabs": {
+      "myRoute": "Mi Ruta",
+      "join": "Unirse",
+      "explore": "Explorar"
+    },
+    "activateDescription": "Activa el modo Party para que tus amigos puedan ver y copiar tu ruta.",
+    "currentRoute": "Tu ruta actual",
+    "activating": "Activando…",
+    "activateButton": "Activar Modo Party",
+    "routeCode": "Código de ruta",
+    "copied": "¡Copiado!",
+    "copyLink": "Copiar link",
+    "share": "Compartir",
+    "participants": "Participantes ({count})",
+    "noParticipants": "Nadie se ha unido aún 👀",
+    "participantTitle": "Participante {number}",
+    "joinDescription": "Pega el código o link que te compartieron para unirte a una ruta.",
+    "joinPlaceholder": "Pega aquí el código UUID o el link completo…",
+    "joining": "Uniéndome…",
+    "joinRoute": "Unirme a la Ruta",
+    "noPublicRoutes": "No hay rutas públicas aún. ¡Sé el primero!",
+    "copyThisRoute": "Copiar esta ruta",
+    "collabJoined": "Carlos R. se ha unido a tu ruta",
+    "collabMode": "Party Mode",
+    "collabTogether": "Editando juntos",
+    "collabSolo": "Tú nada más",
+    "success": {
+      "publicRoute": "¡Ruta pública! Comparte el código con tus amigos 🎉",
+      "created": "¡Ruta Party creada! 🎉",
+      "joined": "¡Te uniste a la ruta! 🎊"
+    },
+    "errors": {
+      "activateFailed": "No se pudo activar el modo Party",
+      "deactivateFailed": "Error al desactivar modo Party",
+      "loginRequiredCreate": "Debes iniciar sesión para crear una ruta Party",
+      "createFailed": "Error al crear la ruta Party",
+      "loginRequiredJoin": "Debes iniciar sesión para unirte a una ruta",
+      "routeNotFound": "Ruta no encontrada o no es pública"
+    }
+  },
+  "auth": {
+    "touristRegistration": "Registro Turista",
+    "tagline": "Inteligencia en Movimiento",
+    "heroTitle": "Únete a MUUL",
+    "heroDescription": "Crea tu cuenta y comienza a explorar las mejores rutas. Descubre experiencias curadas por inteligencia artificial.",
+    "benefitRoutesTitle": "Explora Rutas",
+    "benefitRoutesDescription": "Descubre nuevos lugares inteligentemente.",
+    "benefitCommunityTitle": "Comunidad",
+    "benefitCommunityDescription": "Conecta con otros viajeros como tú.",
+    "benefitSafeTitle": "Viaje Seguro",
+    "benefitSafeDescription": "Respaldo de Coppel en cada km.",
+    "createAccount": "Crear Cuenta",
+    "registerTouristAccount": "Registra tu cuenta de turista",
+    "successMessage": "✅ ¡Cuenta creada! Redirigiendo...",
+    "fields": {
+      "nombre": "NOMBRE",
+      "apellido": "APELLIDO",
+      "username": "NOMBRE DE USUARIO",
+      "email": "CORREO ELECTRÓNICO",
+      "telefono": "TELÉFONO",
+      "password": "CONTRASEÑA",
+      "confirmPassword": "CONFIRMAR CONTRASEÑA"
+    },
+    "terms": {
+      "acceptPrefix": "Acepto los",
+      "termsLink": "términos y condiciones",
+      "andPrefix": "y la",
+      "privacyLink": "política de privacidad"
+    },
+    "actions": {
+      "registering": "Registrando...",
+      "register": "Registrarse"
+    },
+    "orSignUpWith": "O regístrate con",
+    "providers": {
+      "googleAlt": "Google",
+      "google": "Google",
+      "apple": "Apple"
+    },
+    "loginPrompt": "¿Ya tienes cuenta?",
+    "loginLink": "Inicia sesión",
+    "footerCopyright": "© 2024 MUUL by Coppel. Todos los derechos reservados.",
+    "footerPrivacy": "Privacidad",
+    "footerTerms": "Términos",
+    "footerHelp": "Ayuda",
+    "errors": {
+      "nombreRequired": "El nombre es requerido",
+      "apellidoRequired": "El apellido es requerido",
+      "usernameRequired": "El nombre de usuario es requerido",
+      "emailRequired": "El correo es requerido",
+      "emailInvalid": "El correo no es válido",
+      "telefonoRequired": "El teléfono es requerido",
+      "passwordLength": "La contraseña debe tener al menos 6 caracteres",
+      "passwordMismatch": "Las contraseñas no coinciden",
+      "termsRequired": "Debes aceptar los términos y condiciones",
+      "signupFailed": "Error al registrar",
+      "signupAccountFailed": "Error al registrar la cuenta",
+      "googleConnectionFailed": "Error al conectar con Google"
+    }
   },
   "legal": {
     "privacyTitle": "Privacidad",

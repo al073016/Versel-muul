@@ -134,7 +134,25 @@ body {
 }
 
 /* Editorial serif heading */
-.editorial-heading, .font-headline, h1, h2, h3, h4 {
+.editorial-heading, h1, h2, h3, h4 {
+  font-family: 'Newsreader', Georgia, serif;
+  font-weight: 700;
+  color: #003e6f;
+}
+
+.font-headline {
+  font-family: 'Newsreader', Georgia, serif;
+  font-weight: 700;
+}
+
+/* Solo tipografía, sin forzar color */
+.font-headline {
+  font-family: 'Newsreader', Georgia, serif;
+  font-weight: 700;
+}
+
+/* Editorial serif heading */
+.editorial-heading, h1, h2, h3, h4 {
   font-family: 'Newsreader', Georgia, serif;
   font-weight: 700;
   color: #003e6f;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "@/i18n/navigation";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { useState } from "react";
 import { Link } from "@/i18n/navigation";
@@ -9,6 +9,7 @@ import { Link } from "@/i18n/navigation";
 export default function SignupTuristaPage() {
   const router = useRouter();
   const locale = useLocale();
+  const t = useTranslations("auth");
   const supabase = createClient();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -35,15 +36,15 @@ export default function SignupTuristaPage() {
   };
 
   const validateForm = (): string | null => {
-    if (!formData.nombre.trim()) return "El nombre es requerido";
-    if (!formData.apellido.trim()) return "El apellido es requerido";
-    if (!formData.username.trim()) return "El nombre de usuario es requerido";
-    if (!formData.email.trim()) return "El correo es requerido";
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) return "El correo no es válido";
-    if (!formData.telefono.trim()) return "El teléfono es requerido";
-    if (formData.password.length < 6) return "La contraseña debe tener al menos 6 caracteres";
-    if (formData.password !== formData.confirmPassword) return "Las contraseñas no coinciden";
-    if (!formData.terms) return "Debes aceptar los términos y condiciones";
+    if (!formData.nombre.trim()) return t("errors.nombreRequired");
+    if (!formData.apellido.trim()) return t("errors.apellidoRequired");
+    if (!formData.username.trim()) return t("errors.usernameRequired");
+    if (!formData.email.trim()) return t("errors.emailRequired");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) return t("errors.emailInvalid");
+    if (!formData.telefono.trim()) return t("errors.telefonoRequired");
+    if (formData.password.length < 6) return t("errors.passwordLength");
+    if (formData.password !== formData.confirmPassword) return t("errors.passwordMismatch");
+    if (!formData.terms) return t("errors.termsRequired");
     return null;
   };
 
@@ -80,7 +81,7 @@ export default function SignupTuristaPage() {
 
       if (!response.ok) {
         console.error("API Error:", data);
-        setError(data.error || `Error al registrar: ${JSON.stringify(data)}`);
+        setError(data.error || t("errors.signupFailed"));
         setLoading(false);
         return;
       }
@@ -103,7 +104,7 @@ export default function SignupTuristaPage() {
       }, 2000);
     } catch (err) {
       console.error("Signup error:", err);
-      setError("Ocurrió un error al registrar la cuenta");
+      setError(t("errors.signupAccountFailed"));
     } finally {
       setLoading(false);
     }
@@ -124,7 +125,7 @@ export default function SignupTuristaPage() {
       }
     } catch (err) {
       console.error(err);
-      setError("Error al conectar con Google");
+      setError(t("errors.googleConnectionFailed"));
     } finally {
       setLoading(false);
     }
@@ -137,13 +138,13 @@ export default function SignupTuristaPage() {
         <div className="hidden lg:flex lg:col-span-6 flex-col space-y-8 pr-12">
           <div className="space-y-4">
             <span className="font-label text-primary text-sm font-bold tracking-tighter uppercase">
-              Inteligencia en Movimiento
+              {t("tagline")}
             </span>
             <h1 className="text-5xl md:text-6xl font-headline italic text-primary leading-tight">
-              Bienvenido a MUUL
+              {t("welcomeTitle")}
             </h1>
             <p className="text-on-surface-variant text-lg max-w-md leading-relaxed font-body">
-              Explora una nueva era de movilidad diseñada para el viajero inteligente. Datos precisos, experiencias curadas.
+              {t("welcomeDescription")}
             </p>
           </div>
 
@@ -151,13 +152,13 @@ export default function SignupTuristaPage() {
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-surface-container-low p-6 rounded-xl space-y-2 border border-outline-variant/10">
               <span className="material-symbols-outlined text-primary">explore</span>
-              <h3 className="font-headline italic text-xl text-primary">Rutas Curadas</h3>
-              <p className="text-sm text-on-surface-variant font-body">Inteligencia artificial en tu destino.</p>
+              <h3 className="font-headline italic text-xl text-primary">{t("benefitRoutesTitle")}</h3>
+              <p className="text-sm text-on-surface-variant font-body">{t("benefitRoutesDescription")}</p>
             </div>
             <div className="bg-primary text-white p-6 rounded-xl space-y-2">
               <span className="material-symbols-outlined">verified_user</span>
-              <h3 className="font-headline italic text-xl">Viaje Seguro</h3>
-              <p className="text-sm opacity-80 font-body">Respaldo de Coppel en cada km.</p>
+              <h3 className="font-headline italic text-xl">{t("benefitSafeTitle")}</h3>
+              <p className="text-sm opacity-80 font-body">{t("benefitSafeDescription")}</p>
             </div>
           </div>
         </div>
@@ -171,16 +172,16 @@ export default function SignupTuristaPage() {
             </div>
 
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-headline italic text-primary mb-2">Crear Cuenta</h2>
+              <h2 className="text-3xl font-headline italic text-primary mb-2">{t("createAccount")}</h2>
               <p className="font-label text-xs text-on-surface-variant uppercase tracking-widest">
-                Regístrate como turista
+                {t("registerTouristAccount")}
               </p>
             </div>
 
             {/* Success Message */}
             {success && (
               <div className="mb-6 p-4 bg-tertiary-container/20 border border-tertiary-container rounded-xl text-tertiary-container font-body text-sm">
-                ✓ Cuenta creada exitosamente. Redirigiendo...
+                {t("successMessage")}
               </div>
             )}
 
@@ -214,7 +215,7 @@ export default function SignupTuristaPage() {
               {/* Apellido */}
               <div className="space-y-1.5">
                 <label className="font-label text-xs font-bold text-primary px-1" htmlFor="apellido">
-                  APELLIDO
+                  {t("fields.apellido")}
                 </label>
                 <input
                   id="apellido"
@@ -232,7 +233,7 @@ export default function SignupTuristaPage() {
               {/* Username */}
               <div className="space-y-1.5">
                 <label className="font-label text-xs font-bold text-primary px-1" htmlFor="username">
-                  NOMBRE DE USUARIO
+                  {t("fields.username")}
                 </label>
                 <div className="flex items-center h-12 px-4 bg-surface-container-low rounded-xl border-none focus-within:ring-2 focus-within:ring-secondary-container transition-all">
                   <span className="text-outline-variant font-label text-sm">@</span>
@@ -253,7 +254,7 @@ export default function SignupTuristaPage() {
               {/* Email */}
               <div className="space-y-1.5">
                 <label className="font-label text-xs font-bold text-primary px-1" htmlFor="email">
-                  CORREO ELECTRÓNICO
+                  {t("fields.email")}
                 </label>
                 <input
                   id="email"
@@ -271,7 +272,7 @@ export default function SignupTuristaPage() {
               {/* Teléfono */}
               <div className="space-y-1.5">
                 <label className="font-label text-xs font-bold text-primary px-1" htmlFor="telefono">
-                  TELÉFONO
+                  {t("fields.telefono")}
                 </label>
                 <input
                   id="telefono"
@@ -289,7 +290,7 @@ export default function SignupTuristaPage() {
               {/* Password */}
               <div className="space-y-1.5">
                 <label className="font-label text-xs font-bold text-primary px-1" htmlFor="password">
-                  CONTRASEÑA
+                  {t("fields.password")}
                 </label>
                 <input
                   id="password"
@@ -307,7 +308,7 @@ export default function SignupTuristaPage() {
               {/* Confirm Password */}
               <div className="space-y-1.5">
                 <label className="font-label text-xs font-bold text-primary px-1" htmlFor="confirmPassword">
-                  CONFIRMAR CONTRASEÑA
+                  {t("fields.confirmPassword")}
                 </label>
                 <input
                   id="confirmPassword"
@@ -334,13 +335,13 @@ export default function SignupTuristaPage() {
                   className="w-4 h-4 mt-0.5 accent-primary rounded cursor-pointer disabled:opacity-50"
                 />
                 <label className="font-body text-xs text-on-surface-variant leading-relaxed cursor-pointer" htmlFor="terms">
-                  Acepto los{" "}
+                  {t("terms.acceptPrefix")} {" "}
                   <a href="#" className="text-primary font-bold hover:underline">
-                    términos y condiciones
+                    {t("terms.termsLink")}
                   </a>{" "}
-                  y la{" "}
+                  {t("terms.andPrefix")} {" "}
                   <a href="#" className="text-primary font-bold hover:underline">
-                    política de privacidad
+                    {t("terms.privacyLink")}
                   </a>
                 </label>
               </div>
@@ -351,7 +352,7 @@ export default function SignupTuristaPage() {
                 disabled={loading || success}
                 className="w-full h-12 bg-gradient-to-br from-primary to-primary-container text-white font-bold rounded-full shadow-lg shadow-primary/10 hover:brightness-105 active:scale-95 transition-all flex items-center justify-center space-x-2 disabled:opacity-50 mt-6"
               >
-                <span className="font-body">{loading ? "Registrando..." : "Registrarse"}</span>
+                <span className="font-body">{loading ? t("actions.registering") : t("actions.register")}</span>
                 {!loading && <span className="material-symbols-outlined text-lg">arrow_forward</span>}
               </button>
             </form>
@@ -363,7 +364,7 @@ export default function SignupTuristaPage() {
               </div>
               <div className="relative flex justify-center text-xs uppercase">
                 <span className="bg-surface-container-lowest px-4 text-outline-variant font-label">
-                  O regístrate con
+                  {t("orSignUpWith")}
                 </span>
               </div>
             </div>
@@ -377,7 +378,7 @@ export default function SignupTuristaPage() {
                 className="flex items-center justify-center space-x-2 h-12 bg-surface-container-low rounded-full border border-outline-variant/10 hover:bg-surface-container transition-colors active:scale-95 disabled:opacity-50"
               >
                 <span className="text-2xl">🔤</span>
-                <span className="font-body font-bold text-sm">Google</span>
+                <span className="font-body font-bold text-sm">{t("providers.google")}</span>
               </button>
               <button
                 disabled={loading}
@@ -385,19 +386,19 @@ export default function SignupTuristaPage() {
                 className="flex items-center justify-center space-x-2 h-12 bg-surface-container-low rounded-full border border-outline-variant/10 hover:bg-surface-container transition-colors active:scale-95 disabled:opacity-50"
               >
                 <span className="material-symbols-outlined text-2xl">ios</span>
-                <span className="font-body font-bold text-sm">Apple</span>
+                <span className="font-body font-bold text-sm">{t("providers.apple")}</span>
               </button>
             </div>
 
             {/* Login Link */}
             <div className="mt-8 text-center">
               <p className="text-sm text-on-surface-variant font-body">
-                ¿Ya tienes cuenta?{" "}
+                {t("loginPrompt")} {" "}
                 <Link
                   href="/login"
                   className="text-primary font-bold hover:text-secondary transition-colors underline decoration-secondary-container decoration-2 underline-offset-4"
                 >
-                  Inicia sesión
+                  {t("loginLink")}
                 </Link>
               </p>
             </div>
