@@ -119,8 +119,12 @@ export default function POICard({
             onClick={() => onAskAI(poi)}
             className="flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest bg-[#fed000] text-[#003e6f] flex items-center justify-center gap-2 transition-all hover:shadow-xl hover:shadow-[#fed000]/20 hover:scale-105"
           >
-            <span className="text-base font-emoji">✨</span>
-            <span>{t("muulAi")}</span>
+            <span className="w-6 h-6 rounded-full border border-[#003e6f]/70 flex items-center justify-center text-[11px] leading-none text-[#003e6f]">
+              ✦
+            </span>
+            <span className="font-label text-[11px] font-black tracking-[0.18em] text-[#003e6f]">
+              MUUL AI
+            </span>
           </button>
         </div>
       </div>

@@ -1,93 +1,92 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import mapboxgl from "mapbox-gl";
-import type { AccessibilityFeature } from "@/hooks/useAccessibleRoute";
+
+interface AccessibilityFeature {
+  type: "ramp" | "elevator" | "accessible_crossing" | "tactile_paving";
+  lat: number;
+  lng: number;
+  description?: string;
+}
 
 interface Props {
   map: mapboxgl.Map | null;
   features: AccessibilityFeature[];
   visible: boolean;
+  routeCoordinates?: [number, number][]; // ✅ NUEVO: coordenadas de la ruta
 }
 
-export default function AccessibilityFeaturesLayer({ map, features, visible }: Props) {
-  const markersRef = useRef<mapboxgl.Marker[]>([]);
-
+export default function AccessibilityFeaturesLayer({
+  map,
+  features,
+  visible,
+  routeCoordinates,
+}: Props) {
   useEffect(() => {
-    if (!map) return;
+    if (!map || !visible) return;
 
-    // 1. Limpiar marcadores anteriores
-    markersRef.current.forEach((m) => m.remove());
-    markersRef.current = [];
+    // ✅ Filtrar features que están cerca de la ruta (dentro de 100m)
+    const filteredFeatures = routeCoordinates
+      ? features.filter((feature) => {
+          return routeCoordinates.some((coord) => {
+            const lat1 = coord[1];
+            const lng1 = coord[0];
+            const lat2 = feature.lat;
+            const lng2 = feature.lng;
+            const distance = Math.sqrt(
+              Math.pow(lat2 - lat1, 2) + Math.pow(lng2 - lng1, 2)
+            );
+            return distance < 0.01; // ~1 km en decimal degrees
+          });
+        })
+      : features;
 
-    // 2. Si no es visible o no hay características, no hacemos nada
-    if (!visible || features.length === 0) return;
+    // Limpiar layer anterior
+    if (map.getSource("accessibility-points")) {
+      if (map.getLayer("accessibility-points"))
+        map.removeLayer("accessibility-points");
+      map.removeSource("accessibility-points");
+    }
 
-    // 3. Crear los nuevos marcadores en el mapa
-    features.forEach((feature) => {
-      const el = document.createElement("div");
-      
-      // Asignar colores y emojis según el tipo
-      let bgColor = "#ffffff";
-      let emoji = "📍";
-      
-      switch (feature.type) {
-        case "ramp":
-          bgColor = "#fed000"; // Amarillo MUUL
-          emoji = "♿";
-          break;
-        case "elevator":
-          bgColor = "#003e6f"; // Azul MUUL
-          emoji = "🛗";
-          break;
-        case "accessible_crossing":
-          bgColor = "#98d5a2"; // Verde
-          emoji = "🚶";
-          break;
-        case "tactile_paving":
-          bgColor = "#facc15"; 
-          emoji = "🟡";
-          break;
-      }
+    const geojson: GeoJSON.FeatureCollection = {
+      type: "FeatureCollection",
+      features: filteredFeatures.map((f) => ({
+        type: "Feature",
+        geometry: { type: "Point", coordinates: [f.lng, f.lat] },
+        properties: { type: f.type, description: f.description },
+      })),
+    };
 
-      el.style.cssText = `
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        background-color: ${bgColor};
-        border: 2px solid white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 12px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        cursor: pointer;
-      `;
-      el.innerHTML = emoji;
-
-      // Crear Popup con el nombre o tipo
-      const popup = new mapboxgl.Popup({ offset: 15 }).setHTML(
-        `<div style="padding: 4px; font-family: sans-serif; text-align: center;">
-          <strong style="font-size: 12px; color: #003e6f; text-transform: uppercase;">
-            ${feature.type === 'ramp' ? 'Rampa' : feature.type === 'elevator' ? 'Elevador' : feature.type === 'tactile_paving' ? 'Piso Táctil' : 'Cruce Accesible'}
-          </strong>
-          ${feature.name ? `<br/><span style="font-size: 10px; color: #666;">${feature.name}</span>` : ''}
-        </div>`
-      );
-
-      const marker = new mapboxgl.Marker({ element: el })
-        .setLngLat([feature.lng, feature.lat])
-        .setPopup(popup)
-        .addTo(map);
-
-      markersRef.current.push(marker);
+    map.addSource("accessibility-points", {
+      type: "geojson",
+      data: geojson,
     });
 
-    // Limpieza al desmontar o cambiar features
-    return () => {
-      markersRef.current.forEach((m) => m.remove());
-    };
-  }, [map, features, visible]);
+    map.addLayer({
+      id: "accessibility-points",
+      type: "circle",
+      source: "accessibility-points",
+      paint: {
+        "circle-radius": 6,
+        "circle-color": [
+          "match",
+          ["get", "type"],
+          "ramp",
+          "#22c55e",
+          "elevator",
+          "#3b82f6",
+          "accessible_crossing",
+          "#f59e0b",
+          "tactile_paving",
+          "#fed000",
+          "#999",
+        ],
+        "circle-stroke-width": 2,
+        "circle-stroke-color": "#fff",
+      },
+    });
+  }, [map, features, visible, routeCoordinates]);
 
-  return null; // Este componente no renderiza HTML directo, solo manipula Mapbox
+  return null;
 }

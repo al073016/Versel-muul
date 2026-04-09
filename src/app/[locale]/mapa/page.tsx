@@ -383,6 +383,7 @@ export default function MapaPage() {
         setPoisEnRuta(poisBase);
         setMostrarItinerario(true);
         setMobileSheetOpen(false);
+        setShowAccessibilityFeatures(false); // ✅ No mostrar puntos automáticamente
         if (mapRef.current) {
           const bounds = new mapboxgl.LngLatBounds();
           (result.geometry.coordinates as [number, number][]).forEach((c) => bounds.extend(c));
@@ -472,34 +473,42 @@ export default function MapaPage() {
 
   /* ── Sorpréndeme ── */
   const handleSorprendeme = async () => {
-    const seleccion = await sorprendeme.generarRutaAleatoria(allPois, ubicacionUsuario, {
-      categoria: activeFilter, soloAbiertos, radioKm: 5, cantidad: 4,
-    });
-    if (seleccion) {
-      setPoisEnRuta(seleccion);
-      mapboxOpt.clearRoute();
-      accessibleRoute.clearRoute();
-      setMostrarItinerario(false);
-      if (isAccessibleMode) {
-        const result = await accessibleRoute.calculateAccessibleRoute(seleccion, ubicacionUsuario);
-        if (result && mapRef.current) {
-          setMostrarItinerario(true);
-          setMobileSheetOpen(false);
-          const bounds = new mapboxgl.LngLatBounds();
-          (result.geometry.coordinates as [number, number][]).forEach((c) => bounds.extend(c));
-          mapRef.current.fitBounds(bounds, { padding: 80, duration: 1000 });
-        }
-      } else {
-        const result = await mapboxOpt.calculateRoute(seleccion, ubicacionUsuario, transportMode as TransportMode);
-        if (result && mapRef.current) {
-          setPoisEnRuta(result.orderedPois);
-          setMostrarItinerario(true);
-          setMobileSheetOpen(false);
-          const bounds = new mapboxgl.LngLatBounds();
-          result.orderedPois.forEach((p) => bounds.extend([p.longitud, p.latitud]));
-          mapRef.current.fitBounds(bounds, { padding: 80, duration: 1000 });
-        }
+    if (!ubicacionUsuario) {
+      mapboxOpt.setError("Se requiere tu ubicación");
+      return;
+    }
+
+    const currentZoom = mapRef.current?.getZoom() ?? 14;
+
+    // 1️⃣ Generar POIs aleatorios (nueva lista cada vez)
+    const poisSeleccionados = await sorprendeme.generarRutaAleatoria(
+      allPois,
+      ubicacionUsuario,
+      {
+        categoria: activeFilter,
+        soloAbiertos: false,
+        cantidad: 8,
+        currentZoom,
       }
+    );
+
+    if (!poisSeleccionados || poisSeleccionados.length === 0) {
+      mapboxOpt.setError("No se encontraron lugares cercanos");
+      return;
+    }
+
+    // 2️⃣ ✅ REEMPLAZAR completamente la ruta anterior
+    setPoisEnRuta(poisSeleccionados);
+
+    // 3️⃣ Limpiar rutas previas
+    clearMapRoutes();
+    mapboxOpt.clearRoute();
+    accessibleRoute.clearRoute();
+    setMostrarItinerario(false);
+
+    // 4️⃣ Hacer scroll al listado (mobile)
+    if (itinerarioRef.current) {
+      itinerarioRef.current.scrollIntoView({ behavior: "smooth" });
     }
   };
 
@@ -796,11 +805,6 @@ export default function MapaPage() {
                   {activeError && (
                     <div className="p-3 rounded-lg bg-error-container/20 border border-error/20 text-error text-xs font-medium animate-fade-in-up">{activeError}</div>
                   )}
-                  <button onClick={() => { if (selectedPoi) { setChatbotAbierto(true); setMobileSheetOpen(false); } }} disabled={!selectedPoi}
-                    className="w-full mb-1 flex items-center justify-center gap-2 py-2 px-4 rounded-xl bg-primary-container/20 text-primary border border-primary/20 font-headline font-bold text-sm transition-all hover:bg-primary-container/30 disabled:opacity-30 disabled:cursor-not-allowed">
-                    <span className="material-symbols-outlined text-lg">auto_awesome</span>
-                    {selectedPoi ? t("preguntarAI", { nombre: selectedPoi.nombre }) : t("seleccionaPrimero")}
-                  </button>
                   <div className="flex items-center justify-between px-2">
                     <div className="flex items-center gap-2">
                       <span className={`w-2 h-2 rounded-full ${poisEnRuta.length > 0 ? (isAccessibleMode ? "bg-[#fed000]" : "bg-secondary") + " animate-pulse" : "bg-on-surface-variant"}`} />
@@ -923,8 +927,9 @@ export default function MapaPage() {
                     )}
                   </div>
                   <button onClick={() => setPartyModalOpen(true)} className="w-full bg-gradient-to-r from-secondary/20 to-primary/10 text-on-surface py-3 rounded-xl font-headline font-bold text-sm border border-secondary/20 flex items-center justify-center gap-2"><span className="text-base">🎉</span> Modo Party</button>
-                  <button onClick={guardarRuta} disabled={guardando} className="w-full bg-primary text-on-primary py-3 rounded-xl font-headline font-bold text-sm uppercase tracking-widest hover:brightness-110 transition-all disabled:opacity-50 flex items-center justify-center gap-2">
-                    <span className="material-symbols-outlined text-sm">bookmark_add</span>{guardando ? t("guardando") : t("guardarRuta")}
+                  <button onClick={guardarRuta} disabled={guardando} className="w-full bg-[#003e6f] text-white py-3 rounded-xl font-headline font-bold text-sm uppercase tracking-widest hover:brightness-110 transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+                    <span className="material-symbols-outlined text-sm">bookmark_add</span>
+                    <span>{guardando ? "Guardando..." : "Guardar rutas"}</span>
                   </button>
                   <button onClick={limpiarRuta} className="w-full border border-tertiary/30 text-tertiary py-2.5 rounded-xl font-headline font-bold text-sm uppercase tracking-widest hover:bg-tertiary/10 transition-all">{t("nuevaRuta")}</button>
                 </div>
@@ -954,6 +959,7 @@ export default function MapaPage() {
               map={mapRef.current}
               features={isAccessibleMode && accessibleRoute.route ? accessibleRoute.route.accessibilityFeatures : []}
               visible={showAccessibilityFeatures && isAccessibleMode}
+              routeCoordinates={activeRoute?.geometry.coordinates as [number, number][]}
             />
 
             {/* Sticky AI button only on map */}
@@ -962,12 +968,16 @@ export default function MapaPage() {
                 setChatbotAbierto(true);
                 setMobileSheetOpen(false);
               }}
-              className="absolute bottom-[12rem] right-4 md:bottom-6 md:right-6 z-[45] h-14 px-5 rounded-full bg-[#003e6f] text-white shadow-xl shadow-[#003e6f]/30 hover:bg-[#0a4f84] transition-colors flex items-center gap-2"
+              className="absolute bottom-[12rem] right-4 md:bottom-6 md:right-6 z-[45] h-14 px-5 rounded-full bg-[#fed000] text-[#003e6f] shadow-xl shadow-[#fed000]/30 hover:brightness-95 transition-colors flex items-center gap-2"
               aria-label="Abrir MUUL AI"
               title="Abrir MUUL AI"
             >
-              <span className="w-6 h-6 rounded-full border border-white/70 flex items-center justify-center text-[11px] leading-none" aria-hidden="true">✦</span>
-              <span className="font-label text-[11px] font-black tracking-[0.18em] text-white">MUUL AI</span>
+              <span className="w-6 h-6 rounded-full border border-[#003e6f]/70 flex items-center justify-center text-[11px] leading-none text-[#003e6f]" aria-hidden="true">
+                ✦
+              </span>
+              <span className="font-label text-[11px] font-black tracking-[0.18em] text-[#003e6f]">
+                MUUL AI
+              </span>
             </button>
 
             {/* POI card — enhanced with photo */}
@@ -1104,7 +1114,10 @@ export default function MapaPage() {
                     )}
                   </div>
                   <button onClick={() => setPartyModalOpen(true)} className="w-full bg-gradient-to-r from-secondary/20 to-primary/10 text-on-surface py-3 rounded-xl font-headline font-bold text-sm border border-secondary/20 flex items-center justify-center gap-2"><span>🎉</span> Modo Party</button>
-                  <button onClick={guardarRuta} disabled={guardando} className="w-full bg-primary text-on-primary py-3 rounded-xl font-headline font-bold text-sm uppercase tracking-widest disabled:opacity-50 flex items-center justify-center gap-2"><span className="material-symbols-outlined text-sm">bookmark_add</span>{guardando ? t("guardando") : t("guardarRuta")}</button>
+                  <button onClick={guardarRuta} disabled={guardando} className="w-full bg-[#003e6f] text-white py-3 rounded-xl font-headline font-bold text-sm uppercase tracking-widest hover:brightness-110 transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+                    <span className="material-symbols-outlined text-sm">bookmark_add</span>
+                    <span>{guardando ? "Guardando..." : "Guardar rutas"}</span>
+                  </button>
                   <button onClick={limpiarRuta} className="w-full border border-tertiary/30 text-tertiary py-2.5 rounded-xl font-headline font-bold text-sm uppercase tracking-widest hover:bg-tertiary/10 transition-all">{t("nuevaRuta")}</button>
                 </div>
               </>
@@ -1149,9 +1162,6 @@ export default function MapaPage() {
                 </div>
                 <div className="px-4 pb-4 pt-3 border-t border-outline-variant/10 space-y-2 shrink-0">
                   {activeError && <div className="p-2 rounded-lg bg-error-container/20 border border-error/20 text-error text-xs font-medium">{activeError}</div>}
-                  <button onClick={() => { if (selectedPoi) { setChatbotAbierto(true); setMobileSheetOpen(false); } }} disabled={!selectedPoi} className="w-full flex items-center justify-center gap-2 py-2 px-4 rounded-xl bg-primary-container/20 text-primary border border-primary/20 font-headline font-bold text-sm disabled:opacity-30 disabled:cursor-not-allowed">
-                    <span className="material-symbols-outlined text-base">auto_awesome</span>{selectedPoi ? t("preguntarAI", { nombre: selectedPoi.nombre }) : t("seleccionaPrimero")}
-                  </button>
                   <div className="flex items-center justify-between px-1">
                     <div className="flex items-center gap-2">
                       <span className={`w-2 h-2 rounded-full ${poisEnRuta.length > 0 ? (isAccessibleMode ? "bg-[#fed000]" : "bg-secondary") + " animate-pulse" : "bg-on-surface-variant"}`} />
