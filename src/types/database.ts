@@ -64,7 +64,7 @@ export interface Producto {
   nombre: string;
   descripcion: string | null;
   precio: number | null;
-  imagen_url: string | null;
+  imagen_url?: string | null;
   activo: boolean;
   created_at: string;
 }
@@ -81,6 +81,7 @@ export interface POI {
   horario_cierre: string | null;
   precio_rango: PrecioRango | null;
   emoji: string | null;
+  foto_url?: string | null;
   verificado: boolean;
   negocio_id: string | null;
   created_at: string;

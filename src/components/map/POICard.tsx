@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { POI } from "@/types/database";
+import { getPremiumPhoto } from "@/lib/photo-engine";
 
 /* ── Types ── */
 interface POICardProps {
@@ -49,136 +50,77 @@ export default function POICard({
   const [imgError, setImgError] = useState(false);
   const open = isOpenNow(poi);
 
-  // photo_url is expected on the POI type — cast to any if not yet typed
-  const photoUrl = (poi as any).photo_url as string | undefined;
+  const finalPhotoUrl = poi.foto_url || getPremiumPhoto(poi.nombre, poi.categoria, poi.foto_url);
 
   return (
-    <div className="absolute bottom-[180px] md:bottom-6 left-4 right-4 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-[360px] bg-surface-bright/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/5 z-50 animate-fade-in-up overflow-hidden">
+    <div className="absolute bottom-[180px] md:bottom-10 left-4 right-4 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-[420px] bg-white/95 backdrop-blur-2xl rounded-[40px] shadow-2xl overflow-hidden border border-white/20 z-50 animate-fade-in-up">
+      {/* Photo Banner */}
+      <div className="h-44 w-full relative overflow-hidden bg-slate-100">
+        <img
+          src={finalPhotoUrl}
+          alt={poi.nombre}
+          className="w-full h-full object-cover"
+          onError={() => setImgError(true)}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-white/95 via-white/5 to-transparent" />
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full bg-black/20 backdrop-blur-md text-white hover:bg-black/30 transition-colors"
+        >
+          <span className="text-sm font-black">✕</span>
+        </button>
+      </div>
 
-      {/* ── Photo banner ── */}
-      {photoUrl && !imgError ? (
-        <div className="relative h-36 w-full bg-surface-container-high">
-          <img
-            src={photoUrl}
-            alt={poi.nombre}
-            className="w-full h-full object-cover"
-            onError={() => setImgError(true)}
-          />
-          {/* Gradient overlay for text readability */}
-          <div className="absolute inset-0 bg-gradient-to-t from-surface-bright/90 via-transparent to-transparent" />
-          {/* Close button on top of photo */}
-          <button
-            onClick={onClose}
-            className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full bg-surface-bright/80 backdrop-blur-sm text-on-surface hover:bg-surface-variant transition-colors"
-          >
-            <span className="material-symbols-outlined text-sm">close</span>
-          </button>
-          {/* Status badge */}
-          <div className="absolute top-3 left-3">
-            <span
-              className={`text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-full ${
-                open
-                  ? "bg-secondary/90 text-on-secondary"
-                  : "bg-error/80 text-white"
-              }`}
-            >
-              {open ? t("abierto") : t("cerrado")}
-            </span>
+      <div className="p-8 -mt-10 relative z-10">
+        <div className="flex gap-4 mb-6">
+          <div className="w-16 h-16 rounded-[2rem] bg-white shadow-xl flex items-center justify-center text-4xl shrink-0 -mt-8 border border-slate-50">
+            {poi.emoji || "📍"}
           </div>
-        </div>
-      ) : (
-        /* Fallback emoji banner */
-        <div className="relative h-20 w-full bg-surface-container-high flex items-center justify-center">
-          <span className="text-5xl">{poi.emoji || "📍"}</span>
-          <button
-            onClick={onClose}
-            className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full bg-surface-container-highest text-on-surface hover:bg-surface-variant transition-colors"
-          >
-            <span className="material-symbols-outlined text-sm">close</span>
-          </button>
-        </div>
-      )}
-
-      {/* ── Content ── */}
-      <div className="p-4 space-y-3">
-        {/* Header row */}
-        <div className="flex items-start gap-3">
-          {/* Emoji badge (shown when photo is present) */}
-          {photoUrl && !imgError && (
-            <div className="w-10 h-10 rounded-xl bg-surface-container-highest flex items-center justify-center text-2xl shadow-inner shrink-0">
-              {poi.emoji || "📍"}
-            </div>
-          )}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <h4 className="font-headline font-extrabold text-on-surface text-base leading-tight">
-                {poi.nombre}
-              </h4>
-              {(poi as any).verificado && (
-                <span className="text-secondary text-[10px] font-black uppercase tracking-widest flex items-center gap-0.5">
-                  <span
-                    className="material-symbols-outlined text-xs"
-                    style={{ fontVariationSettings: "'FILL' 1" }}
-                  >
-                    verified
-                  </span>
-                  Muul
-                </span>
-              )}
-            </div>
-
-            {/* Horario */}
-            <p className="text-xs mt-0.5 flex items-center gap-1">
-              <span className={open ? "text-secondary" : "text-tertiary"}>●</span>
-              <span className="text-on-surface-variant">{formatHorario(poi, t)}</span>
+          <div className="flex-1 overflow-hidden pt-2">
+            <h4 className="font-headline font-black text-[#003e6f] text-2xl leading-tight truncate">
+              {poi.nombre}
+            </h4>
+            <p className="text-[10px] font-black uppercase tracking-widest mt-1">
+              <span className={open ? "text-emerald-500" : "text-rose-500"}>● </span>
+              {formatHorario(poi, t)}
             </p>
-
-            {/* Tags row */}
-            <div className="flex gap-1 mt-1.5 flex-wrap">
-              <span className="text-[9px] bg-surface-container-highest text-on-surface-variant px-1.5 py-0.5 rounded font-black uppercase">
-                {poi.categoria}
-              </span>
-              {(poi as any).precio_rango && (
-                <span className="text-[9px] bg-surface-container-highest text-on-surface-variant px-1.5 py-0.5 rounded font-black uppercase">
-                  {(poi as any).precio_rango}
-                </span>
-              )}
-            </div>
           </div>
         </div>
 
-        {/* Description */}
         {poi.descripcion && (
-          <p className="text-xs text-on-surface-variant leading-relaxed line-clamp-2">
+          <p className="text-xs text-neutral-500 leading-relaxed mb-6 font-medium line-clamp-3">
             {poi.descripcion}
           </p>
         )}
 
-        {/* Action buttons */}
-        <div className="flex gap-2 pt-1">
+        <div className="flex gap-2 mb-8">
+          <span className="text-[9px] bg-slate-100/80 text-[#003e6f] px-3 py-1.5 rounded-full font-black uppercase tracking-wider">
+            {poi.categoria}
+          </span>
+          {poi.precio_rango && (
+            <span className="text-[9px] bg-slate-100/80 text-[#003e6f] px-3 py-1.5 rounded-full font-black uppercase tracking-wider">
+              {poi.precio_rango}
+            </span>
+          )}
+        </div>
+
+        <div className="flex gap-3">
           <button
             onClick={() => onToggleRoute(poi)}
-            className={`flex-1 py-2.5 rounded-lg text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 ${
+            className={`flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${
               isInRoute
-                ? "bg-tertiary/20 text-tertiary border border-tertiary/30"
-                : "bg-secondary text-on-secondary"
+                ? "bg-rose-50 text-rose-500 border border-rose-100"
+                : "bg-[#003e6f] text-white !text-white shadow-xl shadow-[#003e6f]/20 hover:scale-105"
             }`}
           >
-            <span className="material-symbols-outlined text-sm">
-              {isInRoute ? "remove_road" : "add_location_alt"}
-            </span>
-            {isInRoute
-              ? `${t("quitarRuta")} (${routeIndex + 1})`
-              : t("agregarRuta")}
+            {isInRoute ? `${t("quitarRuta")} (${routeIndex + 1})` : t("agregarRuta")}
           </button>
-
           <button
             onClick={() => onAskAI(poi)}
-            className="flex-1 py-2.5 rounded-lg text-xs font-black uppercase tracking-wider bg-primary-container/30 text-primary border border-primary/20 flex items-center justify-center gap-1.5 hover:bg-primary-container/40 transition-all"
+            className="flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest bg-[#fed000] text-[#003e6f] flex items-center justify-center gap-2 transition-all hover:shadow-xl hover:shadow-[#fed000]/20 hover:scale-105"
           >
-            <span className="material-symbols-outlined text-sm">auto_awesome</span>
-            <span className="hidden sm:inline">{t("muulAi")}</span>
-            <span className="sm:hidden">AI</span>
+            <span className="text-base font-emoji">✨</span>
+            <span>{t("muulAi")}</span>
           </button>
         </div>
       </div>

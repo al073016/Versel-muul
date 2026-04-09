@@ -56,15 +56,23 @@ export default function HomePage() {
               <div className="h-0.5 w-0 group-hover:w-12 bg-on-tertiary-container transition-all duration-500 mt-4"></div>
             </div>
           </div>
-          {/* Blue Card */}
-          <div className="group relative aspect-[4/5] rounded-3xl overflow-hidden bg-primary-container cursor-pointer">
-            <div className="absolute inset-0 bg-gradient-to-t from-primary-container/90 via-transparent to-transparent"></div>
-            <div className="absolute bottom-8 left-8 right-8">
-              <span className="font-label text-on-primary-container text-xs uppercase tracking-widest mb-2 block">{t("tagCulturaViva")}</span>
-              <h3 className="font-headline text-3xl text-white">{t("cultural")}</h3>
-              <div className="h-0.5 w-0 group-hover:w-12 bg-on-primary-container transition-all duration-500 mt-4"></div>
+          
+          {/* Culture Card */}
+          <div className="group relative aspect-[4/5] rounded-[2.5rem] overflow-hidden cursor-pointer shadow-xl hover:shadow-2xl transition-all duration-500">
+            <div 
+              className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+              style={{
+                backgroundImage: 'linear-gradient(135deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.5) 100%), url("https://images.unsplash.com/photo-1585464231875-d9ef1f5ad396?q=80&w=600&auto=format&fit=crop")'
+              }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#001c39]/90 via-transparent to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 p-8 md:p-10">
+              <span className="font-label text-cyan-300 !text-cyan-300 text-xs uppercase tracking-widest mb-3 block font-bold">{t("tagCulturaViva")}</span>
+              <h3 className="font-headline text-4xl md:text-5xl text-white !text-white font-black">{t("cultural")}</h3>
+              <div className="h-1.5 w-12 bg-[#fed000] mt-6 rounded-full group-hover:w-20 transition-all duration-300" />
             </div>
           </div>
+
           {/* Red Card - using error color */}
           <div className="group relative aspect-[4/5] rounded-3xl overflow-hidden bg-error cursor-pointer">
             <div className="absolute inset-0 bg-gradient-to-t from-error/90 via-transparent to-transparent"></div>

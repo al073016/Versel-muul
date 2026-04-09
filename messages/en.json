@@ -6,12 +6,29 @@
     "amigos": "Friends",
     "more": "More",
     "buscarPlaceholder": "Search routes or destinations...",
+    "searchPeople": "People",
+    "person": "Person",
+    "searchPlaces": "Places",
+    "searchLocations": "Locations",
+    "searching": "Searching...",
+    "noResults": "No results",
+    "seeAll": "See all",
+    "type_country": "Country",
+    "type_region": "State",
+    "type_postcode": "Zip Code",
+    "type_district": "District",
+    "type_place": "City",
+    "type_locality": "Locality",
+    "type_neighborhood": "Neighborhood",
+    "type_address": "Address",
+    "type_poi": "Place",
     "tiendas": "Shops",
     "negocio": "Business",
     "mapa": "Map",
     "perfil": "Profile",
     "login": "Login",
-    "salir": "Logout"
+    "salir": "Logout",
+    "cerrar": "Close"
   },
   "home": {
     "badge": "Editorial Intelligence Curation",
@@ -424,5 +441,10 @@
     "comida": "Food",
     "tienda": "Shop",
     "servicios": "Services"
+  },
+  "amigos": {
+    "subtitulo": "Discover where your friends are and plan your next adventure together.",
+    "verMapa": "View Map",
+    "agregarAmigos": "Add new friends"
   }
 }

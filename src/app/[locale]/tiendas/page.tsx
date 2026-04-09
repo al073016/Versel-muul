@@ -5,6 +5,8 @@ import { Link } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useTranslations } from "next-intl";
 import type { Negocio } from "@/types/database";
+import { DUMMY_POIS } from "@/lib/dummy-data";
+import { getPremiumPhoto } from "@/lib/photo-engine";
 
 type BusinessCategory = "comida" | "tienda" | "servicios";
 
@@ -69,11 +71,29 @@ export default function TiendasPage() {
   useEffect(() => {
     const fetchNegocios = async () => {
       const { data } = await supabase.from("negocios").select("*").eq("activo", true).order("created_at", { ascending: false });
-      if (data) { setNegocios(data); setFilteredNegocios(data); }
+      
+      const mocked: Negocio[] = DUMMY_POIS.map(p => ({
+        id: p.id,
+        propietario_id: 'dummy',
+        nombre: p.nombre,
+        descripcion: p.descripcion,
+        categoria: p.categoria as any,
+        latitud: p.latitud,
+        longitud: p.longitud,
+        horario_apertura: p.horario_apertura,
+        horario_cierre: p.horario_cierre,
+        verificado: true,
+        activo: true,
+        created_at: new Date().toISOString(),
+      } as any));
+
+      const merged = [...mocked, ...(data || [])];
+      setNegocios(merged);
+      setFilteredNegocios(merged);
       setLoadingStores(false);
     };
     fetchNegocios();
-  }, []);
+  }, [supabase]);
 
   useEffect(() => {
     let result = negocios;
@@ -164,10 +184,14 @@ export default function TiendasPage() {
                 {filteredNegocios.map((negocio) => (
                   <Link key={negocio.id} href={`/negocio/${slugify(negocio.nombre) || negocio.id}`} className="group bg-white border border-neutral-100 rounded-3xl overflow-hidden relative shadow-sm hover:shadow-2xl hover:translate-y-[-8px] transition-all duration-500">
                     <div className="h-64 relative bg-slate-50 flex items-center justify-center overflow-hidden">
-                      <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent z-10" />
-                      <span className="text-8xl group-hover:scale-110 transition-transform duration-700">{categoryEmojis[negocio.categoria] || "🏪"}</span>
+                      <img 
+                        src={negocio.foto_url || getPremiumPhoto(negocio.nombre, negocio.categoria)} 
+                        alt={negocio.nombre} 
+                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 brightness-90" 
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#003e6f]/60 via-transparent to-transparent z-10" />
                       <span className="absolute top-4 left-4 z-20 bg-white/80 backdrop-blur-md border border-neutral-100 px-4 py-1.5 rounded-full text-[10px] font-black text-[#003e6f] tracking-widest uppercase">{categoryLabels[negocio.categoria] || negocio.categoria}</span>
-                      {negocio.verificado && (<span className="absolute top-4 right-4 z-20 bg-[#003e6f]/10 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-black text-[#003e6f] flex items-center gap-1">🌊 MUUL</span>)}
+                      {negocio.verificado && (<span className="absolute top-4 right-4 z-20 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-black text-[#003e6f] flex items-center gap-1">🌊 MUUL</span>)}
                     </div>
                     <div className="p-8 relative">
                       <h3 className="text-2xl font-black font-headline mb-2 text-[#003e6f]">{negocio.nombre}</h3>

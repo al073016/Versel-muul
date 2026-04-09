@@ -6,6 +6,8 @@ import { Link } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useTranslations } from "next-intl";
 import type { Negocio, Producto } from "@/types/database";
+import { DUMMY_POIS } from "@/lib/dummy-data";
+import { getPremiumPhoto } from "@/lib/photo-engine";
 
 const categoryEmojis: Record<string, string> = {
   comida: "🌮", tienda: "🛍️", servicios: "🏨", cultural: "🏛️", deportes: "⚽",
@@ -58,6 +60,30 @@ export default function NegocioPerfilPage() {
         }
       }
 
+      // Check dummy data if not found in DB
+      if (!negocioData) {
+        const dummy = DUMMY_POIS.find(p => p.id === normalizedId || slugify(p.nombre) === normalizedId);
+        if (dummy) {
+          negocioData = {
+            id: dummy.id,
+            nombre: dummy.nombre,
+            descripcion: dummy.descripcion,
+            categoria: dummy.categoria as any,
+            propietario_id: "dummy",
+            activo: true,
+            verificado: true,
+            latitud: dummy.latitud,
+            longitud: dummy.longitud,
+            direccion: "Ciudad de México",
+            horario_apertura: dummy.horario_apertura || "09:00",
+            horario_cierre: dummy.horario_cierre || "20:00",
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            foto_url: dummy.foto_url
+          } as any;
+        }
+      }
+
       if (!negocioData) {
         setNotFound(true);
         setLoading(false);
@@ -65,8 +91,31 @@ export default function NegocioPerfilPage() {
       }
       setNegocio(negocioData);
 
-      const { data: productosData } = await supabase.from("productos").select("*").eq("negocio_id", negocioData.id).eq("activo", true).order("created_at", { ascending: false });
-      if (productosData) setProductos(productosData);
+      // Add dummy products for dummy locations
+      if (negocioData.propietario_id === "dummy") {
+        const dummy = DUMMY_POIS.find(p => p.id === negocioData!.id);
+        if (dummy) {
+          if (dummy.especialidades) {
+            (negocioData as any).especialidades = dummy.especialidades;
+          }
+          if (dummy.productos) {
+            const mappedProds: Producto[] = dummy.productos.map((dp: any) => ({
+              id: `${dummy.id}-${dp.id}`,
+              negocio_id: dummy.id,
+              nombre: dp.nombre,
+              descripcion: dp.descripcion,
+              precio: dp.precio,
+              activo: true,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            }));
+            setProductos(mappedProds);
+          }
+        }
+      } else {
+        const { data: productosData } = await supabase.from("productos").select("*").eq("negocio_id", negocioData.id).eq("activo", true).order("created_at", { ascending: false });
+        if (productosData) setProductos(productosData);
+      }
 
       const { data: { user } } = await supabase.auth.getUser();
       if (user && user.id === negocioData.propietario_id) setIsOwner(true);
@@ -124,28 +173,29 @@ export default function NegocioPerfilPage() {
   return (
     <main className="max-w-[1440px] mx-auto min-h-screen pb-28 md:pb-0">
         {/* HERO */}
-        <header className="relative h-[350px] md:h-[450px] w-full overflow-hidden">
-          <div className="w-full h-full bg-gradient-to-br from-primary-container via-surface-container-high to-secondary-container/50">
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-[150px] opacity-20">{categoryEmojis[negocio.categoria] || "🏪"}</span>
-            </div>
-            <div className="absolute top-8 right-8 w-32 h-32 bg-secondary/10 blur-[60px] rounded-full" />
-            <div className="absolute bottom-12 left-12 w-48 h-48 bg-primary/10 blur-[80px] rounded-full" />
+        <header className="relative h-[400px] md:h-[500px] w-full overflow-hidden">
+          <div className="absolute inset-0">
+            <img 
+              src={negocio.foto_url || getPremiumPhoto(negocio.nombre, negocio.categoria)} 
+              alt={negocio.nombre} 
+              className="w-full h-full object-cover" 
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/10 to-[#003e6f]" />
           </div>
           <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/40 to-transparent" />
           <div className="absolute bottom-0 left-0 w-full p-8 md:p-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div className="space-y-4 animate-fade-in-up">
               <div className="flex items-center gap-3">
                 {negocio.verificado && (
-                  <span className="bg-secondary-container text-secondary-fixed px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest flex items-center gap-1">
+                  <span className="bg-[#fed000] text-[#003e6f] px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest flex items-center gap-1 shadow-lg shadow-[#fed000]/20">
                     <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
                     {t("verificado")}
                   </span>
                 )}
-                <span className="bg-surface-container-highest/60 backdrop-blur px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest text-on-surface-variant">{negocio.categoria}</span>
+                <span className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest text-white border border-white/10">{negocio.categoria}</span>
               </div>
-              <h1 className="text-5xl md:text-7xl font-headline font-black tracking-tighter text-on-surface uppercase italic">{negocio.nombre}</h1>
-              {negocio.descripcion && (<p className="text-on-surface-variant max-w-xl text-lg font-light leading-relaxed">{negocio.descripcion}</p>)}
+              <h1 className="text-5xl md:text-8xl font-headline font-black tracking-tighter text-white uppercase italic drop-shadow-2xl">{negocio.nombre}</h1>
+              {negocio.descripcion && (<p className="text-white/80 max-w-xl text-lg font-medium leading-relaxed drop-shadow-lg">{negocio.descripcion}</p>)}
             </div>
             {isOwner && (<Link href="#productos" className="md:block bg-primary text-on-primary font-headline font-bold py-4 px-8 rounded-xl shadow-lg active:scale-95 transition-all">{t("gestionar")}</Link>)}
           </div>

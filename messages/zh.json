@@ -6,12 +6,29 @@
     "amigos": "朋友",
     "more": "更多",
     "buscarPlaceholder": "搜索路线或目的地...",
+    "searchPeople": "人员",
+    "person": "人",
+    "searchPlaces": "地点",
+    "searchLocations": "位置",
+    "searching": "正在搜索...",
+    "noResults": "无结果",
+    "seeAll": "查看全部",
+    "type_country": "国家",
+    "type_region": "地区",
+    "type_postcode": "邮政编码",
+    "type_district": "区",
+    "type_place": "城市",
+    "type_locality": "地段",
+    "type_neighborhood": "街区",
+    "type_address": "地址",
+    "type_poi": "地点",
     "tiendas": "商店",
     "negocio": "商户",
     "mapa": "地图",
     "perfil": "个人资料",
     "login": "登录",
-    "salir": "退出"
+    "salir": "退出",
+    "cerrar": "关闭"
   },
   "home": {
     "badge": "精选情报策展",
@@ -424,5 +441,10 @@
     "comida": "美食",
     "tienda": "商店",
     "servicios": "服务"
+  },
+  "amigos": {
+    "subtitulo": "发现你的朋友在哪里，并一起计划你的下一次冒险。",
+    "verMapa": "查看地图",
+    "agregarAmigos": "添加新朋友"
   }
 }
