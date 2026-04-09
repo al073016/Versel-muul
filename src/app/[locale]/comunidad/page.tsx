@@ -9,12 +9,37 @@ import {
   SocialUser 
 } from "@/lib/social-dummy";
 import { SocialService } from "@/lib/services/social.service";
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, Suspense, Component, ReactNode } from "react";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { getPerfilCompat } from "@/lib/supabase/profileCompat";
 
-function PostCard({ post, currentUserId }: { post: SocialPost, currentUserId?: string | null }) {
+// Error boundary to catch render errors
+class ErrorBoundary extends Component<
+  { children: ReactNode; fallback?: ReactNode },
+  { hasError: boolean; error: Error | null }
+> {
+  constructor(props: { children: ReactNode; fallback?: ReactNode }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+  render() {
+    if (this.state.hasError) {
+      return this.props.fallback || (
+        <div className="p-8 text-red-600 bg-red-50 rounded-xl">
+          <p className="font-bold">Error en Comunidad:</p>
+          <pre className="text-xs mt-2">{this.state.error?.message}</pre>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+function PostCard({ post, currentUserId, onDelete }: { post: SocialPost, currentUserId?: string | null, onDelete?: (id: string) => void }) {
   const t = useTranslations("comunidad");
   const [likes, setLikes] = useState(post.likes);
   const [liked, setLiked] = useState(false);
@@ -57,9 +82,23 @@ function PostCard({ post, currentUserId }: { post: SocialPost, currentUserId?: s
             <span className="text-on-surface-variant text-sm font-label"> • {post.created_at}</span>
           </div>
         </div>
-        <button className="text-on-surface-variant hover:bg-surface-container rounded-full p-2">
-          <span className="material-symbols-outlined">more_horiz</span>
-        </button>
+        {isMe ? (
+          <button 
+            onClick={() => {
+              if (window.confirm("¿Seguro que quieres borrar esta publicación?")) {
+                onDelete?.(post.id);
+              }
+            }}
+            className="text-red-400 hover:text-red-600 hover:bg-red-50 rounded-full p-2 transition-colors flex items-center"
+            title="Borrar publicación"
+          >
+            <span className="material-symbols-outlined text-lg">delete</span>
+          </button>
+        ) : (
+          <button className="text-on-surface-variant hover:bg-surface-container rounded-full p-2">
+            <span className="material-symbols-outlined">more_horiz</span>
+          </button>
+        )}
       </div>
 
       {}
@@ -135,9 +174,18 @@ function RankingBoard({ users }: { users: SocialUser[] }) {
 
 export default function ComunidadPage() {
   return (
-    <Suspense fallback={<div>Cargando comunidad...</div>}>
-      <ComunidadContent />
-    </Suspense>
+    <ErrorBoundary>
+      <Suspense fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-8 h-8 border-4 border-[#003e6f] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-neutral-500 font-body">Cargando comunidad...</p>
+          </div>
+        </div>
+      }>
+        <ComunidadContent />
+      </Suspense>
+    </ErrorBoundary>
   );
 }
 
@@ -285,6 +333,15 @@ function ComunidadContent() {
     }
   };
 
+  const handleDeletePost = async (postId: string) => {
+    const success = await SocialService.deletePost(postId);
+    if (success) {
+      setPosts(prev => prev.filter(p => p.id !== postId));
+    } else {
+      alert("No se pudo borrar la publicación");
+    }
+  };
+
   return (
     <main className="min-h-screen bg-[#f8fafd] pt-24 pb-20">
       <div className="max-w-[1440px] mx-auto px-4 md:px-6 lg:px-12">
@@ -321,44 +378,16 @@ function ComunidadContent() {
                 />
                 <label className="cursor-pointer text-neutral-400 hover:text-[#003e6f] transition-colors p-2 rounded-full hover:bg-neutral-100">
                   <span className="material-symbols-outlined text-[22px]">add_photo_alternate</span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleImageSelect}
-                    disabled={isPublishing || isDraftLoading}
-                  />
-                </label>
-                <button
-                  onClick={handleAddPost}
-                  disabled={!inputValue.trim() || isPublishing || isDraftLoading}
-                  className="px-4 py-2 rounded-xl bg-[#003e6f] text-white font-bold text-xs uppercase tracking-wider hover:bg-[#005596] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isPublishing ? "..." : t("publicar")}
-                </button>
-              </div>
-
-              {selectedImage && (
-                <div className="mt-4 relative w-full h-56 rounded-2xl overflow-hidden border border-outline-variant/20">
-                  <Image src={selectedImage} alt="Vista previa" fill className="object-cover" />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedImage(null);
-                      setSelectedImageFile(null);
-                    }}
-                    className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/55 text-white flex items-center justify-center hover:bg-black/70 transition-colors"
-                    aria-label="Quitar imagen"
-                  >
-                    <span className="material-symbols-outlined text-sm">close</span>
-                  </button>
-                </div>
-              )}
-            </div>
+                  <input type="file" accept="image}
             <div className="flex flex-col">
               <h2 className="font-headline font-black text-xl text-[#003e6f] mb-6">{t("publicaciones")}</h2>
               {posts.map(post => (
-                <PostCard key={post.id} post={post} currentUserId={currentUser?.id} />
+                <PostCard 
+                  key={post.id} 
+                  post={post} 
+                  currentUserId={currentUser?.id} 
+                  onDelete={handleDeletePost}
+                />
               ))}
             </div>
           </div>

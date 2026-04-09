@@ -1,2 +1,2 @@
 
-export { default } from "../negocio/page";
+export { default } from "../negocio/perfil-completo";
