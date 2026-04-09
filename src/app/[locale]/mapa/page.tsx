@@ -694,9 +694,10 @@ export default function MapaPage() {
                   <div className="flex gap-2">
                     <button onClick={handleSorprendeme} disabled={sorprendeme.loading || activeLoading}
                       className="flex-shrink-0 flex items-center gap-1.5 px-3 py-3 rounded-xl bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high text-xs font-bold transition-all disabled:opacity-40"
-                      title="Generar ruta aleatoria en 5km">
+                      title={t("sorprendeme")}
+                    >
                       <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: "'FILL' 1" }}>casino</span>
-                      <span className="hidden lg:inline">Sorpréndeme</span>
+                      <span className="hidden lg:inline">{t("sorprendeme")}</span>
                     </button>
                     <button onClick={calcularRuta} disabled={poisEnRuta.length < 1 || activeLoading}
                       className={`flex-1 py-4 rounded-xl font-headline font-black uppercase tracking-widest transition-all shadow-lg disabled:opacity-40 disabled:cursor-not-allowed ${
@@ -729,8 +730,8 @@ export default function MapaPage() {
                       <div className={`p-3 rounded-xl flex items-center gap-3 ${isAccessibleMode ? "bg-[#fed000]/20 border border-[#fed000]/30" : "bg-surface-container-high"}`}>
                         <div className="w-3 h-3 rounded-full shrink-0" style={{ background: getRouteColorForMode(transportMode) }} />
                         <div className="flex-1">
-                          <p className="text-sm font-bold text-on-surface">
-                            {isAccessibleMode ? "Accesible — Silla de ruedas" : transportMode === "walking" ? "Caminando" : transportMode === "cycling" ? "Bicicleta" : "Vehículo"}
+                          <p className="text-sm font-bold text-on-surface capitalize">
+                            {transportMode === "walking" ? t("caminando") : transportMode === "cycling" ? t("bicicleta") : t("vehiculo")}
                           </p>
                           <p className="text-[10px] text-on-surface-variant">
                             {activeRoute.distancia_texto} · {activeRoute.duracion_texto}
@@ -1144,7 +1145,8 @@ export default function MapaPage() {
                           <button onClick={() => { handleSelectPoi(poi); setMobileSheetOpen(false); }} className="flex-1 min-w-0 text-left">
                             <h3 className="font-headline font-bold text-on-surface text-sm truncate">{poi.nombre}</h3>
                             <p className="text-[11px] text-on-surface-variant mt-0.5">
-                              <span className={isOpenNow(poi) ? "text-secondary" : "text-tertiary"}>● </span>{formatHours(poi)}
+                              <span className={isOpenNow(poi) ? "text-secondary" : "text-tertiary"}>● </span>
+                              {formatHours(poi)}
                             </p>
                           </button>
                           <button onClick={() => togglePoiEnRuta(poi)}

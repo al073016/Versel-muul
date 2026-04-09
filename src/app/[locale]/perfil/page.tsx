@@ -50,19 +50,19 @@ export default function PerfilPage() {
       <div className="min-h-screen flex items-center justify-center bg-surface">
         <div className="animate-pulse flex flex-col items-center gap-4">
           <div className="w-12 h-12 rounded-full bg-primary/20"></div>
-          <p className="text-on-surface-variant font-medium tracking-widest uppercase text-xs">Cargando perfil...</p>
+          <p className="text-on-surface-variant font-medium tracking-widest uppercase text-xs">{t("cargando")}</p>
         </div>
       </div>
     );
   }
 
   const sidebarItems: { id: TabType; icon: any; label: string }[] = [
-    { id: "cuenta", icon: <User size={20} />, label: "Mi Cuenta" },
-    { id: "direcciones", icon: <MapPin size={20} />, label: "Direcciones" },
-    { id: "rutas", icon: <Route size={20} />, label: "Mis Rutas" },
-    { id: "resenas", icon: <Star size={20} />, label: "Mis Reseñas" },
-    { id: "editar", icon: <Settings size={20} />, label: "Editar Perfil" },
-    { id: "ajustes", icon: <Settings size={20} />, label: "Ajustes" },
+    { id: "cuenta", icon: <User size={20} />, label: t("miCuenta") },
+    { id: "direcciones", icon: <MapPin size={20} />, label: t("direcciones") },
+    { id: "rutas", icon: <Route size={20} />, label: t("misRutas") },
+    { id: "resenas", icon: <Star size={20} />, label: t("misResenas") },
+    { id: "editar", icon: <Settings size={20} />, label: t("editarPerfil") },
+    { id: "ajustes", icon: <Settings size={20} />, label: t("ajustes") },
   ];
 
   const handleLogout = async () => {
@@ -84,8 +84,8 @@ export default function PerfilPage() {
               />
             </div>
             <div>
-              <p className="text-primary font-headline italic text-lg leading-tight">Hola, <span className="font-bold">{perfil?.nombre_completo?.split(" ")[0] || "Usuario"}</span></p>
-              <p className="text-on-surface-variant text-[10px] uppercase font-label tracking-widest mt-1">Miembro desde 2023</p>
+              <p className="text-primary font-headline italic text-lg leading-tight">{t("hola")}, <span className="font-bold">{perfil?.nombre_completo?.split(" ")[0] || "Usuario"}</span></p>
+              <p className="text-on-surface-variant text-[10px] uppercase font-label tracking-widest mt-1">{t("miembroDesde", { year: "2023" })}</p>
             </div>
           </div>
         </div>
@@ -114,7 +114,7 @@ export default function PerfilPage() {
             className="flex items-center gap-4 px-6 py-3 text-error font-bold text-sm hover:bg-error/5 rounded-full transition-colors"
           >
             <LogOut size={20} />
-            <span className="font-headline">Cerrar Sesión</span>
+            <span className="font-headline">{t("cerrarSesion")}</span>
           </button>
         </div>
       </aside>
@@ -133,7 +133,7 @@ export default function PerfilPage() {
               <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-transparent z-10"></div>
               <div className="relative z-20 h-full p-8 md:p-12 flex flex-col justify-center gap-4">
                 <span className="inline-block px-4 py-1.5 bg-secondary text-on-secondary text-[10px] font-black tracking-[0.2em] rounded uppercase self-start">
-                  EXPLORADOR DIAMANTE
+                  {t("exploradorDiamante")}
                 </span>
                 <h1 className="text-4xl md:text-6xl lg:text-7xl font-headline italic font-light text-white leading-tight">
                   {perfil?.nombre_completo || "Eduardo Mondragón"}
@@ -147,9 +147,9 @@ export default function PerfilPage() {
             {/* Stats Grid */}
             <section className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {[
-                { label: "RUTAS COMPLETADAS", value: "24", color: "bg-[#003e6f] text-white" },
-                { label: "PUNTOS DE INTERÉS", value: "158", color: "bg-[#fed000] text-[#003e6f]" },
-                { label: "INSIGNIAS OBTENIDAS", value: "12", color: "bg-slate-100 text-[#003e6f]" },
+                { label: t("rutasCompletadas"), value: "24", color: "bg-[#003e6f] text-white" },
+                { label: t("puntosInteres"), value: "158", color: "bg-[#fed000] text-[#003e6f]" },
+                { label: t("insigniasObtenidas"), value: "12", color: "bg-slate-100 text-[#003e6f]" },
               ].map((stat, idx) => (
                 <div key={idx} className={`${stat.color} p-10 rounded-[2.5rem] flex flex-col items-center justify-center text-center shadow-sm border border-black/5 transition-transform hover:scale-[1.02] duration-300`}>
                   <span className="font-label font-black text-[10px] tracking-[0.2em] mb-4 opacity-70">{stat.label}</span>
@@ -158,10 +158,69 @@ export default function PerfilPage() {
               ))}
             </section>
 
+            {/* Travel Insights & Records */}
+            <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-fade-in-up">
+              <div className="bg-white rounded-[2.5rem] p-10 border border-outline-variant/10 shadow-sm space-y-8">
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-primary text-3xl">insights</span>
+                  <h2 className="text-3xl font-headline font-black italic text-primary">Estadísticas de Viaje</h2>
+                </div>
+                <div className="space-y-6">
+                  <div className="flex justify-between items-center p-4 bg-slate-50 rounded-2xl">
+                    <span className="font-bold text-[#003e6f]/60 uppercase tracking-widest text-xs">Máximo distanciamiento</span>
+                    <span className="font-headline font-black text-2xl text-[#003e6f]">1,240 km <span className="text-xs font-normal opacity-50">de tu zona</span></span>
+                  </div>
+                  <div className="flex justify-between items-center p-4 bg-slate-50 rounded-2xl">
+                    <span className="font-bold text-[#003e6f]/60 uppercase tracking-widest text-xs">Cadena más larga</span>
+                    <span className="font-headline font-black text-2xl text-[#003e6f]">8 <span className="text-xs font-normal opacity-50">lugares seguidos</span></span>
+                  </div>
+                  <div className="flex justify-between items-center p-4 bg-slate-50 rounded-2xl">
+                    <span className="font-bold text-[#003e6f]/60 uppercase tracking-widest text-xs">Últimos lugares visitados</span>
+                    <div className="flex -space-x-3">
+                       {[1,2,3,4].map(i => (
+                         <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-slate-200 overflow-hidden">
+                           <img src={`https://picsum.photos/seed/${i+50}/100/100`} alt="place" className="w-full h-full object-cover" />
+                         </div>
+                       ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-[#003e6f] rounded-[2.5rem] p-10 border border-white/5 shadow-2xl space-y-8 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 blur-[80px] rounded-full -translate-y-1/2 translate-x-1/2" />
+                <div className="relative z-10 space-y-8">
+                  <div className="flex items-center gap-3">
+                    <span className="material-symbols-outlined text-[#fed000] text-3xl">military_tech</span>
+                    <h2 className="text-3xl font-headline font-black italic text-white underline decoration-[#fed000]">Medallas Muul</h2>
+                  </div>
+                  <div className="grid grid-cols-4 gap-4">
+                    {[
+                      { icon: "🏆", label: "Pionero" },
+                      { icon: "🌍", label: "Nómada" },
+                      { icon: "💎", label: "Elite" },
+                      { icon: "⚡", label: "Veloz" },
+                      { icon: "🔥", label: "Racha" },
+                      { icon: "🤝", label: "Socio" },
+                      { icon: "📸", label: "Influencer" },
+                      { icon: "🛡️", label: "Guardián" },
+                    ].map((medal, idx) => (
+                      <div key={idx} className="flex flex-col items-center gap-2 group cursor-help">
+                        <div className="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center text-2xl group-hover:scale-110 group-hover:bg-[#fed000]/20 transition-all border border-white/5">
+                          {medal.icon}
+                        </div>
+                        <span className="text-[8px] font-black text-white/40 uppercase tracking-widest">{medal.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </section>
+
             {/* Reviews Section - The "Bottom Part" previously liked */}
             <section className="space-y-8">
               <div className="flex items-center justify-between">
-                <h2 className="text-4xl font-headline italic text-primary">Mis Recientes Actividades</h2>
+                <h2 className="text-4xl font-headline italic text-primary">{t("recientesActividades")}</h2>
               </div>
               <div className="grid grid-cols-1 gap-8">
                 {/* Review Card 1 */}
@@ -226,7 +285,7 @@ export default function PerfilPage() {
 
         {activeTab === "direcciones" && (
           <div className="space-y-8 animate-fade-in-up">
-            <h2 className="text-4xl font-headline italic text-primary">Direcciones Guardadas</h2>
+            <h2 className="text-4xl font-headline italic text-primary">{t("direccionesGuardadas")}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {[
                 { label: "Hogar", address: "Av. Paseo de la Reforma 222, CDMX", icon: "home" },
@@ -237,7 +296,7 @@ export default function PerfilPage() {
                     <MapPin size={24} />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-headline font-bold text-xl mb-1">{dir.label}</h3>
+                    <h3 className="font-headline font-bold text-xl mb-1">{dir.label === "Hogar" ? t("hogar") : t("trabajo")}</h3>
                     <p className="text-on-surface-variant font-body">{dir.address}</p>
                   </div>
                   <button className="text-on-surface-variant hover:text-error transition-colors">
@@ -247,7 +306,7 @@ export default function PerfilPage() {
               ))}
               <button className="border-2 border-dashed border-outline-variant/30 p-8 rounded-[2rem] flex flex-col items-center justify-center gap-2 text-on-surface-variant hover:bg-surface-container-low transition-all">
                 <MapPin size={24} />
-                <span className="font-bold">Agregar nueva dirección</span>
+                <span className="font-bold">{t("agregarDireccion")}</span>
               </button>
             </div>
           </div>
@@ -255,7 +314,7 @@ export default function PerfilPage() {
 
         {activeTab === "rutas" && (
           <div className="space-y-8 animate-fade-in-up">
-            <h2 className="text-4xl font-headline italic text-primary">Mis Rutas</h2>
+            <h2 className="text-4xl font-headline italic text-primary">{t("misRutas")}</h2>
             <div className="grid grid-cols-1 gap-6">
               {[
                 { name: "Ruta del Tequila", date: "15 Mar 2024", stops: 5, time: "4.5h" },
@@ -270,7 +329,7 @@ export default function PerfilPage() {
                     <p className="text-[10px] text-[#003e6f]/40 font-black tracking-widest uppercase">{ruta.date} • {ruta.stops} Paradas • {ruta.time}</p>
                   </div>
                   <button className="bg-[#003e6f] text-white px-8 py-4 rounded-full font-black uppercase tracking-widest text-[11px] hover:brightness-110 transition-all shadow-lg shadow-[#003e6f]/20">
-                    Ver en Mapa
+                    {t("verMapa")}
                   </button>
                 </div>
               ))}
@@ -280,7 +339,7 @@ export default function PerfilPage() {
 
         {activeTab === "resenas" && (
           <div className="space-y-8 animate-fade-in-up">
-            <h2 className="text-4xl font-headline italic text-primary">Mis Reseñas</h2>
+            <h2 className="text-4xl font-headline italic text-primary">{t("misResenas")}</h2>
             <div className="grid grid-cols-1 gap-8">
               {/* Review Card 1 */}
               <div className="group bg-surface-container-lowest p-6 md:p-10 rounded-[2.5rem] flex flex-col md:flex-row gap-10 transition-all hover:shadow-2xl hover:bg-white border border-outline-variant/5">
@@ -314,12 +373,12 @@ export default function PerfilPage() {
 
         {activeTab === "editar" && (
           <div className="space-y-8 animate-fade-in-up">
-            <h2 className="text-4xl font-headline italic text-primary">Editar Perfil</h2>
+            <h2 className="text-4xl font-headline italic text-primary">{t("editarPerfil")}</h2>
             <div className="bg-white rounded-[2.5rem] border border-outline-variant/10 overflow-hidden p-8 md:p-12">
               <div className="max-w-2xl space-y-8">
                 {/* Avatar Upload */}
                 <div className="space-y-4">
-                  <label className="block text-lg font-headline font-bold">Foto de Perfil</label>
+                  <label className="block text-lg font-headline font-bold">{t("fotoPerfil")}</label>
                   <div className="flex items-center gap-6">
                     <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-primary-container shadow-lg">
                       <img 
@@ -329,14 +388,14 @@ export default function PerfilPage() {
                       />
                     </div>
                     <button className="px-6 py-3 border-2 border-primary text-primary rounded-full font-bold hover:bg-primary/5 transition-colors">
-                      Cambiar foto
+                      {t("cambiarFoto")}
                     </button>
                   </div>
                 </div>
 
                 {/* Basic Info */}
                 <div className="space-y-4">
-                  <label className="block text-lg font-headline font-bold">Nombre Completo</label>
+                  <label className="block text-lg font-headline font-bold">{t("nombreCompleto")}</label>
                   <input 
                     type="text" 
                     defaultValue={perfil?.nombre_completo || "Miguel Cabrera"}
@@ -386,19 +445,19 @@ export default function PerfilPage() {
                     />
                   </div>
                   <button className="px-6 py-3 border-2 border-secondary text-secondary rounded-full font-bold hover:bg-secondary/5 transition-colors">
-                    Cambiar banner
+                    {t("cambiarBanner")}
                   </button>
                 </div>
 
                 {/* Actions */}
                 <div className="flex gap-4 pt-4">
                   <button className="flex-1 bg-primary text-on-primary px-6 py-4 rounded-full font-headline font-bold text-lg hover:brightness-110 transition-all">
-                    Guardar cambios
+                    {t("guardarCambios")}
                   </button>
                   <button 
                     onClick={() => setActiveTab("cuenta")}
                     className="flex-1 border-2 border-outline-variant/30 text-on-surface px-6 py-4 rounded-full font-headline font-bold text-lg hover:bg-surface-container-low transition-all">
-                    Cancelar
+                    {t("cancelar")}
                   </button>
                 </div>
               </div>
@@ -408,7 +467,7 @@ export default function PerfilPage() {
 
         {activeTab === "ajustes" && (
           <div className="space-y-8 animate-fade-in-up">
-            <h2 className="text-4xl font-headline italic text-primary">Ajustes</h2>
+            <h2 className="text-4xl font-headline italic text-primary">{t("ajustes")}</h2>
             <div className="bg-white rounded-[2.5rem] border border-outline-variant/10 overflow-hidden divide-y divide-outline-variant/5">
               <div className="p-8 flex items-center justify-between hover:bg-surface-container-low transition-colors cursor-pointer group">
                 <div className="flex items-center gap-6">
@@ -416,7 +475,7 @@ export default function PerfilPage() {
                     <Globe size={24} />
                   </div>
                   <div>
-                    <h3 className="font-headline font-bold text-xl">Idioma y Región</h3>
+                    <h3 className="font-headline font-bold text-xl">{t("idiomaRegion")}</h3>
                     <p className="text-sm text-on-surface-variant font-body">Español (México), Ciudad de México</p>
                   </div>
                 </div>
@@ -429,7 +488,7 @@ export default function PerfilPage() {
                     <Bell size={24} />
                   </div>
                   <div>
-                    <h3 className="font-headline font-bold text-xl">Notificaciones</h3>
+                    <h3 className="font-headline font-bold text-xl">{t("notificaciones")}</h3>
                     <p className="text-sm text-on-surface-variant font-body">Gestionar alertas de rutas y beneficios</p>
                   </div>
                 </div>
@@ -442,8 +501,8 @@ export default function PerfilPage() {
                     <Trash2 size={24} />
                   </div>
                   <div>
-                    <h3 className="font-headline font-bold text-xl text-error">Eliminar Cuenta</h3>
-                    <p className="text-sm text-on-surface-variant font-body">Borrar permanentemente tus datos de Muul</p>
+                    <h3 className="font-headline font-bold text-xl text-error">{t("eliminarCuenta")}</h3>
+                    <p className="text-sm text-on-surface-variant font-body">{t("borrarDatos")}</p>
                   </div>
                 </div>
               </div>

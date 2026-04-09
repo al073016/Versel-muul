@@ -192,7 +192,7 @@ export default function NegocioPerfilPage() {
                     {t("verificado")}
                   </span>
                 )}
-                <span className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest text-white border border-white/10">{negocio.categoria}</span>
+                <span className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest text-white border border-white/10">{tc(negocio.categoria)}</span>
               </div>
               <h1 className="text-5xl md:text-8xl font-headline font-black tracking-tighter text-white uppercase italic drop-shadow-2xl">{negocio.nombre}</h1>
               {negocio.descripcion && (<p className="text-white/80 max-w-xl text-lg font-medium leading-relaxed drop-shadow-lg">{negocio.descripcion}</p>)}
@@ -327,6 +327,24 @@ export default function NegocioPerfilPage() {
                   </div>
                 )}
 
+                {(negocio.instagram || negocio.facebook) && (
+                  <div className="space-y-4 pt-4 border-t border-outline-variant/10">
+                    <h4 className="font-headline font-bold text-xs uppercase tracking-[0.2em] text-on-surface-variant">Redes Sociales</h4>
+                    <div className="flex gap-4">
+                      {negocio.instagram && (
+                        <a href={`https://instagram.com/${negocio.instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-pink-500/10 flex items-center justify-center text-pink-600 hover:bg-pink-500/20 transition-all">
+                          <span className="material-symbols-outlined text-xl">camera_alt</span>
+                        </a>
+                      )}
+                      {negocio.facebook && (
+                        <a href={`https://facebook.com/${negocio.facebook}`} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-blue-600/10 flex items-center justify-center text-blue-700 hover:bg-blue-600/20 transition-all">
+                          <span className="material-symbols-outlined text-xl">facebook</span>
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 <div className="space-y-3 pt-4">
                   {isOwner && (
                     <Link href="#productos" className="w-full bg-primary text-on-primary font-headline font-black py-4 rounded-xl flex items-center justify-center gap-2 hover:brightness-110 active:scale-95 transition-all uppercase tracking-widest text-sm">
@@ -339,14 +357,7 @@ export default function NegocioPerfilPage() {
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-primary-container to-surface-container rounded-2xl p-8 relative overflow-hidden group">
-                <div className="relative z-10 space-y-4">
-                  <h4 className="text-2xl font-headline font-black leading-tight uppercase italic">{t("impulsaNegocio")} <span className="text-secondary">{t("negocioWord")}</span></h4>
-                  <p className="text-sm text-on-surface-variant">{t("herramientas")}</p>
-                  <button className="bg-white text-surface text-xs font-black px-4 py-2 rounded-lg uppercase tracking-tighter hover:bg-secondary transition-colors">{t("saberMas")}</button>
-                </div>
-                <span className="material-symbols-outlined absolute -bottom-4 -right-4 text-9xl opacity-10 group-hover:scale-110 transition-transform duration-700">rocket_launch</span>
-              </div>
+              {/* Promotional section removed */}
             </div>
           </aside>
         </div>

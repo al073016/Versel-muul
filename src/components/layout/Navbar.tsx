@@ -48,10 +48,10 @@ export default function Navbar() {
   const [selectedIndex, setSelectedIndex] = useState(-1);
 
   const idiomas = [
-    { code: "es" as const, label: "ES", flag: "🇲🇽" },
-    { code: "en" as const, label: "EN", flag: "🇺🇸" },
-    { code: "zh" as const, label: "ZH", flag: "🇨🇳" },
-    { code: "pt" as const, label: "PT", flag: "🇧🇷" },
+    { code: "es" as const, label: "MX", flag: "https://flagcdn.com/w40/mx.png" },
+    { code: "en" as const, label: "US", flag: "https://flagcdn.com/w40/us.png" },
+    { code: "zh" as const, label: "CN", flag: "https://flagcdn.com/w40/cn.png" },
+    { code: "pt" as const, label: "BR", flag: "https://flagcdn.com/w40/br.png" },
   ];
 
   const navItems = useMemo(
@@ -68,12 +68,10 @@ export default function Navbar() {
   const cambiarIdioma = (newLocale: "es" | "en" | "zh" | "pt") => {
     setIsLanguageMenuOpen(false);
     router.push(pathname, { locale: newLocale });
-    setTimeout(() => router.refresh(), 100);
   };
 
-  const getCurrentLanguageLabel = () => {
-    const lang = idiomas.find((i) => i.code === locale);
-    return lang?.label || "ES";
+  const getCurrentLanguage = () => {
+    return idiomas.find((i) => i.code === locale) || idiomas[0];
   };
 
   const isActive = (path: string) => pathname === path || (path !== "/" && pathname?.startsWith(path));
@@ -346,10 +344,10 @@ export default function Navbar() {
             <button
               type="button"
               onClick={() => setIsLanguageMenuOpen((prev) => !prev)}
-              className="flex items-center gap-2 text-[#003e6f] hover:bg-[#003e6f]/5 px-5 py-2.5 rounded-full transition-all"
+              className="flex items-center gap-2 text-[#003e6f] hover:bg-[#003e6f]/5 px-4 py-2 rounded-full transition-all border border-neutral-100/50"
             >
-              <span className="text-xl">🌐</span>
-              <span className="text-xs font-bold uppercase tracking-widest">{getCurrentLanguageLabel()}</span>
+              <img src={getCurrentLanguage().flag} alt={getCurrentLanguage().label} className="w-5 h-3.5 object-cover rounded-sm shadow-sm" />
+              <span className="text-xs font-bold uppercase tracking-widest">{getCurrentLanguage().label}</span>
             </button>
 
             {isLanguageMenuOpen && (
@@ -367,7 +365,7 @@ export default function Navbar() {
                     }`}
                   >
                     <span className="flex items-center gap-3">
-                      <span>{idioma.flag}</span>
+                      <img src={idioma.flag} alt={idioma.label} className="w-5 h-3.5 object-cover rounded-sm border border-neutral-200" />
                       <span>{idioma.label}</span>
                     </span>
                     {locale === idioma.code && <span className="w-1.5 h-1.5 bg-[#fed000] rounded-full"></span>}

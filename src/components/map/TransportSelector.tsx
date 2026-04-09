@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import type { TransportMode } from "@/hooks/useMapboxOptimization";
 
 /* ── Route color per mode ── */
@@ -17,45 +18,47 @@ export function getRouteColorForMode(mode: TransportMode | "accessible"): string
 interface TransportSelectorProps {
   value: TransportMode | "accessible";
   onChange: (mode: TransportMode | "accessible") => void;
+  className?: string;
 }
-
-/* ── Mode config ── */
-const MODES: {
-  value: TransportMode | "accessible";
-  icon: string;
-  label: string;
-  title: string;
-}[] = [
-  {
-    value: "walking",
-    icon: "directions_walk",
-    label: "Caminando",
-    title: "Ruta a pie",
-  },
-  {
-    value: "cycling",
-    icon: "directions_bike",
-    label: "Bicicleta",
-    title: "Ruta en bicicleta",
-  },
-  {
-    value: "driving",
-    icon: "directions_car",
-    label: "Vehículo",
-    title: "Ruta en auto",
-  },
-  {
-    value: "accessible",
-    icon: "accessible",
-    label: "Accesible",
-    title: "Ruta accesible — optimizada para silla de ruedas y movilidad reducida",
-  },
-];
 
 /* ══════════════════════════════════════════════
    COMPONENT
    ══════════════════════════════════════════════ */
-export default function TransportSelector({ value, onChange }: TransportSelectorProps) {
+export default function TransportSelector({ value, onChange, className = "" }: TransportSelectorProps) {
+  const t = useTranslations("mapa");
+
+  /* ── Mode config ── */
+  const MODES: {
+    value: TransportMode | "accessible";
+    icon: string;
+    label: string;
+    title: string;
+  }[] = [
+    {
+      value: "walking",
+      icon: "directions_walk",
+      label: t("caminando"),
+      title: "Ruta a pie",
+    },
+    {
+      value: "cycling",
+      icon: "directions_bike",
+      label: t("bicicleta"),
+      title: "Ruta en bicicleta",
+    },
+    {
+      value: "driving",
+      icon: "directions_car",
+      label: t("vehiculo"),
+      title: "Ruta en auto",
+    },
+    {
+      value: "accessible",
+      icon: "accessible",
+      label: t("accesible"),
+      title: "Ruta accesible — optimizada para silla de ruedas y movilidad reducida",
+    },
+  ];
   return (
     <div className="flex gap-1.5 w-full">
       {MODES.map((mode) => {

@@ -95,7 +95,7 @@ export default function POICard({
 
         <div className="flex gap-2 mb-8">
           <span className="text-[9px] bg-slate-100/80 text-[#003e6f] px-3 py-1.5 rounded-full font-black uppercase tracking-wider">
-            {poi.categoria}
+            {t(poi.categoria)}
           </span>
           {poi.precio_rango && (
             <span className="text-[9px] bg-slate-100/80 text-[#003e6f] px-3 py-1.5 rounded-full font-black uppercase tracking-wider">
