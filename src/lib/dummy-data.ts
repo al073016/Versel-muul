@@ -94,5 +94,77 @@ export const DUMMY_POIS = [
       { id: 'p1', nombre: 'Flat White Doble', precio: 75, descripcion: 'Equilibrio perfecto entre espresso y leche seda.' },
       { id: 'p2', nombre: 'Croissant de Almendras', precio: 55, descripcion: 'Horneado diariamente con mantequilla francesa.' }
     ]
+  },
+  {
+    id: 'dummy-angel-independencia',
+    nombre: 'Ángel de la Independencia',
+    descripcion: 'Monumento emblemático de la Ciudad de México y punto de encuentro para celebraciones nacionales. Un símbolo de libertad envuelto en historia.',
+    categoria: 'cultural',
+    latitud: 19.4270,
+    longitud: -99.1677,
+    direccion: 'Paseo de la Reforma y Eje 2 PTE, Juárez, CDMX',
+    emoji: '🗽',
+    foto_url: 'https://images.unsplash.com/photo-1518182170546-07661fd94144?q=80&w=1000&auto=format&fit=crop',
+    verificado: true,
+    activo: true,
+    precio_rango: 'Gratis',
+    horario_apertura: '00:00',
+    horario_cierre: '23:59',
+    especialidades: ['Mirador', 'Fotografía', 'Historia Mexicana'],
+    telefono: '55 1234 9999',
+    instagram: 'angelindependenciamx',
+    facebook: 'AngelIndependencia',
+    productos: [
+      { id: 'p1', nombre: 'Paseo al Mirador', precio: 0, descripcion: 'Sube las escalinatas para una vista a Reforma.' },
+      { id: 'p2', nombre: 'Tour Histórico', precio: 150, descripcion: 'Conoce los héroes patrios bajo el monumento.' }
+    ]
+  },
+  {
+    id: 'dummy-bellas-artes',
+    nombre: 'Palacio de Bellas Artes',
+    descripcion: 'La obra arquitectónica más hermosa de la ciudad. Sede de exposiciones, ópera y ballet folklórico.',
+    categoria: 'cultural',
+    latitud: 19.4352,
+    longitud: -99.1412,
+    direccion: 'Av. Juárez S/N, Centro Histórico, CDMX',
+    emoji: '🎭',
+    foto_url: 'https://images.unsplash.com/photo-1585464231473-746d24c039a2?q=80&w=1000&auto=format&fit=crop',
+    verificado: true,
+    activo: true,
+    precio_rango: '$$',
+    horario_apertura: '10:00',
+    horario_cierre: '18:00',
+    especialidades: ['Murales de Rivera', 'Ballet Folklórico', 'Exposiciones'],
+    telefono: '55 8647 6500',
+    instagram: 'palaciooficial',
+    facebook: 'BellasArtesMexico',
+    productos: [
+      { id: 'p1', nombre: 'Entrada General Museo', precio: 85, descripcion: 'Acceso a murales y exposiciones.' },
+      { id: 'p2', nombre: 'Boleto Ópera', precio: 500, descripcion: 'Mejores asientos en la sala principal.' }
+    ]
+  },
+  {
+    id: 'dummy-chapultepec',
+    nombre: 'Castillo de Chapultepec',
+    descripcion: 'El único castillo real en América, resguardando la historia imperial y revolucionaria de México con vistas inigualables.',
+    categoria: 'cultural',
+    latitud: 19.4204,
+    longitud: -99.1819,
+    direccion: 'Primera Sección del Bosque de Chapultepec, CDMX',
+    emoji: '🏰',
+    foto_url: 'https://images.unsplash.com/photo-1563911892437-1feda0179e1b?q=80&w=1000&auto=format&fit=crop',
+    verificado: true,
+    activo: true,
+    precio_rango: '$',
+    horario_apertura: '09:00',
+    horario_cierre: '17:00',
+    especialidades: ['Museo Nacional de Historia', 'Habitaciones Imperiales', 'Jardines'],
+    telefono: '55 4040 5200',
+    instagram: 'museodehistoria',
+    facebook: 'CastilloChapultepec',
+    productos: [
+      { id: 'p1', nombre: 'Entrada General', precio: 90, descripcion: 'Acceso al castillo y áreas verdes.' },
+      { id: 'p2', nombre: 'Audioguía', precio: 45, descripcion: 'Recorrido detallado en varios idiomas.' }
+    ]
   }
 ];

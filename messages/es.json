@@ -4,6 +4,8 @@
     "categorias": "Categorías",
     "ofertas": "Ofertas",
     "amigos": "Amigos",
+    "comunidad": "Comunidad",
+    "ranking": "Ranking",
     "more": "Más",
     "buscarPlaceholder": "Buscar rutas o destinos...",
     "searchPeople": "Personas",
@@ -484,6 +486,19 @@
     "subtitulo": "Descubre dónde están tus amigos y planea tu próxima aventura juntos.",
     "verMapa": "Ver Mapa",
     "agregarAmigos": "Agregar nuevos amigos"
+  },
+  "comunidad": {
+    "titulo": "Comunidad",
+    "subtitulo": "Descubre rutas, historias y el top de viajeros de la red Muul.",
+    "topViajeros": "Top Viajeros del Mes",
+    "publicaciones": "Publicaciones Recientes",
+    "puntos": "{count} pts",
+    "nivel": "Nivel",
+    "comentarios": "Comentarios",
+    "compartirAventura": "Comparte tu nueva aventura...",
+    "publicar": "Publicar",
+    "tuAmigo": "Tú Amigo",
+    "explorador": "Explorador"
   },
   "ofertas": {
     "hotDeals": "🔥 Hot Deals",

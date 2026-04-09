@@ -111,6 +111,9 @@ export default function MapaPage() {
     { label: t("cultural"), emoji: "🏛️", value: "cultural" },
     { label: t("deportes"), emoji: "⚽", value: "deportes" },
     { label: t("tiendas"), emoji: "🛍️", value: "tienda" },
+    { label: "Hospedaje", emoji: "🏨", value: "hospedaje" },
+    { label: "Eventos", emoji: "🎟️", value: "eventos" },
+    { label: "Servicios", emoji: "🛠️", value: "servicios" },
   ];
 
   // ── Feature hooks ──
@@ -324,6 +327,11 @@ export default function MapaPage() {
     const lat = params.get("lat") || params.get("latitud");
     const lng = params.get("lng") || params.get("longitud");
     const id = params.get("id") || params.get("poi") || params.get("negocio_id");
+    const filter = params.get("filter");
+
+    if (filter) {
+      setActiveFilter(filter);
+    }
 
     if (lat && lng) {
       const qLat = parseFloat(lat);
@@ -927,6 +935,12 @@ export default function MapaPage() {
                     )}
                   </div>
                   <button onClick={() => setPartyModalOpen(true)} className="w-full bg-gradient-to-r from-secondary/20 to-primary/10 text-on-surface py-3 rounded-xl font-headline font-bold text-sm border border-secondary/20 flex items-center justify-center gap-2"><span className="text-base">🎉</span> Modo Party</button>
+                  <button 
+                    onClick={() => window.location.href = "/comunidad"} 
+                    className="w-full bg-[#003e6f] text-white py-3 rounded-xl font-headline font-black text-sm uppercase tracking-widest hover:bg-[#005596] transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#003e6f]/20"
+                  >
+                    <span className="material-symbols-outlined text-base">public</span> Publicar en Comunidad
+                  </button>
                   <button onClick={guardarRuta} disabled={guardando} className="w-full bg-[#003e6f] text-white py-3 rounded-xl font-headline font-bold text-sm uppercase tracking-widest hover:brightness-110 transition-all disabled:opacity-50 flex items-center justify-center gap-2">
                     <span className="material-symbols-outlined text-sm">bookmark_add</span>
                     <span>{guardando ? "Guardando..." : "Guardar rutas"}</span>
@@ -1114,6 +1128,13 @@ export default function MapaPage() {
                     )}
                   </div>
                   <button onClick={() => setPartyModalOpen(true)} className="w-full bg-gradient-to-r from-secondary/20 to-primary/10 text-on-surface py-3 rounded-xl font-headline font-bold text-sm border border-secondary/20 flex items-center justify-center gap-2"><span>🎉</span> Modo Party</button>
+                  <button 
+                    onClick={() => window.location.href = "/comunidad"} 
+                    className="w-full bg-[#003e6f] text-white py-3 rounded-xl font-headline font-black text-sm uppercase tracking-widest shadow-lg flex items-center justify-center gap-2"
+                  >
+                    <span className="material-symbols-outlined text-base">public</span> Publicar Ruta
+                  </button>
+                  <button onClick={guardarRuta} disabled={guardando} className="w-full bg-primary text-on-primary py-3 rounded-xl font-headline font-bold text-sm uppercase tracking-widest disabled:opacity-50 flex items-center justify-center gap-2"><span className="material-symbols-outlined text-sm">bookmark_add</span>{guardando ? t("guardando") : t("guardarRuta")}</button>
                   <button onClick={guardarRuta} disabled={guardando} className="w-full bg-[#003e6f] text-white py-3 rounded-xl font-headline font-bold text-sm uppercase tracking-widest hover:brightness-110 transition-all disabled:opacity-50 flex items-center justify-center gap-2">
                     <span className="material-symbols-outlined text-sm">bookmark_add</span>
                     <span>{guardando ? "Guardando..." : "Guardar rutas"}</span>

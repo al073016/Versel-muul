@@ -29,7 +29,7 @@ export default async function LocaleLayout({
       <UIProvider>
         <Navbar />
         <MobileNav />
-        <div className="pb-28 md:pb-0">{children}</div>
+        <div className="pb-28 md:pb-40 lg:pb-40">{children}</div>
         <Footer />
       </UIProvider>
     </NextIntlClientProvider>
