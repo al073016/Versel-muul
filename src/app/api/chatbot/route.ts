@@ -31,10 +31,10 @@ interface MensajeLegacy {
 }
 
 const MODELOS_GRATUITOS = [
-  "openai/gpt-oss-20b:free",
-  "google/gemma-3n-e4b-it:free",
-  "google/gemma-3-4b-it:free",
   "meta-llama/llama-3.2-3b-instruct:free",
+  "google/gemma-3-4b-it:free",
+  "google/gemma-3n-e4b-it:free",
+  "openai/gpt-oss-20b:free",
   "qwen/qwen3-next-80b-a3b-instruct:free",
 ];
 
@@ -219,63 +219,60 @@ export async function POST(req: Request) {
       const modelosUnicos = [...new Set(modelos)];
 
       const instruction = getTargetLanguageInstruction(payload.translationBatch.targetLocale);
-      const user = [
-        "Eres un traductor profesional.",
-        instruction,
-        "Devuelve exclusivamente JSON válido con este formato:",
-        '{"translations":["...","..."]}',
-        "No agregues markdown, comentarios ni texto adicional.",
-        "",
-        `Contenido a traducir: ${JSON.stringify({ texts })}`,
-      ].join("\n");
+      const translated: Array<string | null> = [];
+      let successCount = 0;
 
-      let translated: string[] | null = null;
-      for (const modelo of modelosUnicos) {
-        try {
-          const response = await llamarOpenRouter(modelo, baseUrl, apiKey, [
-            { role: "user", content: user },
-          ]);
+      for (const text of texts) {
+        let translatedText: string | null = null;
 
-          if (!response.ok) {
-            if (response.status === 401) {
-              return NextResponse.json(
-                { error: "API key de OpenRouter invalida.", code: "OPENROUTER_KEY_INVALID" },
-                { status: 401 }
-              );
+        for (const modelo of modelosUnicos) {
+          try {
+            const prompt = [
+              "Eres un traductor profesional.",
+              instruction,
+              "Responde solo con la traducción, sin explicación, sin comillas y sin markdown.",
+              "",
+              `Texto: ${text}`,
+            ].join("\n");
+
+            const response = await llamarOpenRouter(modelo, baseUrl, apiKey, [
+              { role: "user", content: prompt },
+            ]);
+
+            if (!response.ok) {
+              if (response.status === 401) {
+                return NextResponse.json(
+                  { error: "API key de OpenRouter invalida.", code: "OPENROUTER_KEY_INVALID" },
+                  { status: 401 }
+                );
+              }
+              continue;
             }
+
+            const data = await response.json();
+            const content = data?.choices?.[0]?.message?.content;
+            if (typeof content !== "string" || !content.trim()) continue;
+
+            translatedText = content.trim();
+            break;
+          } catch {
             continue;
           }
+        }
 
-          const data = await response.json();
-          const content = data?.choices?.[0]?.message?.content;
-          if (typeof content !== "string" || !content.trim()) continue;
-
-          let parsed: unknown = null;
-          try {
-            parsed = JSON.parse(content);
-          } catch {
-            const match = content.match(/\{[\s\S]*\}/);
-            if (match) {
-              parsed = JSON.parse(match[0]);
-            }
-          }
-
-          const arr = (parsed as { translations?: unknown[] })?.translations;
-          if (!Array.isArray(arr)) continue;
-
-          const safe = arr.map((item, i) => (typeof item === "string" && item.trim() ? item.trim() : texts[i] || ""));
-          translated = safe;
-          break;
-        } catch {
-          continue;
+        if (translatedText) {
+          translated.push(translatedText);
+          successCount += 1;
+        } else {
+          translated.push(null);
         }
       }
 
-      if (!translated) {
+      if (successCount === 0) {
         return NextResponse.json({ error: "No se pudo traducir el historial.", code: "TRANSLATION_FAILED" }, { status: 502 });
       }
 
-      return NextResponse.json({ translations: translated });
+      return NextResponse.json({ translations: translated, partial: successCount !== texts.length });
     }
 
     const userPrompt = (payload.prompt || payload.pregunta || "").trim();

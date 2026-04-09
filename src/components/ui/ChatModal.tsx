@@ -36,8 +36,11 @@ export default function ChatModal({ isOpen, onClose, poi, poisEnRuta = [], total
   const [cargando, setCargando] = useState(false);
   const [ultimaPregunta, setUltimaPregunta] = useState(0);
   const [preguntasConsumidas, setPreguntasConsumidas] = useState(0);
+  const [storageHydrated, setStorageHydrated] = useState(false);
   const [apiDisponible, setApiDisponible] = useState(true);
   const [estadoServicio, setEstadoServicio] = useState<"ok" | "retrying" | "error">("ok");
+  const [translationRetryTick, setTranslationRetryTick] = useState(0);
+  const translationRetriesRef = useRef(0);
   const scrollRef = useRef<HTMLDivElement>(null);
   const t = useTranslations("chatbot");
 
@@ -71,20 +74,23 @@ export default function ChatModal({ isOpen, onClose, poi, poisEnRuta = [], total
 
   useEffect(() => {
     if (!isOpen) return;
+    setStorageHydrated(false);
     try {
-        const saved = localStorage.getItem(historyKey);
-        const savedCount = localStorage.getItem(counterKey);
+      const saved = localStorage.getItem(historyKey);
+      const savedCount = localStorage.getItem(counterKey);
       if (saved) {
         setMensajes(JSON.parse(saved));
       } else {
         setMensajes([]);
       }
-        setPreguntasConsumidas(savedCount ? Number(savedCount) || 0 : 0);
+      setPreguntasConsumidas(savedCount ? Number(savedCount) || 0 : 0);
     } catch {
       setMensajes([]);
-        setPreguntasConsumidas(0);
+      setPreguntasConsumidas(0);
+    } finally {
+      setStorageHydrated(true);
     }
-    }, [historyKey, counterKey, isOpen]);
+  }, [historyKey, counterKey, isOpen]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -139,22 +145,46 @@ export default function ChatModal({ isOpen, onClose, poi, poisEnRuta = [], total
         });
 
         const data = await res.json();
-        if (!res.ok || !Array.isArray(data?.translations) || cancelado) return;
+        if (!res.ok || !Array.isArray(data?.translations) || cancelado) {
+          setEstadoServicio("retrying");
+          if (translationRetriesRef.current < 2) {
+            translationRetriesRef.current += 1;
+            setTimeout(() => {
+              setTranslationRetryTick((v) => v + 1);
+            }, 900);
+          }
+          return;
+        }
+
+        translationRetriesRef.current = 0;
+        if (data?.partial) {
+          setEstadoServicio("retrying");
+        } else {
+          setEstadoServicio("ok");
+        }
 
         setMensajes((prev) => {
           const next = [...prev];
           pendientes.forEach(({ index }, i) => {
             if (!next[index]) return;
+            const translated = data.translations[i];
+            if (typeof translated !== "string" || !translated.trim()) return;
             next[index] = {
               ...next[index],
-              contenido: typeof data.translations[i] === "string" ? data.translations[i] : next[index].contenido,
+              contenido: translated,
               idiomaMensaje: idioma,
             };
           });
           return next;
         });
       } catch {
-        // Ignore silent translation errors; we keep existing history text.
+        setEstadoServicio("retrying");
+        if (translationRetriesRef.current < 2) {
+          translationRetriesRef.current += 1;
+          setTimeout(() => {
+            setTranslationRetryTick((v) => v + 1);
+          }, 900);
+        }
       }
     };
 
@@ -163,23 +193,25 @@ export default function ChatModal({ isOpen, onClose, poi, poisEnRuta = [], total
     return () => {
       cancelado = true;
     };
-  }, [idioma, isOpen, apiDisponible, mensajes]);
+  }, [idioma, isOpen, apiDisponible, mensajes, translationRetryTick]);
 
   useEffect(() => {
-      try {
-        if (mensajes.length === 0) {
-          localStorage.removeItem(historyKey);
-        } else {
-          localStorage.setItem(historyKey, JSON.stringify(mensajes));
-        }
-      } catch {}
-    }, [historyKey, mensajes]);
+    if (!isOpen || !storageHydrated) return;
+    try {
+      if (mensajes.length === 0) {
+        localStorage.removeItem(historyKey);
+      } else {
+        localStorage.setItem(historyKey, JSON.stringify(mensajes));
+      }
+    } catch {}
+  }, [historyKey, isOpen, mensajes, storageHydrated]);
 
   useEffect(() => {
+    if (!isOpen || !storageHydrated) return;
     try {
       localStorage.setItem(counterKey, String(preguntasConsumidas));
     } catch {}
-  }, [counterKey, preguntasConsumidas]);
+  }, [counterKey, isOpen, preguntasConsumidas, storageHydrated]);
 
   const enviarPregunta = async (pregunta: PreguntaPredefinida) => {
     const question = getTextoPregunta(pregunta, idioma).trim();
