@@ -63,7 +63,7 @@ export default function MobileNav() {
     };
   }, []);
 
-  if (pathname?.includes("/mapa")) {
+  if (pathname?.includes("/mapa") || pathname?.includes("/perfil")) {
     return null;
   }
 

@@ -134,7 +134,7 @@ export default function LoginPage() {
       setLoading(false);
     }, 6000);
 
-    const redirectTo = `${window.location.origin}/${locale}/auth/callback?next=/perfil`;
+    const redirectTo = `${window.location.origin}/${locale}/auth/callback?next=/&flow=signin`;
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
@@ -186,7 +186,7 @@ export default function LoginPage() {
           setErrorMessage(t("errorCredenciales"));
           return;
         }
-        router.push("/perfil");
+        router.push("/");
         return;
       }
 
@@ -245,7 +245,7 @@ export default function LoginPage() {
             return;
           }
 
-          router.push("/perfil");
+          router.push("/");
           return;
         }
 

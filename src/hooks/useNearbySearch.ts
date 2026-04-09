@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef } from "react";
 import type { POI } from "@/types/database";
+import { createClient } from "@/lib/supabase/client";
 
 const TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
 
@@ -23,133 +24,215 @@ function emojiForCategory(raw: string): string {
 
 function categoriaForRaw(raw: string): string {
   const lower = (raw || "").toLowerCase();
-  if (["restaurant","food","cafe","bar","bakery","pizza","sushi","taco","comida","restaurante"].some((k)=>lower.includes(k))) return "comida";
-  if (["museum","art","historic","monument","park","garden","gallery","theater","theatre","museo","parque"].some((k)=>lower.includes(k))) return "cultural";
-  if (["shop","store","mall","market","boutique","supermarket","tienda"].some((k)=>lower.includes(k))) return "tienda";
-  if (["gym","sport","fitness","stadium","pool","deporte"].some((k)=>lower.includes(k))) return "deportes";
+  if (["restaurant","food","cafe","bar","bakery","pizza","sushi","taco","comida","restaurante"].some((k) => lower.includes(k))) return "comida";
+  if (["museum","art","historic","monument","park","garden","gallery","theater","theatre","museo","parque"].some((k) => lower.includes(k))) return "cultural";
+  if (["shop","store","mall","market","boutique","supermarket","tienda"].some((k) => lower.includes(k))) return "tienda";
+  if (["gym","sport","fitness","stadium","pool","deporte"].some((k) => lower.includes(k))) return "deportes";
   return "servicio";
 }
 
-const cache = new Map<string, { data: POI[]; ts: number }>();
+/* ── Zoom → approximate visible radius in km ── */
+function zoomToRadiusKm(zoom: number): number {
+  return Math.max(1, Math.min(50, 100 / Math.pow(2, zoom - 10)));
+}
+
+/* ── Bbox helper for Mapbox geocoding ── */
+function getBboxFromCenter(lat: number, lng: number, zoom: number): string {
+  const degreesVisible = 360 / Math.pow(2, zoom);
+  const halfSpan = degreesVisible / 2;
+  return `${lng - halfSpan},${lat - halfSpan * 0.6},${lng + halfSpan},${lat + halfSpan * 0.6}`;
+}
+
+/* ── Cache ── */
+const cache = new Map<string, { data: { supabase: POI[]; mapbox: POI[] }; ts: number }>();
 const TTL = 90_000;
 
 /**
- * Calculate a bounding box from center + zoom level.
- * Returns [minLng, minLat, maxLng, maxLat] string for Mapbox bbox param.
+ * useNearbySearch
+ *
+ * Fetches POIs from TWO sources in parallel and merges them:
+ *   1. Supabase `pois_en_radio()` RPC — PostGIS spatial query (PRIORITY)
+ *   2. Mapbox Geocoding API — fallback for when DB has few/no results nearby
+ *
+ * Supabase POIs always come first; Mapbox POIs fill in the gaps.
+ * Deduplication is by name similarity + coordinate proximity.
  */
-function getBboxFromCenter(lat: number, lng: number, zoom: number): string {
-  // Approximate degrees visible at each zoom level
-  // At zoom 14 ≈ 0.02° ≈ 2.2km, at zoom 11 ≈ 0.15° ≈ 17km
-  const degreesVisible = 360 / Math.pow(2, zoom);
-  const halfSpan = degreesVisible / 2;
-
-  const minLng = lng - halfSpan;
-  const maxLng = lng + halfSpan;
-  const minLat = lat - halfSpan * 0.6; // lat spans are smaller visually
-  const maxLat = lat + halfSpan * 0.6;
-
-  return `${minLng},${minLat},${maxLng},${maxLat}`;
-}
-
 export function useNearbySearch() {
   const [buscandoExternos, setBuscandoExternos] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
+  const supabase = createClient();
 
-  const buscarEnMapbox = useCallback(
-    async (center: [number, number], zoom: number): Promise<POI[]> => {
-      // center is [lat, lng]
+  const buscarCercanos = useCallback(
+    async (
+      center: [number, number], // [lat, lng]
+      zoom: number
+    ): Promise<{ supabasePois: POI[]; mapboxPois: POI[]; merged: POI[] }> => {
       const [lat, lng] = center;
+      const radiusKm = zoomToRadiusKm(zoom);
 
+      // ── Cache check ──
       const zBucket = Math.round(zoom * 2) / 2;
       const cacheKey = `${lat.toFixed(3)},${lng.toFixed(3)},${zBucket}`;
       const hit = cache.get(cacheKey);
-      if (hit && Date.now() - hit.ts < TTL) return hit.data;
+      if (hit && Date.now() - hit.ts < TTL) {
+        return {
+          supabasePois: hit.data.supabase,
+          mapboxPois: hit.data.mapbox,
+          merged: mergePois(hit.data.supabase, hit.data.mapbox),
+        };
+      }
 
+      // ── Abort previous request ──
       abortRef.current?.abort();
       const ctrl = new AbortController();
       abortRef.current = ctrl;
       setBuscandoExternos(true);
 
       try {
-        // Use bbox to constrain results to visible map area instead of radius filtering
-        const bbox = getBboxFromCenter(lat, lng, zoom);
-
-        // Use a generic search term to find POIs — the geocoding endpoint
-        // needs an actual query, not just "point_of_interest.json"
-        const searchTerms = [
-          "restaurant", "cafe", "museum", "park", "store",
-          "bar", "hotel", "pharmacy", "gym", "bakery"
-        ];
-
-        // Do parallel searches with a few category terms to get diverse results
-        const selectedTerms = searchTerms
-          .sort(() => Math.random() - 0.5)
-          .slice(0, 3);
-
-        const allFeatures: any[] = [];
-        const seenIds = new Set<string>();
-
-        await Promise.all(
-          selectedTerms.map(async (term) => {
-            const url =
-              `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(term)}.json` +
-              `?proximity=${lng},${lat}` +
-              `&bbox=${bbox}` +
-              `&types=poi` +
-              `&limit=5` +
-              `&language=es` +
-              `&access_token=${TOKEN}`;
-
-            try {
-              const res = await fetch(url, { signal: ctrl.signal });
-              if (!res.ok) return;
-              const data = await res.json();
-              for (const f of data.features ?? []) {
-                if (!seenIds.has(f.id)) {
-                  seenIds.add(f.id);
-                  allFeatures.push(f);
-                }
-              }
-            } catch {
-              // individual search failed, continue with others
-            }
+        // ── 1. Supabase: pois_en_radio() RPC (PostGIS) ──
+        const supabasePromise = supabase
+          .rpc("pois_en_radio", {
+            lat,
+            lng,
+            radio_km: Math.min(radiusKm, 20), // cap at 20km
           })
-        );
-
-        const pois: POI[] = allFeatures
-          .map((f: any) => {
-            const [fLng, fLat] = f.center as [number, number];
-            const rawCat: string =
-              f.properties?.category || f.properties?.maki || f.place_type?.[0] || "";
-            return {
-              id: f.id,
-              nombre: f.text ?? f.place_name ?? "Sin nombre",
-              descripcion: f.place_name ?? "",
-              categoria: categoriaForRaw(rawCat),
-              latitud: fLat,
-              longitud: fLng,
-              emoji: emojiForCategory(rawCat),
-              photo_url: null,
-              horario_apertura: null,
-              horario_cierre: null,
-              verificado: false,
-              precio_rango: null,
-              created_at: new Date().toISOString(),
-            } as unknown as POI;
+          .then(({ data, error }) => {
+            if (error) {
+              console.warn("[useNearbySearch] Supabase RPC error:", error.message);
+              return [] as POI[];
+            }
+            return (data ?? []) as POI[];
           });
 
-        cache.set(cacheKey, { data: pois, ts: Date.now() });
-        return pois;
+        // ── 2. Mapbox Geocoding (supplement/fallback) ──
+        const mapboxPromise = fetchMapboxPois(lat, lng, zoom, ctrl.signal);
+
+        // ── Run both in parallel ──
+        const [supabasePois, mapboxPois] = await Promise.all([
+          supabasePromise,
+          mapboxPromise,
+        ]);
+
+        // ── Cache ──
+        cache.set(cacheKey, {
+          data: { supabase: supabasePois, mapbox: mapboxPois },
+          ts: Date.now(),
+        });
+
+        const merged = mergePois(supabasePois, mapboxPois);
+        return { supabasePois, mapboxPois, merged };
       } catch (err: any) {
-        if (err.name === "AbortError") return [];
+        if (err.name === "AbortError") {
+          return { supabasePois: [], mapboxPois: [], merged: [] };
+        }
         console.error("[useNearbySearch]", err);
-        return [];
+        return { supabasePois: [], mapboxPois: [], merged: [] };
       } finally {
         setBuscandoExternos(false);
       }
     },
-    []
+    [supabase]
   );
 
-  return { buscarEnMapbox, buscandoExternos };
+  return { buscarCercanos, buscandoExternos };
+}
+
+/* ══════════════════════════════════════════════
+   MAPBOX GEOCODING FALLBACK
+   ══════════════════════════════════════════════ */
+async function fetchMapboxPois(
+  lat: number,
+  lng: number,
+  zoom: number,
+  signal: AbortSignal
+): Promise<POI[]> {
+  const bbox = getBboxFromCenter(lat, lng, zoom);
+
+  const searchTerms = [
+    "restaurant", "cafe", "museum", "park", "store",
+    "bar", "hotel", "pharmacy", "gym", "bakery",
+  ];
+  const selectedTerms = searchTerms.sort(() => Math.random() - 0.5).slice(0, 3);
+
+  const allFeatures: any[] = [];
+  const seenIds = new Set<string>();
+
+  await Promise.all(
+    selectedTerms.map(async (term) => {
+      try {
+        const url =
+          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(term)}.json` +
+          `?proximity=${lng},${lat}` +
+          `&bbox=${bbox}` +
+          `&types=poi` +
+          `&limit=5` +
+          `&language=es` +
+          `&access_token=${TOKEN}`;
+
+        const res = await fetch(url, { signal });
+        if (!res.ok) return;
+        const data = await res.json();
+        for (const f of data.features ?? []) {
+          if (!seenIds.has(f.id)) {
+            seenIds.add(f.id);
+            allFeatures.push(f);
+          }
+        }
+      } catch {
+        // individual search failed, continue
+      }
+    })
+  );
+
+  return allFeatures.map((f: any) => {
+    const [fLng, fLat] = f.center as [number, number];
+    const rawCat: string =
+      f.properties?.category || f.properties?.maki || f.place_type?.[0] || "";
+    return {
+      id: `mapbox_${f.id}`, // prefix to distinguish from Supabase UUIDs
+      nombre: f.text ?? f.place_name ?? "Sin nombre",
+      descripcion: f.place_name ?? "",
+      categoria: categoriaForRaw(rawCat),
+      latitud: fLat,
+      longitud: fLng,
+      emoji: emojiForCategory(rawCat),
+      photo_url: null,
+      horario_apertura: null,
+      horario_cierre: null,
+      verificado: false,
+      precio_rango: null,
+      created_at: new Date().toISOString(),
+      _source: "mapbox", // internal tag
+    } as unknown as POI;
+  });
+}
+
+/* ══════════════════════════════════════════════
+   MERGE: Supabase first, then Mapbox (deduplicated)
+   ══════════════════════════════════════════════ */
+function mergePois(supabasePois: POI[], mapboxPois: POI[]): POI[] {
+  // Supabase POIs always come first — they're the verified/registered data
+  const merged: POI[] = [...supabasePois];
+  const supabaseNames = new Set(
+    supabasePois.map((p) => p.nombre.toLowerCase().trim())
+  );
+
+  for (const mp of mapboxPois) {
+    const nameKey = mp.nombre.toLowerCase().trim();
+
+    // Skip if Supabase already has a POI with a similar name
+    if (supabaseNames.has(nameKey)) continue;
+
+    // Skip if a Supabase POI is within ~100m (avoids visual marker overlap)
+    const tooClose = supabasePois.some((sp) => {
+      const dLat = Math.abs(sp.latitud - mp.latitud);
+      const dLng = Math.abs(sp.longitud - mp.longitud);
+      return dLat < 0.001 && dLng < 0.001;
+    });
+    if (tooClose) continue;
+
+    merged.push(mp);
+  }
+
+  return merged;
 }

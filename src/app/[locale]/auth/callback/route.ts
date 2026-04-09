@@ -6,7 +6,8 @@ const validLocales = ["es", "en", "zh", "pt"];
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/perfil";
+  const next = searchParams.get("next") ?? "/";
+  const flow = searchParams.get("flow") ?? "signup";
 
   // Leer locale desde cookie de next-intl
   const cookieHeader = request.headers.get("cookie") ?? "";
@@ -42,6 +43,12 @@ export async function GET(request: Request) {
       const user = userResult.user;
 
       if (user) {
+        const { data: existingProfile } = await supabase
+          .from("perfiles")
+          .select("id,nombre,apellido,nombre_completo,username,telefono,idioma")
+          .eq("id", user.id)
+          .maybeSingle();
+
         const metadata = user.user_metadata ?? {};
         const email = user.email ?? "";
         const fullName =
@@ -58,6 +65,26 @@ export async function GET(request: Request) {
 
         const telefono =
           user.phone || metadata.phone || metadata.phone_number || metadata.mobile || "";
+
+        if (flow === "signin") {
+          if (!existingProfile) {
+            await supabase.rpc("guardar_perfil_turista", {
+              p_id: user.id,
+              p_nombre: nombre || emailPrefix || "Usuario",
+              p_apellido: apellido || "",
+              p_correo: email.toLowerCase(),
+              p_username: suggestedUsername,
+              p_telefono: telefono,
+              p_idioma: safeLocale,
+            });
+          }
+
+          return NextResponse.redirect(`${origin}/${safeLocale}${next}`);
+        }
+
+        if (existingProfile) {
+          return NextResponse.redirect(`${origin}/${safeLocale}${next}`);
+        }
 
         const missingRequiredData = !nombre || !apellido || !suggestedUsername || !telefono;
 

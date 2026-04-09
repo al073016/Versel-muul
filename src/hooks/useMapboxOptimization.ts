@@ -54,7 +54,13 @@ export function useMapboxOptimization() {
     ): Promise<OptimizedRoute | null> => {
       if (pois.length < 1) return null;
 
-      const totalPoints = pois.length + (userLocation ? 1 : 0);
+      // Forzar inicio desde turista
+      if (!userLocation) {
+        setError("No se detectó tu ubicación en tiempo real.");
+        return null;
+      }
+
+      const totalPoints = pois.length + 1; // user + pois
       if (totalPoints > 12) {
         setError("Máximo 12 puntos en la ruta");
         return null;
@@ -64,9 +70,8 @@ export function useMapboxOptimization() {
       setError("");
 
       try {
-        /* Build coordinate string: lng,lat;lng,lat (Mapbox order) */
         const coords: [number, number][] = [];
-        if (userLocation) coords.push([userLocation[1], userLocation[0]]);
+        coords.push([userLocation[1], userLocation[0]]); // first = source
         pois.forEach((p) => coords.push([p.longitud, p.latitud]));
 
         const coordStr = coords.map((c) => c.join(",")).join(";");
@@ -88,35 +93,19 @@ export function useMapboxOptimization() {
         }
 
         const data = await res.json();
-
-        if (!data.trips?.length) {
-          throw new Error("La API no devolvió rutas");
-        }
+        if (!data.trips?.length) throw new Error("La API no devolvió rutas");
 
         const trip = data.trips[0];
+        const rawWaypoints: { waypoint_index: number }[] = data.waypoints ?? [];
 
-        /* ── Reorder POIs based on optimized waypoint indices ── */
-        //
-        // data.waypoints[i] = info for input coordinate i
-        // data.waypoints[i].waypoint_index = position in optimized trip
-        //
-        const rawWaypoints: { waypoint_index: number; location: [number, number]; name: string }[] =
-          data.waypoints ?? [];
+        // Reorden robusto por waypoint_index (ignorando slot 0 = usuario)
+        const poiWaypoints = rawWaypoints.slice(1);
+        const orderedPois = poiWaypoints
+          .map((wp, originalIdx) => ({ wpIndex: wp.waypoint_index, poi: pois[originalIdx] }))
+          .sort((a, b) => a.wpIndex - b.wpIndex)
+          .map((x) => x.poi);
 
-        const startOffset = userLocation ? 1 : 0; // skip origin slot
-        const poiWaypoints = rawWaypoints.slice(startOffset);
-
-        // Build ordered array: place each poi at its optimized position
-        const reordered: POI[] = new Array(pois.length).fill(null);
-        poiWaypoints.forEach((wp, originalIdx) => {
-          const optimizedPos = wp.waypoint_index - startOffset;
-          if (optimizedPos >= 0 && optimizedPos < pois.length) {
-            reordered[optimizedPos] = pois[originalIdx];
-          }
-        });
-
-        // Fallback: keep original order if reorder incomplete
-        const orderedPois = reordered.some((p) => p === null) ? pois : reordered;
+        const finalPois = orderedPois.length === pois.length ? orderedPois : pois;
 
         const totalDist = trip.legs.reduce((s: number, l: any) => s + l.distance, 0);
         const totalDur = trip.legs.reduce((s: number, l: any) => s + l.duration, 0);
@@ -127,7 +116,7 @@ export function useMapboxOptimization() {
           duracion_segundos: totalDur,
           distancia_texto: formatDistance(totalDist),
           duracion_texto: formatDuration(totalDur),
-          orderedPois,
+          orderedPois: finalPois,
           legs: trip.legs.map((l: any) => ({ distance: l.distance, duration: l.duration })),
         };
 

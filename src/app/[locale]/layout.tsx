@@ -4,6 +4,7 @@ import { routing } from "@/i18n/routing";
 import Navbar from "@/components/layout/Navbar";
 import MobileNav from "@/components/layout/MobileNav";
 import Footer from "@/components/layout/Footer";
+import { UIProvider } from "@/context/UIContext";
 
 export default async function LocaleLayout({
   children,
@@ -25,10 +26,12 @@ export default async function LocaleLayout({
 
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
-      <Navbar />
-      <MobileNav />
-      <div className="pb-28 md:pb-0">{children}</div>
-      <Footer />
+      <UIProvider>
+        <Navbar />
+        <MobileNav />
+        <div className="pb-28 md:pb-0">{children}</div>
+        <Footer />
+      </UIProvider>
     </NextIntlClientProvider>
   );
 }
