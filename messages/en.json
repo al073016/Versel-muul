@@ -172,29 +172,29 @@
     "marcaEvento": "MUUL 2026",
     "muulAi": "Muul AI",
     "cerrarPanel": "Close panel",
-    "abrirPanel": "Open panel"
-    ,"requireUserLocation": "Your location is required"
-    ,"noNearbyPlaces": "No nearby places were found"
-    ,"maxStops": "(max 12)"
-    ,"analyzingAccessible": "Analyzing..."
-    ,"accessibleRouteCta": "♿ Accessible Route"
-    ,"visitsMinutes": "min visits"
-    ,"optimal": "Optimal"
-    ,"accessibilityLabel": "Accessibility"
-    ,"accessibilityHigh": "High"
-    ,"accessibilityMedium": "Medium"
-    ,"accessibilityLow": "Low"
-    ,"accessibilityFeaturesToggle": "Ramps and elevators on map"
-    ,"featureRamps": "Ramps"
-    ,"featureElevators": "Elevators"
-    ,"featureCrossings": "Crossings"
-    ,"featureTactile": "Tactile paving"
-    ,"partyMode": "Party Mode"
-    ,"publishCommunity": "Post to Community"
-    ,"saveRoutes": "Save routes"
-    ,"openMuulAi": "Open MUUL AI"
-    ,"accessibleMode": "Accessible Mode"
-    ,"externalSource": "Mapbox"
+    "abrirPanel": "Open panel",
+    "requireUserLocation": "Your location is required",
+    "noNearbyPlaces": "No nearby places were found",
+    "maxStops": "(max 12)",
+    "analyzingAccessible": "Analyzing...",
+    "accessibleRouteCta": "♿ Accessible Route",
+    "visitsMinutes": "min visits",
+    "optimal": "Optimal",
+    "accessibilityLabel": "Accessibility",
+    "accessibilityHigh": "High",
+    "accessibilityMedium": "Medium",
+    "accessibilityLow": "Low",
+    "accessibilityFeaturesToggle": "Ramps and elevators on map",
+    "featureRamps": "Ramps",
+    "featureElevators": "Elevators",
+    "featureCrossings": "Crossings",
+    "featureTactile": "Tactile paving",
+    "partyMode": "Party Mode",
+    "publishCommunity": "Post to Community",
+    "saveRoutes": "Save routes",
+    "openMuulAi": "Open MUUL AI",
+    "accessibleMode": "Accessible Mode",
+    "externalSource": "Mapbox"
   },
   "tiendas": {
     "titulo": "Registered",
@@ -241,7 +241,9 @@
     "nombreNegocioPlaceholder": "e.g. El Tizon Plateado",
     "rfcPlaceholder": "ABC123456XYZ",
     "direccionPlaceholder": "e.g. Reforma Avenue 2026, Mexico City",
-    "gpsActivo": "Active"
+    "gpsActivo": "Active",
+    "hospedaje": "Stay",
+    "eventos": "Events"
   },
   "perfil": {
     "turista": "Tourist",

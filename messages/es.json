@@ -172,29 +172,29 @@
     "marcaEvento": "MUUL 2026",
     "muulAi": "Muul AI",
     "cerrarPanel": "Cerrar panel",
-    "abrirPanel": "Abrir panel"
-    ,"requireUserLocation": "Se requiere tu ubicación"
-    ,"noNearbyPlaces": "No se encontraron lugares cercanos"
-    ,"maxStops": "(máx 12)"
-    ,"analyzingAccessible": "Analizando..."
-    ,"accessibleRouteCta": "♿ Ruta Accesible"
-    ,"visitsMinutes": "min visitas"
-    ,"optimal": "Óptima"
-    ,"accessibilityLabel": "Accesibilidad"
-    ,"accessibilityHigh": "Alta"
-    ,"accessibilityMedium": "Media"
-    ,"accessibilityLow": "Baja"
-    ,"accessibilityFeaturesToggle": "Rampas y elevadores en mapa"
-    ,"featureRamps": "Rampas"
-    ,"featureElevators": "Elevadores"
-    ,"featureCrossings": "Cruces"
-    ,"featureTactile": "Piso táctil"
-    ,"partyMode": "Modo Party"
-    ,"publishCommunity": "Publicar en Comunidad"
-    ,"saveRoutes": "Guardar rutas"
-    ,"openMuulAi": "Abrir MUUL AI"
-    ,"accessibleMode": "Modo Accesible"
-    ,"externalSource": "Mapbox"
+    "abrirPanel": "Abrir panel",
+    "requireUserLocation": "Se requiere tu ubicación",
+    "noNearbyPlaces": "No se encontraron lugares cercanos",
+    "maxStops": "(máx 12)",
+    "analyzingAccessible": "Analizando...",
+    "accessibleRouteCta": "♿ Ruta Accesible",
+    "visitsMinutes": "min visitas",
+    "optimal": "Óptima",
+    "accessibilityLabel": "Accesibilidad",
+    "accessibilityHigh": "Alta",
+    "accessibilityMedium": "Media",
+    "accessibilityLow": "Baja",
+    "accessibilityFeaturesToggle": "Rampas y elevadores en mapa",
+    "featureRamps": "Rampas",
+    "featureElevators": "Elevadores",
+    "featureCrossings": "Cruces",
+    "featureTactile": "Piso táctil",
+    "partyMode": "Modo Party",
+    "publishCommunity": "Publicar en Comunidad",
+    "saveRoutes": "Guardar rutas",
+    "openMuulAi": "Abrir MUUL AI",
+    "accessibleMode": "Modo Accesible",
+    "externalSource": "Mapbox"
   },
   "tiendas": {
     "titulo": "Tiendas",
@@ -241,7 +241,9 @@
     "nombreNegocioPlaceholder": "Ej. El Tizón Plateado",
     "rfcPlaceholder": "ABC123456XYZ",
     "direccionPlaceholder": "Ej. Av. Paseo de la Reforma 2026, CDMX",
-    "gpsActivo": "Activo"
+    "gpsActivo": "Activo",
+    "hospedaje": "Hospedaje",
+    "eventos": "Eventos"
   },
   "perfil": {
     "turista": "Turista",

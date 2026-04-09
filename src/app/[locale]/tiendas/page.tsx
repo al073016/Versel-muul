@@ -71,6 +71,8 @@ export default function TiendasPage() {
     comida: t("gastronomia"), 
     tienda: t("artesanias"), 
     servicios: t("servicios"),
+    hospedaje: t("hospedaje"),
+    eventos: t("eventos"),
     cultural: t("cultural"),
     deportes: t("deportes"),
   };
@@ -87,6 +89,7 @@ export default function TiendasPage() {
         categoria: p.categoria as any,
         latitud: p.latitud,
         longitud: p.longitud,
+        foto_url: p.foto_url,
         horario_apertura: p.horario_apertura,
         horario_cierre: p.horario_cierre,
         verificado: true,

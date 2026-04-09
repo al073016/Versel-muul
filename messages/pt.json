@@ -172,29 +172,29 @@
     "marcaEvento": "MUUL 2026",
     "muulAi": "Muul AI",
     "cerrarPanel": "Fechar painel",
-    "abrirPanel": "Abrir painel"
-    ,"requireUserLocation": "Sua localização é necessária"
-    ,"noNearbyPlaces": "Não foram encontrados lugares próximos"
-    ,"maxStops": "(máx 12)"
-    ,"analyzingAccessible": "Analisando..."
-    ,"accessibleRouteCta": "♿ Rota Acessível"
-    ,"visitsMinutes": "min de visitas"
-    ,"optimal": "Ótima"
-    ,"accessibilityLabel": "Acessibilidade"
-    ,"accessibilityHigh": "Alta"
-    ,"accessibilityMedium": "Média"
-    ,"accessibilityLow": "Baixa"
-    ,"accessibilityFeaturesToggle": "Rampas e elevadores no mapa"
-    ,"featureRamps": "Rampas"
-    ,"featureElevators": "Elevadores"
-    ,"featureCrossings": "Travessias"
-    ,"featureTactile": "Piso tátil"
-    ,"partyMode": "Modo Party"
-    ,"publishCommunity": "Publicar na Comunidade"
-    ,"saveRoutes": "Salvar rotas"
-    ,"openMuulAi": "Abrir MUUL AI"
-    ,"accessibleMode": "Modo Acessível"
-    ,"externalSource": "Mapbox"
+    "abrirPanel": "Abrir painel",
+    "requireUserLocation": "Sua localização é necessária",
+    "noNearbyPlaces": "Não foram encontrados lugares próximos",
+    "maxStops": "(máx 12)",
+    "analyzingAccessible": "Analisando...",
+    "accessibleRouteCta": "♿ Rota Acessível",
+    "visitsMinutes": "min de visitas",
+    "optimal": "Ótima",
+    "accessibilityLabel": "Acessibilidade",
+    "accessibilityHigh": "Alta",
+    "accessibilityMedium": "Média",
+    "accessibilityLow": "Baixa",
+    "accessibilityFeaturesToggle": "Rampas e elevadores no mapa",
+    "featureRamps": "Rampas",
+    "featureElevators": "Elevadores",
+    "featureCrossings": "Travessias",
+    "featureTactile": "Piso tátil",
+    "partyMode": "Modo Party",
+    "publishCommunity": "Publicar na Comunidade",
+    "saveRoutes": "Salvar rotas",
+    "openMuulAi": "Abrir MUUL AI",
+    "accessibleMode": "Modo Acessível",
+    "externalSource": "Mapbox"
   },
   "tiendas": {
     "titulo": "Lojas",
@@ -241,7 +241,9 @@
     "nombreNegocioPlaceholder": "Ex. El Tizon Plateado",
     "rfcPlaceholder": "ABC123456XYZ",
     "direccionPlaceholder": "Ex. Av. Paseo de la Reforma 2026, Cidade do México",
-    "gpsActivo": "Ativo"
+    "gpsActivo": "Ativo",
+    "hospedaje": "Hospedagem",
+    "eventos": "Eventos"
   },
   "perfil": {
     "turista": "Turista",

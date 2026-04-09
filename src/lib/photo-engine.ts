@@ -11,6 +11,9 @@ export const CATEGORY_QUERIES: Record<string, string> = {
   tienda: "mexico city boutique shop luxury",
   cultural: "mexico city bellas artes museum architecture",
   deportes: "modern mexico city stadium",
+  hospedaje: "mexico city hotel luxury room",
+  eventos: "mexico city concert venue stage lights",
+  servicios: "mexico city business services coworking",
   servicio: "mexico city professional service",
   default: "mexico city luxury travel destination"
 };

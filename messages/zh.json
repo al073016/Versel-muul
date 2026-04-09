@@ -172,29 +172,29 @@
     "marcaEvento": "Muul 2026",
     "muulAi": "Muul AI",
     "cerrarPanel": "关闭面板",
-    "abrirPanel": "打开面板"
-    ,"requireUserLocation": "需要你的位置信息"
-    ,"noNearbyPlaces": "未找到附近地点"
-    ,"maxStops": "（最多 12 个）"
-    ,"analyzingAccessible": "分析中..."
-    ,"accessibleRouteCta": "♿ 无障碍路线"
-    ,"visitsMinutes": "分钟参观"
-    ,"optimal": "最优"
-    ,"accessibilityLabel": "无障碍"
-    ,"accessibilityHigh": "高"
-    ,"accessibilityMedium": "中"
-    ,"accessibilityLow": "低"
-    ,"accessibilityFeaturesToggle": "在地图上显示坡道和电梯"
-    ,"featureRamps": "坡道"
-    ,"featureElevators": "电梯"
-    ,"featureCrossings": "过街点"
-    ,"featureTactile": "盲道"
-    ,"partyMode": "派对模式"
-    ,"publishCommunity": "发布到社区"
-    ,"saveRoutes": "保存路线"
-    ,"openMuulAi": "打开 MUUL AI"
-    ,"accessibleMode": "无障碍模式"
-    ,"externalSource": "Mapbox"
+    "abrirPanel": "打开面板",
+    "requireUserLocation": "需要你的位置信息",
+    "noNearbyPlaces": "未找到附近地点",
+    "maxStops": "（最多 12 个）",
+    "analyzingAccessible": "分析中...",
+    "accessibleRouteCta": "♿ 无障碍路线",
+    "visitsMinutes": "分钟参观",
+    "optimal": "最优",
+    "accessibilityLabel": "无障碍",
+    "accessibilityHigh": "高",
+    "accessibilityMedium": "中",
+    "accessibilityLow": "低",
+    "accessibilityFeaturesToggle": "在地图上显示坡道和电梯",
+    "featureRamps": "坡道",
+    "featureElevators": "电梯",
+    "featureCrossings": "过街点",
+    "featureTactile": "盲道",
+    "partyMode": "派对模式",
+    "publishCommunity": "发布到社区",
+    "saveRoutes": "保存路线",
+    "openMuulAi": "打开 MUUL AI",
+    "accessibleMode": "无障碍模式",
+    "externalSource": "Mapbox"
   },
   "tiendas": {
     "titulo": "注册",
@@ -241,7 +241,9 @@
     "nombreNegocioPlaceholder": "例如：El Tizon Plateado",
     "rfcPlaceholder": "ABC123456XYZ",
     "direccionPlaceholder": "例如：Reforma 大道 2026，墨西哥城",
-    "gpsActivo": "已启用"
+    "gpsActivo": "已启用",
+    "hospedaje": "住宿",
+    "eventos": "活动"
   },
   "perfil": {
     "turista": "游客",

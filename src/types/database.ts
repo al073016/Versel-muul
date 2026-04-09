@@ -5,7 +5,15 @@
 
 export type TipoCuenta = "turista" | "negocio";
 export type CategoriaNegocio = "comida" | "tienda" | "servicios" | "cultural" | "deportes";
-export type CategoriaPOI = "comida" | "cultural" | "tienda" | "deportes" | "servicio";
+export type CategoriaPOI =
+  | "comida"
+  | "cultural"
+  | "tienda"
+  | "deportes"
+  | "servicio"
+  | "hospedaje"
+  | "eventos"
+  | "servicios";
 export type PrecioRango = "$" | "$$" | "$$$" | "$$$$";
 export type CategoriaInsignia = "cultural" | "comida" | "tiendas" | "especial";
 export type NivelInsignia = "bronce" | "plata" | "oro" | "platino";

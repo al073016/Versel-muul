@@ -34,14 +34,27 @@ interface UserInfo { initials: string; nombre: string }
 
 /* ── Visit duration by category (minutes) ── */
 const DURACION_VISITA: Record<string, number> = {
-  cultural: 60, comida: 45, tienda: 30, deportes: 90, servicio: 20,
+  cultural: 60,
+  comida: 45,
+  tienda: 30,
+  deportes: 90,
+  servicio: 20,
+  servicios: 30,
+  hospedaje: 40,
+  eventos: 120,
 };
 
 /* ── Helpers ── */
 function getMarkerColor(cat: string): string {
   const m: Record<string, string> = {
-    comida: "#ffb3b3", cultural: "#b0c6fd", deportes: "#98d5a2",
-    tienda: "#8a8a8e", servicio: "#8a8a8e",
+    comida: "#ffb3b3",
+    cultural: "#b0c6fd",
+    deportes: "#98d5a2",
+    tienda: "#8a8a8e",
+    servicio: "#8a8a8e",
+    servicios: "#8a8a8e",
+    hospedaje: "#b9a5ff",
+    eventos: "#ff9ec4",
   };
   return m[cat] ?? "#8a8a8e";
 }

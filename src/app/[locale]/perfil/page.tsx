@@ -255,7 +255,7 @@ function PerfilContent() {
                 <div className="bg-neutral-50 p-6 rounded-3xl border border-neutral-100 flex flex-col items-center justify-center text-center col-span-2">
                   <span className="material-symbols-outlined text-3xl text-neutral-400 mb-2">format_quote</span>
                   <p className="text-on-surface-variant font-body italic text-center text-lg leading-relaxed">
-                    "{publicProfileData.about}"
+                    &quot;{publicProfileData.about}&quot;
                   </p>
                 </div>
               </div>
