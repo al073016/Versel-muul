@@ -1,74 +1,107 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import type { TransportMode } from "@/hooks/useMapboxOptimization";
 
+/* ── Route color per mode ── */
+export function getRouteColorForMode(mode: TransportMode | "accessible"): string {
+  switch (mode) {
+    case "walking":    return "#98d5a2"; // soft green
+    case "cycling":    return "#b0c6fd"; // soft blue
+    case "driving":    return "#ffb3b3"; // soft red
+    case "accessible": return "#fed000"; // MUUL yellow — high visibility
+    default:           return "#98d5a2";
+  }
+}
+
+/* ── Props ── */
 interface TransportSelectorProps {
-  value: TransportMode;
-  onChange: (mode: TransportMode) => void;
+  value: TransportMode | "accessible";
+  onChange: (mode: TransportMode | "accessible") => void;
   className?: string;
 }
 
-const MODES: {
-  value: TransportMode;
-  icon: string;
-  label: string;
-  color: string;
-  activeStyle: string;
-}[] = [
-  {
-    value: "walking",
-    icon: "directions_walk",
-    label: "Caminando",
-    color: "#98d5a2",
-    activeStyle: "bg-[#98d5a2]/20 text-[#98d5a2] border border-[#98d5a2]/40",
-  },
-  {
-    value: "cycling",
-    icon: "directions_bike",
-    label: "Bicicleta",
-    color: "#facc15",
-    activeStyle: "bg-[#facc15]/20 text-[#facc15] border border-[#facc15]/40",
-  },
-  {
-    value: "driving",
-    icon: "directions_car",
-    label: "Vehículo",
-    color: "#b0c6fd",
-    activeStyle: "bg-[#b0c6fd]/20 text-[#b0c6fd] border border-[#b0c6fd]/40",
-  },
-];
+/* ══════════════════════════════════════════════
+   COMPONENT
+   ══════════════════════════════════════════════ */
+export default function TransportSelector({ value, onChange, className = "" }: TransportSelectorProps) {
+  const t = useTranslations("mapa");
 
-export default function TransportSelector({
-  value,
-  onChange,
-  className = "",
-}: TransportSelectorProps) {
+  /* ── Mode config ── */
+  const MODES: {
+    value: TransportMode | "accessible";
+    icon: string;
+    label: string;
+    title: string;
+  }[] = [
+    {
+      value: "walking",
+      icon: "directions_walk",
+      label: t("caminando"),
+      title: "Ruta a pie",
+    },
+    {
+      value: "cycling",
+      icon: "directions_bike",
+      label: t("bicicleta"),
+      title: "Ruta en bicicleta",
+    },
+    {
+      value: "driving",
+      icon: "directions_car",
+      label: t("vehiculo"),
+      title: "Ruta en auto",
+    },
+    {
+      value: "accessible",
+      icon: "accessible",
+      label: t("accesible"),
+      title: "Ruta accesible — optimizada para silla de ruedas y movilidad reducida",
+    },
+  ];
   return (
-    <div className={`flex gap-2 ${className}`}>
+    <div className="flex gap-1.5 w-full">
       {MODES.map((mode) => {
         const isActive = value === mode.value;
+        const isAccessible = mode.value === "accessible";
+
         return (
           <button
             key={mode.value}
             onClick={() => onChange(mode.value)}
-            className={`flex-1 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
-              isActive
-                ? mode.activeStyle
-                : "bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high"
-            }`}
-            aria-pressed={isActive}
-            title={mode.label}
+            title={mode.title}
+            className={`
+              flex-1 flex flex-col items-center justify-center gap-1.5
+              py-3 px-1 rounded-xl text-[8px] font-black uppercase tracking-tighter
+              border transition-all duration-200
+              ${isActive
+                ? isAccessible
+                  ? "bg-[#fed000] text-[#003e6f] border-[#fed000] shadow-lg shadow-[#fed000]/30"
+                  : "bg-secondary text-on-secondary border-secondary shadow-md shadow-secondary/20"
+                : "bg-surface-container-highest text-on-surface-variant border-transparent hover:bg-surface-container-high"
+              }
+            `}
           >
-            <span className="material-symbols-outlined text-sm">{mode.icon}</span>
-            <span className="hidden sm:inline">{mode.label}</span>
+            <span
+              className="material-symbols-outlined text-lg"
+              style={isActive
+                ? { fontVariationSettings: "'FILL' 1" }
+                : undefined
+              }
+            >
+              {mode.icon}
+            </span>
+            <span className="leading-tight text-center">{mode.label}</span>
+
+            {/* Accessibility badge */}
+            {isAccessible && isActive && (
+              <span className="text-[7px] font-black bg-[#003e6f] text-white px-1.5 py-0.5 rounded-full leading-none mt-0.5">
+                OSM
+              </span>
+            )}
           </button>
         );
       })}
     </div>
   );
-}
-
-/* Export the color for each mode so the map can use it */
-export function getRouteColorForMode(mode: TransportMode): string {
-  return MODES.find((m) => m.value === mode)?.color ?? "#98d5a2";
 }

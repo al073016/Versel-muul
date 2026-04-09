@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 interface SorprendemeFABProps {
   onClick: () => void;
   loading?: boolean;
@@ -14,11 +16,13 @@ export default function SorprendemeFAB({
   disabled = false,
   className = "",
 }: SorprendemeFABProps) {
+  const t = useTranslations("mapa");
+
   return (
     <button
       onClick={onClick}
       disabled={disabled || loading}
-      aria-label="Sorpréndeme — ruta aleatoria"
+      aria-label={t("sorprendeme")}
       className={`
         group flex items-center gap-2 px-4 py-3 rounded-2xl
         bg-surface-bright/95 backdrop-blur-md
@@ -44,7 +48,7 @@ export default function SorprendemeFAB({
         </span>
       )}
       <span className="text-xs uppercase tracking-widest">
-        {loading ? "Generando…" : "Sorpréndeme"}
+        {loading ? t("generando") : t("sorprendeme")}
       </span>
     </button>
   );

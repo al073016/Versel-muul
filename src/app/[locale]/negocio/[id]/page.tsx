@@ -6,6 +6,9 @@ import { Link } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useTranslations } from "next-intl";
 import type { Negocio, Producto } from "@/types/database";
+import { DUMMY_POIS } from "@/lib/dummy-data";
+import { getPremiumPhoto } from "@/lib/photo-engine";
+import { haversine } from "@/lib/haversine";
 
 const categoryEmojis: Record<string, string> = {
   comida: "🌮", tienda: "🛍️", servicios: "🏨", cultural: "🏛️", deportes: "⚽",
@@ -42,6 +45,8 @@ export default function NegocioPerfilPage() {
   const [prodGuardando, setProdGuardando] = useState(false);
   const [prodMsg, setProdMsg] = useState("");
 
+  const [distancia, setDistancia] = useState<string | null>(null);
+
   useEffect(() => {
     const fetchData = async () => {
       const normalizedId = id?.toString() ?? "";
@@ -58,6 +63,45 @@ export default function NegocioPerfilPage() {
         }
       }
 
+      // Geolocation logic
+      if (typeof window !== "undefined" && navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((pos) => {
+          const uLat = pos.coords.latitude;
+          const uLng = pos.coords.longitude;
+          
+          if (negocioData?.latitud && negocioData?.longitud) {
+            const d = haversine([uLat, uLng], [negocioData.latitud, negocioData.longitud]);
+            setDistancia(d < 1 ? `${(d * 1000).toFixed(0)}m` : `${d.toFixed(1)}km`);
+          }
+        }, (err) => {
+          console.warn("Geolocation error:", err);
+        }, { timeout: 10000 });
+      }
+
+      // Check dummy data if not found in DB
+      if (!negocioData) {
+        const dummy = DUMMY_POIS.find(p => p.id === normalizedId || slugify(p.nombre) === normalizedId);
+        if (dummy) {
+          negocioData = {
+            id: dummy.id,
+            nombre: dummy.nombre,
+            descripcion: dummy.descripcion,
+            categoria: dummy.categoria as any,
+            propietario_id: "dummy",
+            activo: true,
+            verificado: true,
+            latitud: dummy.latitud,
+            longitud: dummy.longitud,
+            direccion: "Ciudad de México",
+            horario_apertura: dummy.horario_apertura || "09:00",
+            horario_cierre: dummy.horario_cierre || "20:00",
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            foto_url: dummy.foto_url
+          } as any;
+        }
+      }
+
       if (!negocioData) {
         setNotFound(true);
         setLoading(false);
@@ -65,8 +109,35 @@ export default function NegocioPerfilPage() {
       }
       setNegocio(negocioData);
 
-      const { data: productosData } = await supabase.from("productos").select("*").eq("negocio_id", negocioData.id).eq("activo", true).order("created_at", { ascending: false });
-      if (productosData) setProductos(productosData);
+      // Add dummy products for dummy locations
+      if (negocioData.propietario_id === "dummy") {
+        const dummy = DUMMY_POIS.find(p => p.id === negocioData!.id);
+        if (dummy) {
+          if (dummy.especialidades) {
+            (negocioData as any).especialidades = dummy.especialidades;
+          }
+          if (dummy.telefono) (negocioData as any).telefono = dummy.telefono;
+          if (dummy.instagram) (negocioData as any).instagram = dummy.instagram;
+          if (dummy.facebook) (negocioData as any).facebook = dummy.facebook;
+
+          if (dummy.productos) {
+            const mappedProds: Producto[] = dummy.productos.map((dp: any) => ({
+              id: `${dummy.id}-${dp.id}`,
+              negocio_id: dummy.id,
+              nombre: dp.nombre,
+              descripcion: dp.descripcion,
+              precio: dp.precio,
+              activo: true,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            }));
+            setProductos(mappedProds);
+          }
+        }
+      } else {
+        const { data: productosData } = await supabase.from("productos").select("*").eq("negocio_id", negocioData.id).eq("activo", true).order("created_at", { ascending: false });
+        if (productosData) setProductos(productosData);
+      }
 
       const { data: { user } } = await supabase.auth.getUser();
       if (user && user.id === negocioData.propietario_id) setIsOwner(true);
@@ -124,28 +195,29 @@ export default function NegocioPerfilPage() {
   return (
     <main className="max-w-[1440px] mx-auto min-h-screen pb-28 md:pb-0">
         {/* HERO */}
-        <header className="relative h-[350px] md:h-[450px] w-full overflow-hidden">
-          <div className="w-full h-full bg-gradient-to-br from-primary-container via-surface-container-high to-secondary-container/50">
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-[150px] opacity-20">{categoryEmojis[negocio.categoria] || "🏪"}</span>
-            </div>
-            <div className="absolute top-8 right-8 w-32 h-32 bg-secondary/10 blur-[60px] rounded-full" />
-            <div className="absolute bottom-12 left-12 w-48 h-48 bg-primary/10 blur-[80px] rounded-full" />
+        <header className="relative h-[400px] md:h-[500px] w-full overflow-hidden">
+          <div className="absolute inset-0">
+            <img 
+              src={negocio.foto_url || getPremiumPhoto(negocio.nombre, negocio.categoria)} 
+              alt={negocio.nombre} 
+              className="w-full h-full object-cover" 
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/10 to-[#003e6f]" />
           </div>
           <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/40 to-transparent" />
           <div className="absolute bottom-0 left-0 w-full p-8 md:p-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div className="space-y-4 animate-fade-in-up">
               <div className="flex items-center gap-3">
                 {negocio.verificado && (
-                  <span className="bg-secondary-container text-secondary-fixed px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest flex items-center gap-1">
+                  <span className="bg-[#fed000] text-[#003e6f] px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest flex items-center gap-1 shadow-lg shadow-[#fed000]/20">
                     <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
                     {t("verificado")}
                   </span>
                 )}
-                <span className="bg-surface-container-highest/60 backdrop-blur px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest text-on-surface-variant">{negocio.categoria}</span>
+                <span className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest text-white border border-white/10">{tc(negocio.categoria)}</span>
               </div>
-              <h1 className="text-5xl md:text-7xl font-headline font-black tracking-tighter text-on-surface uppercase italic">{negocio.nombre}</h1>
-              {negocio.descripcion && (<p className="text-on-surface-variant max-w-xl text-lg font-light leading-relaxed">{negocio.descripcion}</p>)}
+              <h1 className="text-5xl md:text-8xl font-headline font-black tracking-tighter text-white uppercase italic drop-shadow-2xl">{negocio.nombre}</h1>
+              {negocio.descripcion && (<p className="text-white/80 max-w-xl text-lg font-medium leading-relaxed drop-shadow-lg">{negocio.descripcion}</p>)}
             </div>
             {isOwner && (<Link href="#productos" className="md:block bg-primary text-on-primary font-headline font-bold py-4 px-8 rounded-xl shadow-lg active:scale-95 transition-all">{t("gestionar")}</Link>)}
           </div>
@@ -192,6 +264,29 @@ export default function NegocioPerfilPage() {
                     <div className="flex flex-wrap gap-3">
                       {negocio.especialidades.map((spec) => (<span key={spec} className="bg-surface-container-highest border border-outline-variant/20 px-4 py-2 rounded-lg text-sm">{spec}</span>))}
                     </div>
+                  </div>
+                )}
+                {distancia && (
+                  <div className="flex items-center justify-between p-6 bg-secondary/5 border border-secondary/10 rounded-2xl animate-fade-in md:col-span-2">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-full bg-secondary/20 flex items-center justify-center text-secondary">
+                        <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>near_me</span>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-black uppercase text-secondary tracking-widest">Estás a</p>
+                        <p className="text-xl font-headline font-black text-[#003e6f]">{distancia}</p>
+                      </div>
+                    </div>
+                    <Link 
+                      href={{
+                        pathname: '/mapa',
+                        query: { lat: negocio.latitud, lng: negocio.longitud, id: negocio.id }
+                      }}
+                      className="bg-secondary text-on-secondary px-6 py-3 rounded-xl font-headline font-bold text-xs uppercase tracking-widest shadow-lg shadow-secondary/20 active:scale-95 transition-all flex items-center gap-2"
+                    >
+                      <span className="material-symbols-outlined text-sm">map</span>
+                      Ver en mapa
+                    </Link>
                   </div>
                 )}
               </div>
@@ -277,6 +372,32 @@ export default function NegocioPerfilPage() {
                   </div>
                 )}
 
+                {(negocio.instagram || negocio.facebook || (negocio as any).telefono) && (
+                  <div className="space-y-4 pt-4 border-t border-outline-variant/10">
+                    <h4 className="font-headline font-bold text-xs uppercase tracking-[0.2em] text-on-surface-variant">Contacto</h4>
+                    <div className="space-y-3">
+                      {(negocio as any).telefono && (
+                        <div className="flex items-center gap-3 text-on-surface">
+                          <span className="material-symbols-outlined text-secondary" style={{ fontVariationSettings: "'FILL' 1" }}>phone_in_talk</span>
+                          <span className="text-sm font-bold">{(negocio as any).telefono}</span>
+                        </div>
+                      )}
+                      <div className="flex gap-4">
+                        {negocio.instagram && (
+                          <a href={`https://instagram.com/${negocio.instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-pink-500/10 flex items-center justify-center text-pink-600 hover:bg-pink-500/20 transition-all">
+                            <span className="material-symbols-outlined text-xl">camera_alt</span>
+                          </a>
+                        )}
+                        {negocio.facebook && (
+                          <a href={`https://facebook.com/${negocio.facebook}`} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-blue-600/10 flex items-center justify-center text-blue-700 hover:bg-blue-600/20 transition-all">
+                            <span className="material-symbols-outlined text-xl">facebook</span>
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <div className="space-y-3 pt-4">
                   {isOwner && (
                     <Link href="#productos" className="w-full bg-primary text-on-primary font-headline font-black py-4 rounded-xl flex items-center justify-center gap-2 hover:brightness-110 active:scale-95 transition-all uppercase tracking-widest text-sm">
@@ -289,14 +410,7 @@ export default function NegocioPerfilPage() {
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-primary-container to-surface-container rounded-2xl p-8 relative overflow-hidden group">
-                <div className="relative z-10 space-y-4">
-                  <h4 className="text-2xl font-headline font-black leading-tight uppercase italic">{t("impulsaNegocio")} <span className="text-secondary">{t("negocioWord")}</span></h4>
-                  <p className="text-sm text-on-surface-variant">{t("herramientas")}</p>
-                  <button className="bg-white text-surface text-xs font-black px-4 py-2 rounded-lg uppercase tracking-tighter hover:bg-secondary transition-colors">{t("saberMas")}</button>
-                </div>
-                <span className="material-symbols-outlined absolute -bottom-4 -right-4 text-9xl opacity-10 group-hover:scale-110 transition-transform duration-700">rocket_launch</span>
-              </div>
+              {/* Promotional section removed */}
             </div>
           </aside>
         </div>

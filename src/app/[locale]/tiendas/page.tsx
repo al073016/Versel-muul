@@ -5,6 +5,8 @@ import { Link } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useTranslations } from "next-intl";
 import type { Negocio } from "@/types/database";
+import { DUMMY_POIS } from "@/lib/dummy-data";
+import { getPremiumPhoto } from "@/lib/photo-engine";
 
 type BusinessCategory = "comida" | "tienda" | "servicios";
 
@@ -63,17 +65,39 @@ export default function TiendasPage() {
   ];
 
   const categoryLabels: Record<string, string> = {
-    comida: t("gastronomia"), tienda: t("artesanias"), servicios: t("servicios"),
+    comida: t("gastronomia"), 
+    tienda: t("artesanias"), 
+    servicios: t("servicios"),
+    cultural: t("cultural"),
+    deportes: t("deportes"),
   };
 
   useEffect(() => {
     const fetchNegocios = async () => {
       const { data } = await supabase.from("negocios").select("*").eq("activo", true).order("created_at", { ascending: false });
-      if (data) { setNegocios(data); setFilteredNegocios(data); }
+      
+      const mocked: Negocio[] = DUMMY_POIS.map(p => ({
+        id: p.id,
+        propietario_id: 'dummy',
+        nombre: p.nombre,
+        descripcion: p.descripcion,
+        categoria: p.categoria as any,
+        latitud: p.latitud,
+        longitud: p.longitud,
+        horario_apertura: p.horario_apertura,
+        horario_cierre: p.horario_cierre,
+        verificado: true,
+        activo: true,
+        created_at: new Date().toISOString(),
+      } as any));
+
+      const merged = [...mocked, ...(data || [])];
+      setNegocios(merged);
+      setFilteredNegocios(merged);
       setLoadingStores(false);
     };
     fetchNegocios();
-  }, []);
+  }, [supabase]);
 
   useEffect(() => {
     let result = negocios;
@@ -164,10 +188,14 @@ export default function TiendasPage() {
                 {filteredNegocios.map((negocio) => (
                   <Link key={negocio.id} href={`/negocio/${slugify(negocio.nombre) || negocio.id}`} className="group bg-white border border-neutral-100 rounded-3xl overflow-hidden relative shadow-sm hover:shadow-2xl hover:translate-y-[-8px] transition-all duration-500">
                     <div className="h-64 relative bg-slate-50 flex items-center justify-center overflow-hidden">
-                      <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent z-10" />
-                      <span className="text-8xl group-hover:scale-110 transition-transform duration-700">{categoryEmojis[negocio.categoria] || "🏪"}</span>
+                      <img 
+                        src={negocio.foto_url || getPremiumPhoto(negocio.nombre, negocio.categoria)} 
+                        alt={negocio.nombre} 
+                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 brightness-90" 
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#003e6f]/60 via-transparent to-transparent z-10" />
                       <span className="absolute top-4 left-4 z-20 bg-white/80 backdrop-blur-md border border-neutral-100 px-4 py-1.5 rounded-full text-[10px] font-black text-[#003e6f] tracking-widest uppercase">{categoryLabels[negocio.categoria] || negocio.categoria}</span>
-                      {negocio.verificado && (<span className="absolute top-4 right-4 z-20 bg-[#003e6f]/10 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-black text-[#003e6f] flex items-center gap-1">🌊 MUUL</span>)}
+                      {negocio.verificado && (<span className="absolute top-4 right-4 z-20 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-black text-[#003e6f] flex items-center gap-1">🌊 MUUL</span>)}
                     </div>
                     <div className="p-8 relative">
                       <h3 className="text-2xl font-black font-headline mb-2 text-[#003e6f]">{negocio.nombre}</h3>
@@ -185,106 +213,6 @@ export default function TiendasPage() {
           </div>
         </section>
 
-        {/* ===== REGISTRO ===== */}
-        <section className="bg-white py-24 px-6 border-t border-neutral-100">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-16 animate-fade-in-up">
-              <span className="text-[#005596] font-bold tracking-[0.2em] uppercase text-xs mb-4 block">{t("hacCrecer")}</span>
-              <h2 className="text-4xl md:text-5xl font-black font-headline text-[#003e6f]">{t("registroTitulo")}</h2>
-              <p className="text-neutral-500 mt-4">{t("registroSubtitulo")}</p>
-            </div>
-
-            {regSuccess ? (
-              <div className="bg-surface-container-low rounded-3xl p-12 shadow-2xl flex flex-col items-center text-center space-y-6">
-                <div className="w-24 h-24 rounded-full bg-secondary/20 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-secondary text-5xl" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-                </div>
-                <h3 className="font-headline font-black text-3xl">{t("registroExito")}</h3>
-                <p className="text-on-surface-variant max-w-md">{t("registroExitoDesc")}</p>
-                <button onClick={() => setRegSuccess(false)} className="px-8 py-3 bg-primary text-on-primary rounded-xl font-headline font-bold hover:shadow-glow-secondary transition-all">{t("registrarOtro")}</button>
-              </div>
-            ) : (
-              <div className="bg-surface-container-low rounded-3xl p-8 md:p-12 shadow-2xl relative overflow-hidden">
-                <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-tertiary/10 blur-[80px] rounded-full" />
-                <form className="space-y-8 relative z-10" onSubmit={handleRegistro}>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-[#005596] ml-4">{t("nombreNegocio")} *</label>
-                      <input type="text" required value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder={t("nombreNegocioPlaceholder")} className="w-full !bg-slate-100 border border-slate-200 rounded-2xl py-4 px-8 text-[#003e6f] focus:ring-2 focus:ring-[#003e6f]/20 placeholder:text-[#003e6f]/30 outline-none transition-all" />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-[#005596] ml-4">{t("rfc")}</label>
-                      <input type="text" value={rfc} onChange={(e) => setRfc(e.target.value)} placeholder={t("rfcPlaceholder")} className="w-full !bg-slate-100 border border-slate-200 rounded-2xl py-4 px-8 text-[#003e6f] focus:ring-2 focus:ring-[#003e6f]/20 placeholder:text-[#003e6f]/30 outline-none transition-all" />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-[#005596] ml-4">{t("descripcion")}</label>
-                    <textarea value={descripcion} onChange={(e) => setDescripcion(e.target.value)} placeholder={t("descripcionPlaceholder")} rows={3} className="w-full !bg-slate-100 border border-slate-200 rounded-2xl py-4 px-8 text-[#003e6f] focus:ring-2 focus:ring-[#003e6f]/20 placeholder:text-[#003e6f]/30 outline-none transition-all resize-none" />
-                  </div>
-
-                  <div className="space-y-4">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-[#005596] ml-4">{t("categoria")} *</label>
-                    <div className="grid grid-cols-3 gap-4">
-                      {businessCategories.map((cat) => (
-                        <button key={cat.id} type="button" onClick={() => setSelectedCategory(cat.id)} className={`flex flex-col items-center justify-center p-6 bg-slate-50 rounded-2xl border-2 transition-all ${selectedCategory === cat.id ? "border-[#003e6f] text-[#003e6f] bg-white shadow-lg" : "border-transparent hover:border-[#003e6f]/10"}`}>
-                          <span className="text-3xl mb-2">{cat.emoji}</span>
-                          <span className="text-xs font-black uppercase tracking-tighter">{cat.label}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-[#005596] ml-4">{t("horarioApertura")}</label>
-                      <input type="time" value={horarioApertura} onChange={(e) => setHorarioApertura(e.target.value)} className="w-full !bg-slate-100 border border-slate-200 rounded-2xl py-4 px-8 text-[#003e6f] outline-none" />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-[#005596] ml-4">{t("horarioCierre")}</label>
-                      <input type="time" value={horarioCierre} onChange={(e) => setHorarioCierre(e.target.value)} className="w-full !bg-slate-100 border border-slate-200 rounded-2xl py-4 px-8 text-[#003e6f] outline-none" />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-[#005596] ml-4">{t("direccion")}</label>
-                    <input type="text" value={direccion} onChange={(e) => setDireccion(e.target.value)} placeholder={t("direccionPlaceholder")} className="w-full !bg-slate-100 border border-slate-200 rounded-2xl py-4 px-8 text-[#003e6f] focus:ring-2 focus:ring-[#003e6f]/20 placeholder:text-[#003e6f]/30 outline-none transition-all" />
-                  </div>
-
-                  <div className="space-y-4">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-[#005596] ml-4">{t("ubicacion")} *</label>
-                    <div className="flex gap-4">
-                      <button type="button" onClick={capturarGPS} className="flex-grow bg-slate-100 text-[#003e6f] py-4 rounded-2xl font-black flex items-center justify-center gap-2 hover:bg-slate-200 transition-all shadow-sm">
-                        <span className="material-symbols-outlined">location_on</span>{t("capturarGPS")}
-                      </button>
-                      <button type="button" className={`px-6 rounded-2xl flex items-center justify-center transition-all ${gpsActive ? "bg-[#fed000] text-[#003e6f] shadow-lg shadow-[#fed000]/20" : "bg-slate-100 text-slate-400"}`}>
-                        <span className="material-symbols-outlined" style={gpsActive ? { fontVariationSettings: "'FILL' 1" } : undefined}>check_circle</span>
-                      </button>
-                    </div>
-                    {gpsActive && latitud && longitud && (<div className="text-[10px] text-[#fed000] bg-[#003e6f] px-4 py-1.5 rounded-full w-fit ml-auto font-mono uppercase tracking-widest shadow-sm">GPS: {latitud.toFixed(4)}° N, {longitud.toFixed(4)}° W</div>)}
-                  </div>
-
-                  <div className="space-y-4">
-                    <label className="flex items-start gap-4 cursor-pointer group">
-                      <div className="relative mt-1">
-                        <input type="checkbox" checked={aceptaTerminos} onChange={(e) => setAceptaTerminos(e.target.checked)} className="peer sr-only" />
-                        <div className="w-6 h-6 bg-surface-container-highest border-2 border-outline-variant rounded peer-checked:bg-secondary peer-checked:border-secondary transition-all" />
-                        <span className="material-symbols-outlined absolute top-0 left-0 text-on-secondary opacity-0 peer-checked:opacity-100 text-sm w-6 h-6 flex items-center justify-center">check</span>
-                      </div>
-                      <span className="text-sm text-on-surface-variant leading-relaxed">{t("terminos")}</span>
-                    </label>
-                  </div>
-
-                  {regError && (<div className="p-3 rounded-lg bg-error-container/20 border border-error/20 text-error text-xs font-medium animate-fade-in-up">{regError}</div>)}
-
-                  <button type="submit" disabled={registrando} className="w-full bg-[#003e6f] text-white !text-white py-5 rounded-xl font-headline font-black text-lg uppercase tracking-tighter hover:bg-[#fed000] hover:text-[#003e6f] active:scale-[0.98] transition-all shadow-xl shadow-[#003e6f]/10 disabled:opacity-50 disabled:cursor-not-allowed">
-                    {registrando ? t("registrando") : t("registrar")}
-                  </button>
-                </form>
-              </div>
-            )}
-          </div>
-        </section>
       </main>
   );
 }

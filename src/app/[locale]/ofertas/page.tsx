@@ -46,21 +46,21 @@ const DUMMY_OFFERS = [
 ];
 
 export default function OfertasPage() {
-  const t = useTranslations("nav");
+  const t = useTranslations("ofertas");
 
   return (
     <main className="pt-32 pb-20 bg-[#ffffff] min-h-screen">
       <div className="max-w-[1440px] mx-auto px-6 md:px-12">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-8">
           <div>
-            <span className="font-label text-[#005596] tracking-widest text-xs uppercase mb-3 block font-black">🔥 Hot Deals</span>
-            <h1 className="font-headline text-5xl md:text-6xl text-[#003e6f] font-black">{t("ofertas")} Cercanas</h1>
-            <p className="text-neutral-500 mt-4 font-body text-lg max-w-xl">Aprovecha los beneficios exclusivos de la red Muul para disfrutar lo mejor de la ciudad.</p>
+            <span className="font-label text-[#005596] tracking-widest text-xs uppercase mb-3 block font-black">{t("hotDeals")}</span>
+            <h1 className="font-headline text-5xl md:text-6xl text-[#003e6f] font-black">{t("titulo")} {t("cercanas")}</h1>
+            <p className="text-neutral-500 mt-4 font-body text-lg max-w-xl">{t("subtitulo")}</p>
           </div>
           <div className="bg-slate-100 p-2 rounded-2xl flex gap-2 border border-slate-200">
-            <button className="bg-white px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest text-[#003e6f] shadow-sm">Todas</button>
-            <button className="px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest text-[#003e6f]/40 hover:text-[#003e6f] transition-all">Gastronomía</button>
-            <button className="px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest text-[#003e6f]/40 hover:text-[#003e6f] transition-all">Tiendas</button>
+            <button className="bg-white px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest text-[#003e6f] shadow-sm">{t("todas")}</button>
+            <button className="px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest text-[#003e6f]/40 hover:text-[#003e6f] transition-all">{t("gastronomia")}</button>
+            <button className="px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest text-[#003e6f]/40 hover:text-[#003e6f] transition-all">{t("tiendas")}</button>
           </div>
         </div>
 
@@ -75,7 +75,7 @@ export default function OfertasPage() {
                 <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/60 to-transparent">
                   <span className="text-white text-xs font-body flex items-center gap-1">
                     <span className="material-symbols-outlined text-sm">near_me</span>
-                    {offer.distance} de distancia
+                    {offer.distance} {t("deDistancia")}
                   </span>
                 </div>
               </div>
@@ -88,7 +88,7 @@ export default function OfertasPage() {
                   {offer.description}
                 </p>
                 <button className="w-full py-4 bg-[#003e6f] text-white !text-white rounded-2xl font-headline font-black text-sm hover:bg-[#fed000] hover:text-[#003e6f] transition-all shadow-lg shadow-[#003e6f]/20 group-hover:shadow-[#fed000]/20">
-                  Obtener Cupón
+                  {t("obtenerCupon")}
                 </button>
               </div>
             </div>
