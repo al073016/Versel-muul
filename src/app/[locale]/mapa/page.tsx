@@ -26,6 +26,7 @@ import AccessibilityFeaturesLayer from "@/components/map/AccessibilityFeaturesLa
 import { useGlobalSearch } from "@/hooks/useGlobalSearch";
 import { haversine } from "@/lib/haversine";
 import { useNearbySearch } from "@/hooks/useNearbySearch";
+import { DUMMY_POIS } from "@/lib/dummy-data";
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
 
@@ -106,10 +107,10 @@ export default function MapaPage() {
   const { buscarCercanos, buscandoExternos } = useNearbySearch();
 
   // ── State ──
-  // allPois holds the merged result: Supabase POIs first, then Mapbox fallback
-  const [allPois, setAllPois] = useState<POI[]>([]);
-  const allPoisRef = useRef<POI[]>([]);
-  useEffect(() => { allPoisRef.current = allPois; }, [allPois]);
+  const [pois, setPois] = useState<POI[]>(DUMMY_POIS as any);
+  const [mapboxPois, setMapboxPois] = useState<POI[]>([]);
+  const poisRef = useRef<POI[]>([]);
+  useEffect(() => { poisRef.current = pois; }, [pois]);
 
   const [filteredPois, setFilteredPois] = useState<POI[]>([]);
   const [selectedPoi, setSelectedPoi] = useState<POI | null>(null);
@@ -162,6 +163,24 @@ export default function MapaPage() {
     fetchUser();
     const { data: { subscription } } = supabase.auth.onAuthStateChange(() => fetchUser());
     return () => subscription.unsubscribe();
+  }, []);
+
+  /* ── Load POIs ── */
+  useEffect(() => {
+    const fetchPois = async () => {
+      const { data } = await supabase.from("pois").select("*").order("created_at", { ascending: false });
+      const dbPois = data || [];
+      
+      // Merge with dummy POIs
+      const allPois = [...dbPois];
+      DUMMY_POIS.forEach(d => {
+        if (!allPois.find(p => p.id === d.id)) allPois.push(d as any);
+      });
+      
+      setPois(allPois);
+      setLoading(false);
+    };
+    fetchPois();
   }, []);
 
   /* ── Party URL param ── */
@@ -245,16 +264,67 @@ export default function MapaPage() {
   /* ── User location ── */
   useEffect(() => {
     if (!navigator.geolocation) return;
+    
+    // Check if we already have a targeted POI in URL
+    const params = new URLSearchParams(window.location.search);
+    const lat = params.get("lat");
+    const lng = params.get("lng");
+    const hasTarget = lat && lng;
+
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const coords: [number, number] = [pos.coords.latitude, pos.coords.longitude];
         setUbicacionUsuario(coords);
-        mapRef.current?.flyTo({ center: [coords[1], coords[0]], zoom: 14, duration: 2000 });
+        
+        // ONLY flyTo user if there's no target in URL
+        if (!hasTarget && mapRef.current) {
+          mapRef.current.flyTo({ center: [coords[1], coords[0]], zoom: 14, duration: 2000 });
+        }
       },
-      () => setUbicacionUsuario([19.4326, -99.1332]),
-      { enableHighAccuracy: true, timeout: 10000 }
+      () => {
+        setUbicacionUsuario([19.4326, -99.1332]);
+        if (!hasTarget && mapRef.current) {
+          mapRef.current.flyTo({ center: [-99.1332, 19.4326], zoom: 11.5 });
+        }
+      },
+      { enableHighAccuracy: true, timeout: 1000 }
     );
-  }, []);
+  }, [mapLoaded]); // Run when map is loaded
+
+  /* ── Target focus from URL ── */
+  useEffect(() => {
+    if (!mapLoaded || !mapRef.current) return;
+    
+    const params = new URLSearchParams(window.location.search);
+    const lat = params.get("lat") || params.get("latitud");
+    const lng = params.get("lng") || params.get("longitud");
+    const id = params.get("id") || params.get("poi") || params.get("negocio_id");
+
+    if (lat && lng) {
+      const qLat = parseFloat(lat);
+      const qLng = parseFloat(lng);
+      
+      if (!isNaN(qLat) && !isNaN(qLng)) {
+        mapRef.current.flyTo({
+          center: [qLng, qLat],
+          zoom: 17,
+          duration: 1500,
+          essential: true
+        });
+
+        // Search for POI to select it
+        if (id) {
+          const found = pois.find(p => p.id === id);
+          if (found) {
+            setSelectedPoi(found);
+            setMobileSheetOpen(false);
+          } else {
+            // If not found yet (maybe loading), we can try mapboxPois or wait
+          }
+        }
+      }
+    }
+  }, [mapLoaded, pois.length]);
 
   /* ── Route toggle ── */
   const togglePoiEnRuta = useCallback((poi: POI) => {
@@ -703,9 +773,11 @@ export default function MapaPage() {
                   <TransportSelector value={transportMode} onChange={setTransportMode} />
                   <div className="flex gap-2">
                     <button onClick={handleSorprendeme} disabled={sorprendeme.loading || activeLoading}
-                      className="flex-shrink-0 flex items-center gap-1.5 px-3 py-3 rounded-xl bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high text-xs font-bold transition-all disabled:opacity-40" title="Sorpréndeme">
+                      className="flex-shrink-0 flex items-center gap-1.5 px-3 py-3 rounded-xl bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high text-xs font-bold transition-all disabled:opacity-40"
+                      title={t("sorprendeme")}
+                    >
                       <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: "'FILL' 1" }}>casino</span>
-                      <span className="hidden lg:inline">Sorpréndeme</span>
+                      <span className="hidden lg:inline">{t("sorprendeme")}</span>
                     </button>
                     <button onClick={calcularRuta} disabled={poisEnRuta.length < 1 || activeLoading}
                       className={`flex-1 py-4 rounded-xl font-headline font-black uppercase tracking-widest transition-all shadow-lg disabled:opacity-40 disabled:cursor-not-allowed ${isAccessibleMode ? "bg-[#fed000] text-[#003e6f] shadow-[#fed000]/20 hover:bg-yellow-400" : "bg-secondary hover:bg-secondary-fixed text-on-secondary shadow-secondary/10"}`}>
@@ -731,8 +803,8 @@ export default function MapaPage() {
                       <div className={`p-3 rounded-xl flex items-center gap-3 ${isAccessibleMode ? "bg-[#fed000]/20 border border-[#fed000]/30" : "bg-surface-container-high"}`}>
                         <div className="w-3 h-3 rounded-full shrink-0" style={{ background: getRouteColorForMode(transportMode) }} />
                         <div className="flex-1">
-                          <p className="text-sm font-bold text-on-surface">
-                            {isAccessibleMode ? "Accesible — Silla de ruedas" : transportMode === "walking" ? "Caminando" : transportMode === "cycling" ? "Bicicleta" : "Vehículo"}
+                          <p className="text-sm font-bold text-on-surface capitalize">
+                            {transportMode === "walking" ? t("caminando") : transportMode === "cycling" ? t("bicicleta") : t("vehiculo")}
                           </p>
                           <p className="text-[10px] text-on-surface-variant">
                             {activeRoute.distancia_texto} · {activeRoute.duracion_texto}
@@ -827,17 +899,46 @@ export default function MapaPage() {
           {/* ── Map area ── */}
           <div className="flex-1 relative overflow-hidden">
             <div ref={mapContainer} className="absolute inset-0" />
-            <AccessibilityFeaturesLayer map={mapRef.current} features={isAccessibleMode && accessibleRoute.route ? accessibleRoute.route.accessibilityFeatures : []} visible={showAccessibilityFeatures && isAccessibleMode} />
-            <div className="absolute top-4 left-4 z-20">
-              <SorprendemeFAB onClick={handleSorprendeme} loading={sorprendeme.loading || activeLoading} disabled={!ubicacionUsuario} />
-            </div>
-            {!isAccessibleMode && (
-              <div className="absolute top-4 z-20" style={{ left: "140px" }}>
-                <button onClick={() => setTransportMode("accessible")} className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/95 backdrop-blur-sm shadow-lg border border-white/20 text-[#003e6f] font-black text-xs uppercase tracking-widest hover:bg-[#fed000] transition-all">
-                  <span className="material-symbols-outlined text-base">accessible</span><span>Accesible</span>
-                </button>
+
+            {/* Accessibility features on map */}
+            <AccessibilityFeaturesLayer
+              map={mapRef.current}
+              features={isAccessibleMode && accessibleRoute.route ? accessibleRoute.route.accessibilityFeatures : []}
+              visible={showAccessibilityFeatures && isAccessibleMode}
+            />
+
+            {/* Top FABs Container */}
+            <div className="absolute top-4 left-4 z-20 flex items-stretch gap-3">
+              <div className="flex-shrink-0">
+                <SorprendemeFAB onClick={handleSorprendeme} loading={sorprendeme.loading || activeLoading} disabled={!ubicacionUsuario} />
               </div>
-            )}
+              
+              {!isAccessibleMode && (
+                <button
+                  onClick={() => setTransportMode("accessible")}
+                  className="flex items-center gap-2 px-4 rounded-xl bg-white/95 backdrop-blur-sm shadow-lg border border-white/20 text-[#003e6f] font-black text-[11px] uppercase tracking-widest hover:bg-[#fed000] transition-all active:scale-95 h-[48px] shadow-secondary/10"
+                >
+                  <span className="material-symbols-outlined text-base">accessible</span>
+                  <span>Accesible</span>
+                </button>
+              )}
+            </div>
+
+            {/* Sticky AI button only on map */}
+            <button
+              onClick={() => {
+                setChatbotAbierto(true);
+                setMobileSheetOpen(false);
+              }}
+              className="absolute bottom-[12rem] right-4 md:bottom-6 md:right-6 z-[45] h-14 px-5 rounded-full bg-[#003e6f] text-white shadow-xl shadow-[#003e6f]/30 hover:bg-[#0a4f84] transition-colors flex items-center gap-2"
+              aria-label="Abrir MUUL AI"
+              title="Abrir MUUL AI"
+            >
+              <span className="w-6 h-6 rounded-full border border-white/70 flex items-center justify-center text-[11px] leading-none" aria-hidden="true">✦</span>
+              <span className="font-label text-[11px] font-black tracking-[0.18em] text-white">MUUL AI</span>
+            </button>
+
+            {/* POI card — enhanced with photo */}
             {selectedPoi && !mostrarItinerario && (
               <POICard poi={selectedPoi} isInRoute={isInRoute(selectedPoi)} routeIndex={poisEnRuta.findIndex((p) => p.id === selectedPoi.id)} onClose={() => setSelectedPoi(null)} onToggleRoute={togglePoiEnRuta} onAskAI={() => { setChatbotAbierto(true); setMobileSheetOpen(false); }} t={t} />
             )}
@@ -883,8 +984,24 @@ export default function MapaPage() {
           </div>
         )}
 
-        <PartyModeModal isOpen={partyModalOpen} onClose={() => { setPartyModalOpen(false); setSavedRouteIdForParty(undefined); }} savedRouteId={savedRouteIdForParty} poisEnRuta={poisEnRuta} distanciaTexto={activeRoute?.distancia_texto} duracionTexto={activeRoute?.duracion_texto} onLoadRoute={(pois_data) => cargarRutaEnMapa(pois_data)} />
-        <ChatModal isOpen={chatbotAbierto} onClose={() => setChatbotAbierto(false)} poi={selectedPoi} idioma={locale} />
+        <PartyModeModal
+          isOpen={partyModalOpen}
+          onClose={() => { setPartyModalOpen(false); setSavedRouteIdForParty(undefined); }}
+          savedRouteId={savedRouteIdForParty}
+          poisEnRuta={poisEnRuta}
+          distanciaTexto={activeRoute?.distancia_texto}
+          duracionTexto={activeRoute?.duracion_texto}
+          onLoadRoute={(pois_data) => cargarRutaEnMapa(pois_data)}
+        />
+
+        <ChatModal
+          isOpen={chatbotAbierto}
+          onClose={() => setChatbotAbierto(false)}
+          poi={selectedPoi}
+          poisEnRuta={poisEnRuta}
+          totalVisibles={filteredPois.length}
+          idioma={locale}
+        />
       </main>
 
       {/* ═══ MOBILE BOTTOM SHEET ═══ */}
@@ -971,21 +1088,32 @@ export default function MapaPage() {
                   {!initialLoadDone || buscandoExternos ? (
                     <div className="space-y-3 p-2">{[1,2,3].map((i) => (<div key={i} className="animate-pulse flex gap-3 p-3"><div className="w-10 h-10 rounded-xl bg-surface-container-high shrink-0" /><div className="flex-1 space-y-2"><div className="h-3 bg-surface-container-high rounded w-3/4" /><div className="h-2 bg-surface-container-high rounded w-1/2" /></div></div>))}</div>
                   ) : filteredPois.length === 0 ? (
-                    <div className="flex flex-col items-center text-center py-8 space-y-2"><span className="text-3xl">🔍</span><p className="text-on-surface-variant text-xs">{t("sinResultados")}</p></div>
-                  ) : filteredPois.map((poi) => {
-                    const inRoute = isInRoute(poi);
-                    const routeNum = poisEnRuta.findIndex((p) => p.id === poi.id) + 1;
-                    return (
-                      <div key={poi.id} className={`p-3 rounded-xl flex items-center gap-3 transition-all ${selectedPoi?.id === poi.id ? "bg-surface-container-high border-l-4 border-secondary" : "hover:bg-surface-container-high"}`}>
-                        <button onClick={() => { handleSelectPoi(poi); setMobileSheetOpen(false); }} className="w-10 h-10 rounded-xl bg-surface-container-highest flex items-center justify-center text-xl shrink-0">{poi.emoji || "📍"}</button>
-                        <button onClick={() => { handleSelectPoi(poi); setMobileSheetOpen(false); }} className="flex-1 min-w-0 text-left">
-                          <h3 className="font-headline font-bold text-on-surface text-sm truncate">{poi.nombre}</h3>
-                          <p className="text-[11px] text-on-surface-variant mt-0.5"><span className={isOpenNow(poi) ? "text-secondary" : "text-tertiary"}>● </span>{formatHours(poi)}</p>
-                        </button>
-                        <button onClick={() => togglePoiEnRuta(poi)} className={`shrink-0 w-9 h-9 rounded-lg flex items-center justify-center text-xs font-black transition-all ${inRoute ? "bg-secondary text-on-secondary" : "bg-surface-container-highest text-on-surface-variant"}`}>{inRoute ? routeNum : <span className="material-symbols-outlined text-base">add_location</span>}</button>
-                      </div>
-                    );
-                  })}
+                    <div className="flex flex-col items-center text-center py-8 space-y-2">
+                      <span className="text-3xl">🔍</span>
+                      <p className="text-on-surface-variant text-xs">{t("sinResultados")}</p>
+                    </div>
+                  ) : (
+                    filteredPois.map((poi) => {
+                      const inRoute = isInRoute(poi);
+                      const routeNum = poisEnRuta.findIndex((p) => p.id === poi.id) + 1;
+                      return (
+                        <div key={poi.id} className={`p-3 rounded-xl flex items-center gap-3 transition-all ${selectedPoi?.id === poi.id ? "bg-surface-container-high border-l-4 border-secondary" : "hover:bg-surface-container-high"}`}>
+                          <button onClick={() => { handleSelectPoi(poi); setMobileSheetOpen(false); }} className="w-10 h-10 rounded-xl bg-surface-container-highest flex items-center justify-center text-xl shrink-0">{poi.emoji || "📍"}</button>
+                          <button onClick={() => { handleSelectPoi(poi); setMobileSheetOpen(false); }} className="flex-1 min-w-0 text-left">
+                            <h3 className="font-headline font-bold text-on-surface text-sm truncate">{poi.nombre}</h3>
+                            <p className="text-[11px] text-on-surface-variant mt-0.5">
+                              <span className={isOpenNow(poi) ? "text-secondary" : "text-tertiary"}>● </span>
+                              {formatHours(poi)}
+                            </p>
+                          </button>
+                          <button onClick={() => togglePoiEnRuta(poi)}
+                            className={`shrink-0 w-9 h-9 rounded-lg flex items-center justify-center text-xs font-black transition-all ${inRoute ? "bg-secondary text-on-secondary" : "bg-surface-container-highest text-on-surface-variant"}`}>
+                            {inRoute ? routeNum : <span className="material-symbols-outlined text-base">add_location</span>}
+                          </button>
+                        </div>
+                      );
+                    })
+                  )}
                 </div>
                 <div className="px-4 pb-4 pt-3 border-t border-outline-variant/10 space-y-2 shrink-0">
                   {activeError && <div className="p-2 rounded-lg bg-error-container/20 border border-error/20 text-error text-xs font-medium">{activeError}</div>}

@@ -224,3 +224,96 @@ export function getIdiomaKey(idioma: string): IdiomaKey {
 export function getPreguntasParaPOI(categoria: string): PreguntaPredefinida[] {
   return preguntasPorCategoria[categoria] || preguntasPorCategoria.servicio;
 }
+
+const preguntasContexto = {
+  general: [
+    {
+      id: "g1",
+      texto_es: "Recomiéndame 3 lugares cercanos para visitar.",
+      texto_en: "Recommend 3 nearby places to visit.",
+      texto_zh: "推荐3个附近可以去的地方。",
+      texto_pt: "Recomende 3 lugares próximos para visitar.",
+    },
+    {
+      id: "g2",
+      texto_es: "¿Qué zona me recomiendas para comer hoy?",
+      texto_en: "Which area do you recommend for food today?",
+      texto_zh: "今天推荐我去哪一片区域吃饭？",
+      texto_pt: "Qual área você recomenda para comer hoje?",
+    },
+    {
+      id: "g3",
+      texto_es: "¿Qué ruta corta puedo hacer en menos de 2 horas?",
+      texto_en: "What short route can I do in under 2 hours?",
+      texto_zh: "我可以在2小时内完成什么短路线？",
+      texto_pt: "Que rota curta posso fazer em menos de 2 horas?",
+    },
+  ],
+  negocio: [
+    {
+      id: "n1",
+      texto_es: "¿Qué servicios y beneficios ofrece este negocio?",
+      texto_en: "What services and benefits does this business offer?",
+      texto_zh: "这个商家提供哪些服务和权益？",
+      texto_pt: "Quais serviços e benefícios este negócio oferece?",
+    },
+    {
+      id: "n2",
+      texto_es: "¿Este negocio acepta pago con tarjeta y transferencias?",
+      texto_en: "Does this business accept card and bank transfer payments?",
+      texto_zh: "这个商家支持刷卡和转账吗？",
+      texto_pt: "Este negócio aceita cartão e transferência?",
+    },
+    {
+      id: "n3",
+      texto_es: "¿Cuál es la mejor hora para visitar este negocio?",
+      texto_en: "What is the best time to visit this business?",
+      texto_zh: "什么时候去这家店最好？",
+      texto_pt: "Qual é o melhor horário para visitar este negócio?",
+    },
+  ],
+  ruta: [
+    {
+      id: "r1",
+      texto_es: "Optimiza esta ruta para gastar menos tiempo.",
+      texto_en: "Optimize this route to spend less time.",
+      texto_zh: "请把这条路线优化得更省时。",
+      texto_pt: "Otimize esta rota para gastar menos tempo.",
+    },
+    {
+      id: "r2",
+      texto_es: "¿Qué paradas recomiendas quitar o agregar?",
+      texto_en: "Which stops should I remove or add?",
+      texto_zh: "你建议我删掉或增加哪些站点？",
+      texto_pt: "Quais paradas você recomenda remover ou adicionar?",
+    },
+    {
+      id: "r3",
+      texto_es: "Dame consejos para esta ruta si voy caminando.",
+      texto_en: "Give me tips for this route if I go walking.",
+      texto_zh: "如果我步行，这条路线有什么建议？",
+      texto_pt: "Dê dicas para esta rota se eu for caminhando.",
+    },
+  ],
+} as const;
+
+export type ContextoPreguntas = "general" | "negocio" | "ruta";
+
+export function getPreguntasPorContexto(contexto: ContextoPreguntas): PreguntaPredefinida[] {
+  return [...preguntasContexto[contexto]];
+}
+
+export function getTextoPregunta(pregunta: PreguntaPredefinida, idioma: string): string {
+  const key = getIdiomaKey(idioma);
+  return pregunta[key];
+}
+
+export function getTextoPreguntaPorId(id: string, idioma: string): string | undefined {
+  const allPreguntas = [
+    ...Object.values(preguntasPorCategoria).flat(),
+    ...Object.values(preguntasContexto).flat(),
+  ];
+  const encontrada = allPreguntas.find((p) => p.id === id);
+  if (!encontrada) return undefined;
+  return getTextoPregunta(encontrada, idioma);
+}

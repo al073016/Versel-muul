@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import type { TransportMode } from "@/hooks/useMapboxOptimization";
 
 /* ── Route color per mode ── */
@@ -17,45 +18,47 @@ export function getRouteColorForMode(mode: TransportMode | "accessible"): string
 interface TransportSelectorProps {
   value: TransportMode | "accessible";
   onChange: (mode: TransportMode | "accessible") => void;
+  className?: string;
 }
-
-/* ── Mode config ── */
-const MODES: {
-  value: TransportMode | "accessible";
-  icon: string;
-  label: string;
-  title: string;
-}[] = [
-  {
-    value: "walking",
-    icon: "directions_walk",
-    label: "Caminando",
-    title: "Ruta a pie",
-  },
-  {
-    value: "cycling",
-    icon: "directions_bike",
-    label: "Bicicleta",
-    title: "Ruta en bicicleta",
-  },
-  {
-    value: "driving",
-    icon: "directions_car",
-    label: "Vehículo",
-    title: "Ruta en auto",
-  },
-  {
-    value: "accessible",
-    icon: "accessible",
-    label: "Accesible",
-    title: "Ruta accesible — optimizada para silla de ruedas y movilidad reducida",
-  },
-];
 
 /* ══════════════════════════════════════════════
    COMPONENT
    ══════════════════════════════════════════════ */
-export default function TransportSelector({ value, onChange }: TransportSelectorProps) {
+export default function TransportSelector({ value, onChange, className = "" }: TransportSelectorProps) {
+  const t = useTranslations("mapa");
+
+  /* ── Mode config ── */
+  const MODES: {
+    value: TransportMode | "accessible";
+    icon: string;
+    label: string;
+    title: string;
+  }[] = [
+    {
+      value: "walking",
+      icon: "directions_walk",
+      label: t("caminando"),
+      title: "Ruta a pie",
+    },
+    {
+      value: "cycling",
+      icon: "directions_bike",
+      label: t("bicicleta"),
+      title: "Ruta en bicicleta",
+    },
+    {
+      value: "driving",
+      icon: "directions_car",
+      label: t("vehiculo"),
+      title: "Ruta en auto",
+    },
+    {
+      value: "accessible",
+      icon: "accessible",
+      label: t("accesible"),
+      title: "Ruta accesible — optimizada para silla de ruedas y movilidad reducida",
+    },
+  ];
   return (
     <div className="flex gap-1.5 w-full">
       {MODES.map((mode) => {
@@ -68,8 +71,8 @@ export default function TransportSelector({ value, onChange }: TransportSelector
             onClick={() => onChange(mode.value)}
             title={mode.title}
             className={`
-              flex-1 flex flex-col items-center justify-center gap-0.5
-              py-2 rounded-xl text-[9px] font-black uppercase tracking-widest
+              flex-1 flex flex-col items-center justify-center gap-1.5
+              py-3 px-1 rounded-xl text-[8px] font-black uppercase tracking-tighter
               border transition-all duration-200
               ${isActive
                 ? isAccessible
@@ -80,22 +83,20 @@ export default function TransportSelector({ value, onChange }: TransportSelector
             `}
           >
             <span
-              className="material-symbols-outlined text-base"
-              style={isActive && isAccessible
-                ? { fontVariationSettings: "'FILL' 1" }
-                : isActive
+              className="material-symbols-outlined text-lg"
+              style={isActive
                 ? { fontVariationSettings: "'FILL' 1" }
                 : undefined
               }
             >
               {mode.icon}
             </span>
-            <span className="leading-none">{mode.label}</span>
+            <span className="leading-tight text-center">{mode.label}</span>
 
             {/* Accessibility badge */}
             {isAccessible && isActive && (
-              <span className="text-[7px] font-black bg-[#003e6f] text-white px-1 py-0.5 rounded-full leading-none mt-0.5">
-                ♿ OSM
+              <span className="text-[7px] font-black bg-[#003e6f] text-white px-1.5 py-0.5 rounded-full leading-none mt-0.5">
+                OSM
               </span>
             )}
           </button>
