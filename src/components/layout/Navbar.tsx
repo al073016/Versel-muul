@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Link, useRouter, usePathname } from "@/i18n/navigation";
 import { useEffect, useRef, useState, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
@@ -263,7 +264,14 @@ export default function Navbar() {
     <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-neutral-200/50 shadow-[0_4px_20px_rgba(0,18,50,0.03)]">
       <div className="max-w-[1440px] mx-auto h-[80px] px-8 flex items-center justify-between gap-8">
         {/* Logo */}
-        <div className="flex items-center">
+        <div className="flex items-center gap-3">
+          <Image
+            src="https://qewqnirwuptcudoflgkd.supabase.co/storage/v1/object/public/muul_media/Logopng.png"
+            alt="MUUL Logo"
+            width={48}
+            height={48}
+            className="h-12 w-12 object-contain"
+          />
           <Link
             href="/"
             className="text-3xl font-black text-[#003e6f] italic tracking-tighter leading-none hover:opacity-80 transition-opacity font-headline"
