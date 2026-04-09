@@ -452,15 +452,22 @@ export default function LoginPage() {
           return;
         }
 
-        const negocioId = (negocioData as any)?.id;
+        // Obtener el negocio del usuario usando RPC
+        try {
+          const { data: negocioData2, error: negocioQueryError } = await supabase.rpc('get_negocio_usuario_actual');
 
-        if (negocioData?.id) {
-          router.push(`/negocio/${negocioData.id}`);
-        } else if (authData.user?.id) {
-          // Fallback: usar user_id si no viene negocio_id
-          router.push(`/negocio/${authData.user.id}`);
-        } else {
-          router.push("/");
+          if (negocioQueryError || !negocioData2 || negocioData2.length === 0) {
+            console.error("Error fetching negocio:", negocioQueryError);
+            setErrorMessage("Error al cargar el negocio creado");
+            return;
+          }
+
+          const negocioId = negocioData2[0].id;
+          router.push(`/negocio/${negocioId}`);
+        } catch (err) {
+          console.error("Exception fetching negocio:", err);
+          setErrorMessage("Error al cargar el negocio");
+          return;
         }
         return;
       }
