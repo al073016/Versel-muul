@@ -148,6 +148,41 @@ export const SocialService = {
     }
   },
 
+  async deletePost(postId: string): Promise<boolean> {
+    if (postId.startsWith('local_') || postId.startsWith('post_')) {
+      if (typeof window !== 'undefined' && postId.startsWith('local_')) {
+        const existing = localStorage.getItem(LOCAL_POSTS_KEY);
+        if (existing) {
+          const posts = JSON.parse(existing).filter((p: any) => p.id !== postId);
+          localStorage.setItem(LOCAL_POSTS_KEY, JSON.stringify(posts));
+        }
+      }
+      return true;
+    }
+    
+    try {
+      const { createClient } = await import("../supabase/client");
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return false;
+      
+      const { error } = await supabase
+        .from('publicaciones')
+        .delete()
+        .eq('id', postId)
+        .eq('usuario_id', user.id);
+        
+      if (error) {
+        console.error("[SocialService] Error deleting post:", error);
+        return false;
+      }
+      return true;
+    } catch (e) {
+      console.error("[SocialService] Error deleting post:", e);
+      return false;
+    }
+  },
+
   async uploadImage(file: File): Promise<string | null> {
     try {
       const { createClient } = await import("../supabase/client");

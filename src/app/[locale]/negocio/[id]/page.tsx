@@ -89,6 +89,15 @@ const MOCKUP_IMAGEN_URLS: Record<string, string> = {
   "mock-4": "https://qewqnirwuptcudoflgkd.supabase.co/storage/v1/object/public/muul_media/QUESADILLA.webp",
   "mock-5": "https://qewqnirwuptcudoflgkd.supabase.co/storage/v1/object/public/muul_media/CHILES.webp",
   "mock-6": "https://loremflickr.com/400/500/torta,mexican",
+  "csf1": "https://images.unsplash.com/photo-1607227063002-677dc5fdf96f?q=80&w=1000&auto=format&fit=crop",
+  "csf_c1": "https://images.unsplash.com/photo-1603302576837-37561b2e2302?q=80&w=1000&auto=format&fit=crop",
+  "csf_c2": "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=1000&auto=format&fit=crop",
+  "nb1": "https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?q=80&w=1000&auto=format&fit=crop",
+  "nb2": "https://images.unsplash.com/photo-1553621042-f6e147245754?q=80&w=1000&auto=format&fit=crop",
+  "pdc1": "https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=1000&auto=format&fit=crop",
+  "pdc2": "https://images.unsplash.com/photo-1461023058943-07fcbe16d735?q=80&w=1000&auto=format&fit=crop",
+  "sf1": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1000&auto=format&fit=crop",
+  "sf2": "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=1000&auto=format&fit=crop"
 };
 
 
@@ -282,18 +291,18 @@ export default function NegocioPerfilPage() {
           <img
             alt={negocio.nombre}
             className="w-full h-full object-cover"
-            src="https://qewqnirwuptcudoflgkd.supabase.co/storage/v1/object/public/muul_media/TacosTino.jpeg"
+            src={negocio.foto_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(negocio.nombre)}&background=003e6f&color=fff&size=800`}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-primary/60 to-transparent"></div>
 
           {}
-          <div className="absolute bottom-8 left-8 flex items-end gap-6">
-            <div className="w-32 h-32 rounded-2xl bg-white p-1 shadow-2xl">
+          <div className="absolute bottom-8 left-8 flex items-end gap-6 z-10 w-[calc(100%-4rem)]">
+            <div className="w-32 h-32 rounded-2xl bg-white p-1 shadow-2xl shrink-0">
               {}
               <img
                 alt="Business Logo"
                 className="w-full h-full object-cover rounded-xl"
-                src="https://qewqnirwuptcudoflgkd.supabase.co/storage/v1/object/public/muul_media/TacosTino.jpeg"
+                src={negocio.foto_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(negocio.nombre)}&background=003e6f&color=fff&size=400`}
               />
             </div>
             <div className="pb-2">
@@ -392,7 +401,7 @@ export default function NegocioPerfilPage() {
                         <img
                           alt={p.nombre}
                           className="w-full h-full object-cover"
-                          src={MOCKUP_IMAGEN_URLS[p.id] || `https://ui-avatars.com/api/?name=${p.nombre}&background=dde9ff&color=003e6f&size=400`}
+                          src={(p as any).foto_url || (p as any).imagen_url || MOCKUP_IMAGEN_URLS[p.id] || `https://images.unsplash.com/photo-1472851294608-062f824d29cc?q=80&w=1000&auto=format&fit=crop`}
                         />
                       </div>
                       <div className="flex justify-between items-start">

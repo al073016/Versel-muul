@@ -39,7 +39,7 @@ class ErrorBoundary extends Component<
   }
 }
 
-function PostCard({ post, currentUserId }: { post: SocialPost, currentUserId?: string | null }) {
+function PostCard({ post, currentUserId, onDelete }: { post: SocialPost, currentUserId?: string | null, onDelete?: (id: string) => void }) {
   const t = useTranslations("comunidad");
   const [likes, setLikes] = useState(post.likes);
   const [liked, setLiked] = useState(false);
@@ -82,9 +82,23 @@ function PostCard({ post, currentUserId }: { post: SocialPost, currentUserId?: s
             <span className="text-on-surface-variant text-sm font-label"> • {post.created_at}</span>
           </div>
         </div>
-        <button className="text-on-surface-variant hover:bg-surface-container rounded-full p-2">
-          <span className="material-symbols-outlined">more_horiz</span>
-        </button>
+        {isMe ? (
+          <button 
+            onClick={() => {
+              if (window.confirm("¿Seguro que quieres borrar esta publicación?")) {
+                onDelete?.(post.id);
+              }
+            }}
+            className="text-red-400 hover:text-red-600 hover:bg-red-50 rounded-full p-2 transition-colors flex items-center"
+            title="Borrar publicación"
+          >
+            <span className="material-symbols-outlined text-lg">delete</span>
+          </button>
+        ) : (
+          <button className="text-on-surface-variant hover:bg-surface-container rounded-full p-2">
+            <span className="material-symbols-outlined">more_horiz</span>
+          </button>
+        )}
       </div>
 
       {}
@@ -319,6 +333,15 @@ function ComunidadContent() {
     }
   };
 
+  const handleDeletePost = async (postId: string) => {
+    const success = await SocialService.deletePost(postId);
+    if (success) {
+      setPosts(prev => prev.filter(p => p.id !== postId));
+    } else {
+      alert("No se pudo borrar la publicación");
+    }
+  };
+
   return (
     <main className="min-h-screen bg-[#f8fafd] pt-24 pb-20">
       <div className="max-w-[1440px] mx-auto px-4 md:px-6 lg:px-12">
@@ -387,7 +410,12 @@ function ComunidadContent() {
             <div className="flex flex-col">
               <h2 className="font-headline font-black text-xl text-[#003e6f] mb-6">{t("publicaciones")}</h2>
               {posts.map(post => (
-                <PostCard key={post.id} post={post} currentUserId={currentUser?.id} />
+                <PostCard 
+                  key={post.id} 
+                  post={post} 
+                  currentUserId={currentUser?.id} 
+                  onDelete={handleDeletePost}
+                />
               ))}
             </div>
           </div>
