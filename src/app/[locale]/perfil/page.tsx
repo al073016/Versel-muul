@@ -407,8 +407,8 @@ function PerfilContent() {
             {/* Hero Section */}
             <header className="relative w-full aspect-[21/9] md:aspect-[3/1] rounded-[2.5rem] overflow-hidden group shadow-2xl">
               <img 
-                src="" 
-                alt="Paseo de la Reforma" 
+                src={perfil?.banner_url || "https://images.unsplash.com/photo-1548682023-74bfff41b214?q=80&w=1200&h=400&auto=format&fit=crop"} 
+                alt="Banner de perfil" 
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-black/10 z-10"></div>
@@ -440,9 +440,9 @@ function PerfilContent() {
             {/* Stats Grid */}
             <section className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {[
-                { label: t("rutasCompletadas"), value: "24", color: "bg-[#003e6f] text-white" },
-                { label: t("puntosInteres"), value: "158", color: "bg-[#fed000] text-[#003e6f]" },
-                { label: t("insigniasObtenidas"), value: "12", color: "bg-slate-100 text-[#003e6f]" },
+                { label: t("rutasCompletadas"), value: perfil?.rutas_completadas || "0", color: "bg-[#003e6f] text-white" },
+                { label: t("puntosInteres"), value: perfil?.puntos_totales || "0", color: "bg-[#fed000] text-[#003e6f]" },
+                { label: t("insigniasObtenidas"), value: perfil?.insignias || "0", color: "bg-slate-100 text-[#003e6f]" },
               ].map((stat, idx) => (
                 <div key={idx} className={`${stat.color} p-10 rounded-[2.5rem] flex flex-col items-center justify-center text-center shadow-sm border border-black/5 transition-transform hover:scale-[1.02] duration-300`}>
                   <span className="font-label font-black text-[10px] tracking-[0.2em] mb-4 opacity-70">{stat.label}</span>
