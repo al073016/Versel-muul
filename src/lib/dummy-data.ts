@@ -15,6 +15,9 @@ export const DUMMY_POIS = [
     horario_apertura: '09:00',
     horario_cierre: '23:00',
     especialidades: ['Tacos al Pastor', 'Costra de Queso', 'Agua de Horchata'],
+    telefono: '55 1234 5678',
+    instagram: 'tacoselguero_mx',
+    facebook: 'TacosElGueroOficial',
     productos: [
       { id: 'p1', nombre: 'Orden de 5 Tacos al Pastor', precio: 85, descripcion: 'Con piña, cebolla y cilantro.' },
       { id: 'p2', nombre: 'Gringa de Sirloin', precio: 65, descripcion: 'Queso fundido y carne premium.' }
@@ -36,6 +39,9 @@ export const DUMMY_POIS = [
     horario_apertura: '10:00',
     horario_cierre: '20:00',
     especialidades: ['Moda Deportiva', 'Electrónica', 'Hogar Digital'],
+    telefono: '800 220 7735',
+    instagram: 'coppel',
+    facebook: 'tiendascoppel',
     productos: [
       { id: 'p1', nombre: 'Smart TV 4K 55"', precio: 8999, descripcion: 'Lo último en tecnología visual.' },
       { id: 'p2', nombre: 'Tenis de Running', precio: 1299, descripcion: 'Comodidad para tus recorridos por la ciudad.' }
@@ -57,6 +63,9 @@ export const DUMMY_POIS = [
     horario_apertura: '10:30',
     horario_cierre: '18:30',
     especialidades: ['Esculturas de Rodin', 'Arte Impresionista', 'Arquitectura Vanguardista'],
+    telefono: '55 1103 9800',
+    instagram: 'elmuseosoumaya',
+    facebook: 'MuseoSoumaya',
     productos: [
       { id: 'p1', nombre: 'Libro de Arte Soumaya', precio: 450, descripcion: 'Toda la colección en tus manos.' },
       { id: 'p2', nombre: 'Tour Privado Curado', precio: 1200, descripcion: 'Explicación profunda de las obras maestras.' }
@@ -78,6 +87,9 @@ export const DUMMY_POIS = [
     horario_apertura: '07:00',
     horario_cierre: '22:00',
     especialidades: ['Cold Brew Nitrogenado', 'Pan de Masa Madre', 'Café Geisha'],
+    telefono: '55 9876 5432',
+    instagram: 'thecoffeebean_polanco',
+    facebook: 'TheCoffeeBeanMX',
     productos: [
       { id: 'p1', nombre: 'Flat White Doble', precio: 75, descripcion: 'Equilibrio perfecto entre espresso y leche seda.' },
       { id: 'p2', nombre: 'Croissant de Almendras', precio: 55, descripcion: 'Horneado diariamente con mantequilla francesa.' }

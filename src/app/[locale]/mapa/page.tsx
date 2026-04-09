@@ -26,6 +26,7 @@ import AccessibilityFeaturesLayer from "@/components/map/AccessibilityFeaturesLa
 import { useGlobalSearch } from "@/hooks/useGlobalSearch";
 import { haversine } from "@/lib/haversine";
 import { useNearbySearch } from "@/hooks/useNearbySearch";
+import { DUMMY_POIS } from "@/lib/dummy-data";
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
 
@@ -106,7 +107,7 @@ export default function MapaPage() {
   const { buscarEnMapbox, buscandoExternos } = useNearbySearch();
 
   // ── State ──
-  const [pois, setPois] = useState<POI[]>([]);
+  const [pois, setPois] = useState<POI[]>(DUMMY_POIS as any);
   const [mapboxPois, setMapboxPois] = useState<POI[]>([]);
   const poisRef = useRef<POI[]>([]);
   useEffect(() => { poisRef.current = pois; }, [pois]);
@@ -168,7 +169,15 @@ export default function MapaPage() {
   useEffect(() => {
     const fetchPois = async () => {
       const { data } = await supabase.from("pois").select("*").order("created_at", { ascending: false });
-      if (data && data.length > 0) setPois(data);
+      const dbPois = data || [];
+      
+      // Merge with dummy POIs
+      const allPois = [...dbPois];
+      DUMMY_POIS.forEach(d => {
+        if (!allPois.find(p => p.id === d.id)) allPois.push(d as any);
+      });
+      
+      setPois(allPois);
       setLoading(false);
     };
     fetchPois();
@@ -234,16 +243,67 @@ export default function MapaPage() {
   /* ── User location ── */
   useEffect(() => {
     if (!navigator.geolocation) return;
+    
+    // Check if we already have a targeted POI in URL
+    const params = new URLSearchParams(window.location.search);
+    const lat = params.get("lat");
+    const lng = params.get("lng");
+    const hasTarget = lat && lng;
+
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const coords: [number, number] = [pos.coords.latitude, pos.coords.longitude];
         setUbicacionUsuario(coords);
-        mapRef.current?.flyTo({ center: [coords[1], coords[0]], zoom: 14, duration: 2000 });
+        
+        // ONLY flyTo user if there's no target in URL
+        if (!hasTarget && mapRef.current) {
+          mapRef.current.flyTo({ center: [coords[1], coords[0]], zoom: 14, duration: 2000 });
+        }
       },
-      () => setUbicacionUsuario([19.4326, -99.1332]),
-      { enableHighAccuracy: true, timeout: 10000 }
+      () => {
+        setUbicacionUsuario([19.4326, -99.1332]);
+        if (!hasTarget && mapRef.current) {
+          mapRef.current.flyTo({ center: [-99.1332, 19.4326], zoom: 11.5 });
+        }
+      },
+      { enableHighAccuracy: true, timeout: 1000 }
     );
-  }, []);
+  }, [mapLoaded]); // Run when map is loaded
+
+  /* ── Target focus from URL ── */
+  useEffect(() => {
+    if (!mapLoaded || !mapRef.current) return;
+    
+    const params = new URLSearchParams(window.location.search);
+    const lat = params.get("lat") || params.get("latitud");
+    const lng = params.get("lng") || params.get("longitud");
+    const id = params.get("id") || params.get("poi") || params.get("negocio_id");
+
+    if (lat && lng) {
+      const qLat = parseFloat(lat);
+      const qLng = parseFloat(lng);
+      
+      if (!isNaN(qLat) && !isNaN(qLng)) {
+        mapRef.current.flyTo({
+          center: [qLng, qLat],
+          zoom: 17,
+          duration: 1500,
+          essential: true
+        });
+
+        // Search for POI to select it
+        if (id) {
+          const found = pois.find(p => p.id === id);
+          if (found) {
+            setSelectedPoi(found);
+            setMobileSheetOpen(false);
+          } else {
+            // If not found yet (maybe loading), we can try mapboxPois or wait
+          }
+        }
+      }
+    }
+  }, [mapLoaded, pois.length]);
 
   /* ── Route toggle ── */
   const togglePoiEnRuta = useCallback((poi: POI) => {
@@ -694,9 +754,10 @@ export default function MapaPage() {
                   <div className="flex gap-2">
                     <button onClick={handleSorprendeme} disabled={sorprendeme.loading || activeLoading}
                       className="flex-shrink-0 flex items-center gap-1.5 px-3 py-3 rounded-xl bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high text-xs font-bold transition-all disabled:opacity-40"
-                      title="Generar ruta aleatoria en 5km">
+                      title={t("sorprendeme")}
+                    >
                       <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: "'FILL' 1" }}>casino</span>
-                      <span className="hidden lg:inline">Sorpréndeme</span>
+                      <span className="hidden lg:inline">{t("sorprendeme")}</span>
                     </button>
                     <button onClick={calcularRuta} disabled={poisEnRuta.length < 1 || activeLoading}
                       className={`flex-1 py-4 rounded-xl font-headline font-black uppercase tracking-widest transition-all shadow-lg disabled:opacity-40 disabled:cursor-not-allowed ${
@@ -729,8 +790,8 @@ export default function MapaPage() {
                       <div className={`p-3 rounded-xl flex items-center gap-3 ${isAccessibleMode ? "bg-[#fed000]/20 border border-[#fed000]/30" : "bg-surface-container-high"}`}>
                         <div className="w-3 h-3 rounded-full shrink-0" style={{ background: getRouteColorForMode(transportMode) }} />
                         <div className="flex-1">
-                          <p className="text-sm font-bold text-on-surface">
-                            {isAccessibleMode ? "Accesible — Silla de ruedas" : transportMode === "walking" ? "Caminando" : transportMode === "cycling" ? "Bicicleta" : "Vehículo"}
+                          <p className="text-sm font-bold text-on-surface capitalize">
+                            {transportMode === "walking" ? t("caminando") : transportMode === "cycling" ? t("bicicleta") : t("vehiculo")}
                           </p>
                           <p className="text-[10px] text-on-surface-variant">
                             {activeRoute.distancia_texto} · {activeRoute.duracion_texto}
@@ -876,9 +937,21 @@ export default function MapaPage() {
               visible={showAccessibilityFeatures && isAccessibleMode}
             />
 
-            {/* Sorpréndeme FAB */}
-            <div className="absolute top-4 left-4 z-20">
-              <SorprendemeFAB onClick={handleSorprendeme} loading={sorprendeme.loading || activeLoading} disabled={!ubicacionUsuario} />
+            {/* Top FABs Container */}
+            <div className="absolute top-4 left-4 z-20 flex items-stretch gap-3">
+              <div className="flex-shrink-0">
+                <SorprendemeFAB onClick={handleSorprendeme} loading={sorprendeme.loading || activeLoading} disabled={!ubicacionUsuario} />
+              </div>
+              
+              {!isAccessibleMode && (
+                <button
+                  onClick={() => setTransportMode("accessible")}
+                  className="flex items-center gap-2 px-4 rounded-xl bg-white/95 backdrop-blur-sm shadow-lg border border-white/20 text-[#003e6f] font-black text-[11px] uppercase tracking-widest hover:bg-[#fed000] transition-all active:scale-95 h-[48px] shadow-secondary/10"
+                >
+                  <span className="material-symbols-outlined text-base">accessible</span>
+                  <span>Accesible</span>
+                </button>
+              )}
             </div>
 
             {/* Sticky AI button only on map */}
@@ -1144,7 +1217,8 @@ export default function MapaPage() {
                           <button onClick={() => { handleSelectPoi(poi); setMobileSheetOpen(false); }} className="flex-1 min-w-0 text-left">
                             <h3 className="font-headline font-bold text-on-surface text-sm truncate">{poi.nombre}</h3>
                             <p className="text-[11px] text-on-surface-variant mt-0.5">
-                              <span className={isOpenNow(poi) ? "text-secondary" : "text-tertiary"}>● </span>{formatHours(poi)}
+                              <span className={isOpenNow(poi) ? "text-secondary" : "text-tertiary"}>● </span>
+                              {formatHours(poi)}
                             </p>
                           </button>
                           <button onClick={() => togglePoiEnRuta(poi)}
