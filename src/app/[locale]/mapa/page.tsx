@@ -8,10 +8,13 @@ import { createClient } from "@/lib/supabase/client";
 import { getPerfilCompat } from "@/lib/supabase/profileCompat";
 import { optimizarOrdenTSP } from "@/lib/haversine";
 import type { POI } from "@/types/database";
+import { DUMMY_POIS } from "@/lib/dummy-data";
 import html2canvas from "html2canvas";
 import ChatModal from "@/components/ui/ChatModal";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter, usePathname } from "@/i18n/navigation";
+import { useSearchParams } from "next/navigation";
+import { getPremiumPhoto } from "@/lib/photo-engine";
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
 
@@ -129,6 +132,8 @@ export default function MapaPage() {
   const [langOpen, setLangOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [isClient, setIsClient] = useState(false);
 
   const filters = [
     { label: t("todos"), emoji: "🗺️", value: "todos" },
@@ -176,6 +181,44 @@ export default function MapaPage() {
   const [compartirMenuOpen, setCompartirMenuOpen] = useState(false);
 
   useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  const togglePoiEnRuta = useCallback((poi: POI) => {
+    setPoisEnRuta((prev) => {
+      const exists = prev.find((p) => p.id === poi.id);
+      if (exists) return prev.filter((p) => p.id !== poi.id);
+      if (prev.length >= 10) return prev;
+      return [...prev, poi];
+    });
+    setRutas([]); setMostrarItinerario(false); setRutaError("");
+  }, []);
+
+  const handleSelectPoi = useCallback((poi: POI) => {
+    setSelectedPoi(poi);
+    if (mapRef.current && mapLoaded) {
+      setTimeout(() => {
+        if (mapRef.current && poi.longitud !== undefined && poi.latitud !== undefined) {
+          mapRef.current.flyTo({ 
+            center: [poi.longitud, poi.latitud], 
+            zoom: 15, 
+            duration: 1500,
+            essential: true
+          });
+        }
+      }, 100);
+    }
+  }, [mapLoaded]);
+
+  const handleSelectPoiAndClose = useCallback((poi: POI) => {
+    handleSelectPoi(poi);
+    // Pequeño delay para que el mapa comience el zoom antes de cerrar el panel
+    setTimeout(() => {
+      setMobileSheetOpen(false);
+    }, 150);
+  }, [handleSelectPoi]);
+
+  useEffect(() => {
     const fetchUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
@@ -198,7 +241,9 @@ export default function MapaPage() {
   useEffect(() => {
     const fetchPois = async () => {
       const { data } = await supabase.from("pois").select("*").order("created_at", { ascending: false });
-      if (data) { setPois(data); setFilteredPois(data); }
+      const mergedPois = [...DUMMY_POIS, ...(data || [])];
+      setPois(mergedPois);
+      setFilteredPois(mergedPois);
       setLoading(false);
     };
     fetchPois();
@@ -216,14 +261,112 @@ export default function MapaPage() {
   }, [activeFilter, searchQuery, pois, soloAbiertos]);
 
   useEffect(() => {
-    if (!mapContainer.current || mapRef.current) return;
-    const map = new mapboxgl.Map({ container: mapContainer.current, style: "mapbox://styles/mapbox/light-v11", center: [-99.1332, 19.4326], zoom: 11.5 });
+    if (!mapContainer.current || mapRef.current || !isClient) return;
+    
+    // Initial center and zoom from URL or defaults
+    const latParam = searchParams.get("lat");
+    const lngParam = searchParams.get("lng");
+    const zoomParam = searchParams.get("zoom");
+    
+    const initialCenter: [number, number] = (latParam && lngParam) 
+      ? [parseFloat(lngParam), parseFloat(latParam)] 
+      : [-99.1332, 19.4326];
+      
+    const initialZoom = zoomParam ? parseFloat(zoomParam) : 11.5;
+
+    const map = new mapboxgl.Map({ 
+      container: mapContainer.current, 
+      style: "mapbox://styles/mapbox/light-v11", 
+      center: initialCenter, 
+      zoom: initialZoom 
+    });
+
     map.addControl(new mapboxgl.NavigationControl(), "top-right");
     map.addControl(new mapboxgl.GeolocateControl({ positionOptions: { enableHighAccuracy: true }, trackUserLocation: true }), "top-right");
     map.on("load", () => setMapLoaded(true));
     mapRef.current = map;
     return () => { map.remove(); mapRef.current = null; };
-  }, []);
+  }, [isClient]);
+
+  // Handle 'q' and 'poi' parameters after map is loaded
+  useEffect(() => {
+    if (!mapLoaded || !mapRef.current) return;
+
+    const query = searchParams.get("q");
+    const poiId = searchParams.get("poi");
+
+    const processParams = async () => {
+      const latParam = searchParams.get("lat");
+      const lngParam = searchParams.get("lng");
+      const poiIdParam = searchParams.get("poi");
+      const queryParam = searchParams.get("q");
+      const t = searchParams.get("t");
+
+      console.log("[Mapa] processParams detected change:", { latParam, lngParam, poiIdParam, t });
+
+      // 1. Geographical coordinates have the highest priority for direct "flying"
+      if (latParam && lngParam) {
+        const lat = parseFloat(latParam);
+        const lng = parseFloat(lngParam);
+        
+        if (!isNaN(lat) && !isNaN(lng)) {
+          // Small delay to ensure Mapbox is ready for the command after a URL change
+          setTimeout(() => {
+            console.log("[Mapa] Executing FlyTo:", lat, lng);
+            mapRef.current?.flyTo({ 
+              center: [lng, lat], 
+              zoom: 15, 
+              duration: 2500,
+              essential: true,
+              padding: { left: window.innerWidth > 768 ? 400 : 0 } as any
+            });
+          }, 100);
+          
+          // If it's a POI, we also select it to open the panel AFTER the zoom completes
+          if (poiIdParam && pois.length > 0) {
+            const targetPoi = pois.find(p => p.id === poiIdParam);
+            if (targetPoi) {
+              setTimeout(() => {
+                handleSelectPoi(targetPoi);
+              }, 2700); // After the 2500ms zoom animation
+            } else {
+              console.warn("[Mapa] POI not found:", poiIdParam);
+            }
+          }
+          return;
+        }
+      }
+
+      // 2. Fallback to POI search in list if no coordinates
+      if (poiIdParam && pois.length > 0) {
+        const targetPoi = pois.find(p => p.id === poiIdParam);
+        if (targetPoi) {
+          handleSelectPoi(targetPoi);
+          return;
+        }
+      }
+
+      // 3. Fallback to geocoding for plain text queries
+      if (queryParam) {
+        try {
+          const endpoint = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(queryParam)}.json?access_token=${mapboxgl.accessToken}&limit=1`;
+          const resp = await fetch(endpoint);
+          const data = await resp.json();
+          if (data.features && data.features.length > 0) {
+            const [flatLng, flatLat] = data.features[0].center;
+            console.log("[Mapa] Geocoded location flying to:", flatLat, flatLng);
+            mapRef.current?.flyTo({ center: [flatLng, flatLat], zoom: 12, duration: 2500 });
+          }
+        } catch (err) {
+          console.error("Geocoding error:", err);
+        }
+      }
+    };
+
+    if (mapLoaded && mapRef.current) {
+      processParams();
+    }
+  }, [mapLoaded, searchParams, pois, handleSelectPoi, searchParams.get("t")]);
 
   useEffect(() => {
     if (!navigator.geolocation) return;
@@ -234,20 +377,7 @@ export default function MapaPage() {
     );
   }, []);
 
-  const togglePoiEnRuta = useCallback((poi: POI) => {
-    setPoisEnRuta((prev) => {
-      const exists = prev.find((p) => p.id === poi.id);
-      if (exists) return prev.filter((p) => p.id !== poi.id);
-      if (prev.length >= 10) return prev;
-      return [...prev, poi];
-    });
-    setRutas([]); setMostrarItinerario(false); setRutaError("");
-  }, []);
 
-  const handleSelectPoi = useCallback((poi: POI) => {
-    setSelectedPoi(poi);
-    if (mapRef.current) mapRef.current.flyTo({ center: [poi.longitud, poi.latitud], zoom: 14, duration: 1000 });
-  }, []);
 
   const calcularRuta = async () => {
     if (poisEnRuta.length < 2) { setRutaError(t("errorMinPuntos")); return; }
@@ -756,36 +886,51 @@ export default function MapaPage() {
 
             {/* POI popup — desktop centered, mobile compact above sheet */}
             {selectedPoi && !mostrarItinerario && (
-              <div className="absolute bottom-[180px] md:bottom-10 left-4 right-4 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-[380px] bg-white/95 backdrop-blur-2xl rounded-[32px] shadow-2xl p-6 md:p-8 border border-white/20 z-50 animate-fade-in-up">
-                <div className="flex gap-4 mb-5 md:mb-6">
-                  <div className="w-14 h-14 md:w-20 md:h-20 rounded-3xl bg-slate-50 flex items-center justify-center text-3xl md:text-5xl shadow-inner shrink-0">{selectedPoi.emoji || "📍"}</div>
-                  <div className="flex-1 overflow-hidden">
-                    <h4 className="font-headline font-black text-[#003e6f] text-lg md:text-2xl leading-tight truncate">{selectedPoi.nombre}</h4>
-                    <p className="text-[10px] font-black uppercase tracking-widest mt-1"><span className={isOpenNow(selectedPoi) ? "text-emerald-500" : "text-rose-500"}>● </span>{formatHours(selectedPoi)}</p>
-                    <div className="flex gap-2 mt-2">
-                      <span className="text-[9px] bg-slate-100 text-[#003e6f] px-2 py-1 rounded-lg font-black uppercase tracking-wider">{selectedPoi.categoria}</span>
-                      {selectedPoi.precio_rango && <span className="text-[9px] bg-slate-100 text-[#003e6f] px-2 py-1 rounded-lg font-black uppercase tracking-wider">{selectedPoi.precio_rango}</span>}
-                    </div>
-                  </div>
-                  <button onClick={() => setSelectedPoi(null)} className="shrink-0 w-10 h-10 flex items-center justify-center rounded-2xl bg-slate-100 text-[#003e6f] hover:bg-slate-200 transition-colors">
-                    <span className="text-base font-black">✕</span>
+              <div className="absolute bottom-[180px] md:bottom-10 left-4 right-4 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-[420px] bg-white/95 backdrop-blur-2xl rounded-[40px] shadow-2xl overflow-hidden border border-white/20 z-50 animate-fade-in-up">
+                {/* Image Banner */}
+                <div className="h-44 w-full relative overflow-hidden">
+                  <img 
+                    src={selectedPoi.foto_url || getPremiumPhoto(selectedPoi.nombre, selectedPoi.categoria, selectedPoi.foto_url)} 
+                    alt={selectedPoi.nombre} 
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-white/95 via-white/5 to-transparent" />
+                  <button onClick={() => setSelectedPoi(null)} className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full bg-black/20 backdrop-blur-md text-white hover:bg-black/30 transition-colors">
+                    <span className="text-sm font-black">✕</span>
                   </button>
                 </div>
-                {selectedPoi.descripcion && <p className="text-xs text-neutral-500 leading-relaxed mb-6 line-clamp-2 hidden md:block font-medium">{selectedPoi.descripcion}</p>}
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => togglePoiEnRuta(selectedPoi)}
-                    className={`flex-1 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${isInRoute(selectedPoi) ? "bg-rose-50 text-rose-500 border border-rose-100" : "bg-[#003e6f] text-white !text-white shadow-lg shadow-[#003e6f]/20"}`}
-                  >
-                    {isInRoute(selectedPoi) ? t("quitarRuta") : t("agregarRuta")}
-                  </button>
-                  <button
-                    onClick={() => { setChatbotAbierto(true); setMobileSheetOpen(false); }}
-                    className="flex-1 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest bg-[#fed000] text-[#003e6f] flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:shadow-[#fed000]/20"
-                  >
-                    <span className="text-base">✨</span>
-                    <span>{t("muulAi")}</span>
-                  </button>
+
+                <div className="p-8 -mt-10 relative z-10">
+                  <div className="flex gap-4 mb-6">
+                    <div className="w-16 h-16 rounded-[2rem] bg-white shadow-xl flex items-center justify-center text-4xl shrink-0 -mt-8 border border-slate-50">{selectedPoi.emoji || "📍"}</div>
+                    <div className="flex-1 overflow-hidden pt-2">
+                      <h4 className="font-headline font-black text-[#003e6f] text-2xl leading-tight truncate">{selectedPoi.nombre}</h4>
+                      <p className="text-[10px] font-black uppercase tracking-widest mt-1"><span className={isOpenNow(selectedPoi) ? "text-emerald-500" : "text-rose-500"}>● </span>{formatHours(selectedPoi)}</p>
+                    </div>
+                  </div>
+                  
+                  {selectedPoi.descripcion && <p className="text-xs text-neutral-500 leading-relaxed mb-6 font-medium line-clamp-3">{selectedPoi.descripcion}</p>}
+                  
+                  <div className="flex gap-2 mb-8">
+                    <span className="text-[9px] bg-slate-100/80 text-[#003e6f] px-3 py-1.5 rounded-full font-black uppercase tracking-wider">{selectedPoi.categoria}</span>
+                    {selectedPoi.precio_rango && <span className="text-[9px] bg-slate-100/80 text-[#003e6f] px-3 py-1.5 rounded-full font-black uppercase tracking-wider">{selectedPoi.precio_rango}</span>}
+                  </div>
+
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => togglePoiEnRuta(selectedPoi)}
+                      className={`flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${isInRoute(selectedPoi) ? "bg-rose-50 text-rose-500 border border-rose-100" : "bg-[#003e6f] text-white !text-white shadow-xl shadow-[#003e6f]/20 hover:scale-105"}`}
+                    >
+                      {isInRoute(selectedPoi) ? t("quitarRuta") : t("agregarRuta")}
+                    </button>
+                    <button
+                      onClick={() => { setChatbotAbierto(true); setMobileSheetOpen(false); }}
+                      className="flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest bg-[#fed000] text-[#003e6f] flex items-center justify-center gap-2 transition-all hover:shadow-xl hover:shadow-[#fed000]/20 hover:scale-105"
+                    >
+                      <span className="text-base">✨</span>
+                      <span>{t("muulAi")}</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
@@ -1007,13 +1152,13 @@ export default function MapaPage() {
                       }`}
                     >
                       <button
-                        onClick={() => { handleSelectPoi(poi); setMobileSheetOpen(false); }}
+                        onClick={() => handleSelectPoiAndClose(poi)}
                         className="w-10 h-10 rounded-xl bg-surface-container-highest flex items-center justify-center text-xl shrink-0"
                       >
                         {poi.emoji || "📍"}
                       </button>
                       <button
-                        onClick={() => { handleSelectPoi(poi); setMobileSheetOpen(false); }}
+                        onClick={() => handleSelectPoiAndClose(poi)}
                         className="flex-1 min-w-0 text-left"
                       >
                         <h3 className="font-headline font-bold text-on-surface text-sm truncate">{poi.nombre}</h3>

@@ -5,12 +5,29 @@
     "ofertas": "Ofertas",
     "amigos": "Amigos",
     "buscarPlaceholder": "Buscar rotas ou destinos...",
+    "searchPeople": "Pessoas",
+    "person": "Pessoa",
+    "searchPlaces": "Lugares",
+    "searchLocations": "Localizações",
+    "searching": "Buscando...",
+    "noResults": "Sem resultados",
+    "seeAll": "Ver todos",
+    "type_country": "País",
+    "type_region": "Estado",
+    "type_postcode": "CEP",
+    "type_district": "Distrito",
+    "type_place": "Cidade",
+    "type_locality": "Localidade",
+    "type_neighborhood": "Bairro",
+    "type_address": "Endereço",
+    "type_poi": "Lugar",
     "tiendas": "Lojas",
     "negocio": "Negócio",
     "mapa": "Mapa",
     "perfil": "Perfil",
     "login": "Entrar",
-    "salir": "Sair"
+    "salir": "Sair",
+    "cerrar": "Fechar"
   },
   "home": {
     "badge": "Curadoria de Inteligência Editorial",
@@ -400,5 +417,10 @@
     "comida": "Comida",
     "tienda": "Loja",
     "servicios": "Serviços"
+  },
+  "amigos": {
+    "subtitulo": "Descubra onde seus amigos estão e planeje sua próxima aventura juntos.",
+    "verMapa": "Ver Mapa",
+    "agregarAmigos": "Adicionar novos amigos"
   }
 }

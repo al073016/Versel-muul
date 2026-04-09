@@ -88,7 +88,7 @@ export default function HomePage() {
             <div 
               className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
               style={{
-                backgroundImage: 'linear-gradient(135deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.5) 100%), url("https://images.unsplash.com/photo-1518101645466-7795885ff8f8?q=80&w=600&auto=format&fit=crop")'
+                backgroundImage: 'linear-gradient(135deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.5) 100%), url("https://images.unsplash.com/photo-1585464231875-d9ef1f5ad396?q=80&w=600&auto=format&fit=crop")'
               }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#001c39]/90 via-transparent to-transparent" />

@@ -46,15 +46,16 @@ const DUMMY_FRIENDS = [
 ];
 
 export default function AmigosPage() {
-  const t = useTranslations("nav");
+  const tn = useTranslations("nav");
+  const t = useTranslations("amigos");
 
   return (
     <main className="pt-32 pb-20 bg-[#f8faff] min-h-screen px-6 md:px-12">
       <div className="max-w-[800px] mx-auto">
         <div className="mb-12">
           <span className="font-label text-[#005596] tracking-widest text-xs uppercase mb-3 block font-black">👥 Muul Social</span>
-          <h1 className="font-headline text-5xl md:text-6xl text-[#003e6f] font-black">{t("amigos")}</h1>
-          <p className="text-neutral-500 mt-4 font-body text-lg">Descubre dónde están tus amigos y planea tu próxima aventura juntos.</p>
+          <h1 className="font-headline text-5xl md:text-6xl text-[#003e6f] font-black">{tn("amigos")}</h1>
+          <p className="text-neutral-500 mt-4 font-body text-lg">{t("subtitulo")}</p>
         </div>
 
         <div className="grid gap-4">
@@ -76,7 +77,7 @@ export default function AmigosPage() {
                 </div>
               </div>
               <button className="bg-[#003e6f]/5 text-[#003e6f] px-6 py-2.5 rounded-full font-headline font-bold text-sm hover:bg-[#003e6f] hover:text-white transition-all whitespace-nowrap">
-                Ver Mapa
+                {t("verMapa")}
               </button>
             </div>
           ))}
@@ -84,7 +85,7 @@ export default function AmigosPage() {
 
         <button className="mt-12 w-full py-5 border-2 border-dashed border-neutral-200 rounded-[2rem] text-neutral-400 font-headline font-bold flex items-center justify-center gap-3 hover:border-[#003e6f]/20 hover:text-[#003e6f] transition-all group">
           <span className="material-symbols-outlined group-hover:rotate-90 transition-transform">add</span>
-          Agregar nuevos amigos
+          {t("agregarAmigos")}
         </button>
       </div>
     </main>
