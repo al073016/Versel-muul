@@ -21,7 +21,6 @@ import { useSorprendeme } from "@/hooks/useSorprendeme";
 import TransportSelector, { getRouteColorForMode } from "@/components/map/TransportSelector";
 import POICard from "@/components/map/POICard";
 import PartyModeModal from "@/components/map/PartyModeModal";
-import SorprendemeFAB from "@/components/map/SorprendemeFAB";
 import AccessibilityFeaturesLayer from "@/components/map/AccessibilityFeaturesLayer";
 import { useGlobalSearch } from "@/hooks/useGlobalSearch";
 import { haversine } from "@/lib/haversine";
@@ -74,6 +73,20 @@ function calcularHorasLlegada(poisRuta: POI[], duracionSegundos: number): string
   });
 }
 
+/* ── Helper: Sort POIs by proximity to origin ── */
+const ordenarPorCercaniaAlOrigen = (
+  pois: POI[],
+  origen: [number, number] | null
+): POI[] => {
+  if (!origen || pois.length <= 1) return pois;
+
+  return [...pois].sort(
+    (a, b) =>
+      haversine(origen, [a.latitud, a.longitud]) -
+      haversine(origen, [b.latitud, b.longitud])
+  );
+};
+
 /* ══════════════════════════════════════════════
    PAGE COMPONENT
    ══════════════════════════════════════════════ */
@@ -84,6 +97,8 @@ export default function MapaPage() {
   const markersRef = useRef<mapboxgl.Marker[]>([]);
   const itinerarioRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number | null>(null);
+  const userWatchIdRef = useRef<number | null>(null);
+  const centeredOnceRef = useRef(false);
   const t = useTranslations("mapa");
   const tn = useTranslations("nav");
   const locale = useLocale();
@@ -107,10 +122,7 @@ export default function MapaPage() {
   const { buscarCercanos, buscandoExternos } = useNearbySearch();
 
   // ── State ──
-  const [pois, setPois] = useState<POI[]>(DUMMY_POIS as any);
-  const [mapboxPois, setMapboxPois] = useState<POI[]>([]);
-  const poisRef = useRef<POI[]>([]);
-  useEffect(() => { poisRef.current = pois; }, [pois]);
+  const [allPois, setAllPois] = useState<POI[]>(DUMMY_POIS as any);
 
   const [filteredPois, setFilteredPois] = useState<POI[]>([]);
   const [selectedPoi, setSelectedPoi] = useState<POI | null>(null);
@@ -172,13 +184,12 @@ export default function MapaPage() {
       const dbPois = data || [];
       
       // Merge with dummy POIs
-      const allPois = [...dbPois];
+      const mergedPois = [...dbPois];
       DUMMY_POIS.forEach(d => {
-        if (!allPois.find(p => p.id === d.id)) allPois.push(d as any);
+        if (!mergedPois.find(p => p.id === d.id)) mergedPois.push(d as any);
       });
       
-      setPois(allPois);
-      setLoading(false);
+      setAllPois(mergedPois);
     };
     fetchPois();
   }, []);
@@ -261,35 +272,49 @@ export default function MapaPage() {
     return () => { map.remove(); mapRef.current = null; };
   }, []);
 
-  /* ── User location ── */
+  /* ── User location (real-time) ── */
   useEffect(() => {
+    if (!mapLoaded) return;
     if (!navigator.geolocation) return;
-    
-    // Check if we already have a targeted POI in URL
-    const params = new URLSearchParams(window.location.search);
-    const lat = params.get("lat");
-    const lng = params.get("lng");
-    const hasTarget = lat && lng;
 
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const coords: [number, number] = [pos.coords.latitude, pos.coords.longitude];
-        setUbicacionUsuario(coords);
-        
-        // ONLY flyTo user if there's no target in URL
-        if (!hasTarget && mapRef.current) {
-          mapRef.current.flyTo({ center: [coords[1], coords[0]], zoom: 14, duration: 2000 });
-        }
-      },
-      () => {
-        setUbicacionUsuario([19.4326, -99.1332]);
-        if (!hasTarget && mapRef.current) {
-          mapRef.current.flyTo({ center: [-99.1332, 19.4326], zoom: 11.5 });
-        }
-      },
-      { enableHighAccuracy: true, timeout: 1000 }
-    );
-  }, [mapLoaded]); // Run when map is loaded
+    const params = new URLSearchParams(window.location.search);
+    const hasTarget = !!(params.get("lat") && params.get("lng"));
+
+    const onSuccess = (pos: GeolocationPosition) => {
+      const coords: [number, number] = [pos.coords.latitude, pos.coords.longitude];
+      setUbicacionUsuario(coords);
+
+      // centrar solo una vez si no hay target en URL
+      if (!hasTarget && mapRef.current && !centeredOnceRef.current) {
+        mapRef.current.flyTo({ center: [coords[1], coords[0]], zoom: 14, duration: 1200 });
+        centeredOnceRef.current = true;
+      }
+    };
+
+    const onError = () => {
+      // fallback solo si aún no hay ubicación
+      setUbicacionUsuario((prev) => prev ?? [19.4326, -99.1332]);
+    };
+
+    navigator.geolocation.getCurrentPosition(onSuccess, onError, {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 0,
+    });
+
+    userWatchIdRef.current = navigator.geolocation.watchPosition(onSuccess, () => {}, {
+      enableHighAccuracy: true,
+      timeout: 20000,
+      maximumAge: 5000,
+    });
+
+    return () => {
+      if (userWatchIdRef.current !== null) {
+        navigator.geolocation.clearWatch(userWatchIdRef.current);
+        userWatchIdRef.current = null;
+      }
+    };
+  }, [mapLoaded]);
 
   /* ── Target focus from URL ── */
   useEffect(() => {
@@ -312,19 +337,16 @@ export default function MapaPage() {
           essential: true
         });
 
-        // Search for POI to select it
         if (id) {
-          const found = pois.find(p => p.id === id);
+          const found = allPois.find((p) => p.id === id);
           if (found) {
             setSelectedPoi(found);
             setMobileSheetOpen(false);
-          } else {
-            // If not found yet (maybe loading), we can try mapboxPois or wait
           }
         }
       }
     }
-  }, [mapLoaded, pois.length]);
+  }, [mapLoaded, allPois.length]);
 
   /* ── Route toggle ── */
   const togglePoiEnRuta = useCallback((poi: POI) => {
@@ -351,9 +373,14 @@ export default function MapaPage() {
       mapboxOpt.setError(t("errorMinPuntos"));
       return;
     }
+
+    // Forzar que la primera parada sea la más cercana al usuario
+    const poisBase = ordenarPorCercaniaAlOrigen(poisEnRuta, ubicacionUsuario);
+
     if (isAccessibleMode) {
-      const result = await accessibleRoute.calculateAccessibleRoute(poisEnRuta, ubicacionUsuario);
+      const result = await accessibleRoute.calculateAccessibleRoute(poisBase, ubicacionUsuario);
       if (result) {
+        setPoisEnRuta(poisBase);
         setMostrarItinerario(true);
         setMobileSheetOpen(false);
         if (mapRef.current) {
@@ -363,7 +390,11 @@ export default function MapaPage() {
         }
       }
     } else {
-      const result = await mapboxOpt.calculateRoute(poisEnRuta, ubicacionUsuario, transportMode as TransportMode);
+      const result = await mapboxOpt.calculateRoute(
+        poisBase,
+        ubicacionUsuario,
+        transportMode as TransportMode
+      );
       if (result) {
         setPoisEnRuta(result.orderedPois);
         setMostrarItinerario(true);
@@ -574,9 +605,28 @@ export default function MapaPage() {
     });
 
     if (isAccessibleMode) {
-      mapRef.current.addLayer({ id: "main-glow", type: "line", source: "main-route", layout: { "line-join": "round", "line-cap": "round" }, paint: { "line-color": "#fed000", "line-width": 20, "line-opacity": 0.15, "line-blur": 10 } });
-      mapRef.current.addLayer({ id: "main-base", type: "line", source: "main-route", layout: { "line-join": "round", "line-cap": "round" }, paint: { "line-color": "#003e6f", "line-width": 7, "line-opacity": 1 } });
-      mapRef.current.addLayer({ id: "main-dash", type: "line", source: "main-route", layout: { "line-join": "round", "line-cap": "round" }, paint: { "line-color": "#fed000", "line-width": 4, "line-opacity": 0.9, "line-dasharray": [2, 3] } });
+      // ✅ Accesible: solo azul
+      mapRef.current.addLayer({
+        id: "main-glow",
+        type: "line",
+        source: "main-route",
+        layout: { "line-join": "round", "line-cap": "round" },
+        paint: { "line-color": "#003e6f", "line-width": 16, "line-opacity": 0.18, "line-blur": 8 }
+      });
+      mapRef.current.addLayer({
+        id: "main-base",
+        type: "line",
+        source: "main-route",
+        layout: { "line-join": "round", "line-cap": "round" },
+        paint: { "line-color": "#003e6f", "line-width": 7, "line-opacity": 1 }
+      });
+      mapRef.current.addLayer({
+        id: "main-dash",
+        type: "line",
+        source: "main-route",
+        layout: { "line-join": "round", "line-cap": "round" },
+        paint: { "line-color": "#003e6f", "line-width": 3, "line-opacity": 0.45, "line-dasharray": [2, 3] }
+      });
     } else {
       mapRef.current.addLayer({ id: "main-glow", type: "line", source: "main-route", layout: { "line-join": "round", "line-cap": "round" }, paint: { "line-color": color, "line-width": 14, "line-opacity": 0.2, "line-blur": 8 } });
       mapRef.current.addLayer({ id: "main-base", type: "line", source: "main-route", layout: { "line-join": "round", "line-cap": "round" }, paint: { "line-color": color, "line-width": 5, "line-opacity": 0.9 } });
@@ -665,15 +715,9 @@ export default function MapaPage() {
             {!mostrarItinerario ? (
               <>
                 {isAccessibleMode && (
-                  <div className="mx-4 mt-4 p-3 rounded-xl bg-[#fed000]/20 border border-[#fed000]/50 flex items-start gap-2">
-                    <span className="text-xl mt-0.5">♿</span>
-                    <div className="flex-1">
-                      <p className="text-xs font-black text-[#003e6f] uppercase tracking-widest">Modo Accesible</p>
-                      <p className="text-[10px] text-on-surface-variant mt-0.5 leading-relaxed">Ruta optimizada para movilidad reducida.</p>
-                    </div>
-                    <button onClick={() => setTransportMode("walking")} className="text-on-surface-variant hover:text-on-surface shrink-0">
-                      <span className="material-symbols-outlined text-sm">close</span>
-                    </button>
+                  <div className="mx-4 mb-2 p-2.5 rounded-xl bg-[#fed000]/20 border border-[#fed000]/40 flex items-center gap-2">
+                    <span className="text-lg">♿</span><p className="flex-1 text-[10px] font-bold text-[#003e6f]">Modo Accesible</p>
+                    <button onClick={() => setTransportMode("walking")} className="text-on-surface-variant"><span className="material-symbols-outlined text-sm">close</span></button>
                   </div>
                 )}
 
@@ -690,8 +734,7 @@ export default function MapaPage() {
                         {f.label} <span className="text-xs">{f.emoji}</span>
                       </button>
                     ))}
-                    <button onClick={() => setSoloAbiertos(!soloAbiertos)}
-                      className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 transition-colors ${soloAbiertos ? "bg-tertiary text-on-tertiary" : "bg-surface-container-high text-on-surface hover:bg-surface-bright"}`}>
+                    <button onClick={() => { setSoloAbiertos(!soloAbiertos); if (!mobileSheetOpen) setMobileSheetOpen(true); }} className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 transition-colors ${soloAbiertos ? "bg-tertiary text-on-tertiary" : "bg-surface-container-high text-on-surface hover:bg-surface-bright"}`}>
                       <span className="material-symbols-outlined text-sm">schedule</span>{t("abiertos")}
                     </button>
                   </div>
@@ -753,7 +796,7 @@ export default function MapaPage() {
                   {activeError && (
                     <div className="p-3 rounded-lg bg-error-container/20 border border-error/20 text-error text-xs font-medium animate-fade-in-up">{activeError}</div>
                   )}
-                  <button onClick={() => { if (selectedPoi) setChatbotAbierto(true); }} disabled={!selectedPoi}
+                  <button onClick={() => { if (selectedPoi) { setChatbotAbierto(true); setMobileSheetOpen(false); } }} disabled={!selectedPoi}
                     className="w-full mb-1 flex items-center justify-center gap-2 py-2 px-4 rounded-xl bg-primary-container/20 text-primary border border-primary/20 font-headline font-bold text-sm transition-all hover:bg-primary-container/30 disabled:opacity-30 disabled:cursor-not-allowed">
                     <span className="material-symbols-outlined text-lg">auto_awesome</span>
                     {selectedPoi ? t("preguntarAI", { nombre: selectedPoi.nombre }) : t("seleccionaPrimero")}
@@ -772,13 +815,6 @@ export default function MapaPage() {
                   </div>
                   <TransportSelector value={transportMode} onChange={setTransportMode} />
                   <div className="flex gap-2">
-                    <button onClick={handleSorprendeme} disabled={sorprendeme.loading || activeLoading}
-                      className="flex-shrink-0 flex items-center gap-1.5 px-3 py-3 rounded-xl bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high text-xs font-bold transition-all disabled:opacity-40"
-                      title={t("sorprendeme")}
-                    >
-                      <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: "'FILL' 1" }}>casino</span>
-                      <span className="hidden lg:inline">{t("sorprendeme")}</span>
-                    </button>
                     <button onClick={calcularRuta} disabled={poisEnRuta.length < 1 || activeLoading}
                       className={`flex-1 py-4 rounded-xl font-headline font-black uppercase tracking-widest transition-all shadow-lg disabled:opacity-40 disabled:cursor-not-allowed ${isAccessibleMode ? "bg-[#fed000] text-[#003e6f] shadow-[#fed000]/20 hover:bg-yellow-400" : "bg-secondary hover:bg-secondary-fixed text-on-secondary shadow-secondary/10"}`}>
                       {activeLoading ? (isAccessibleMode ? "Analizando..." : t("calculando")) : (isAccessibleMode ? "♿ Ruta Accesible" : t("calcularRuta"))}
@@ -859,14 +895,14 @@ export default function MapaPage() {
                       )}
                       {poisEnRuta.map((poi, i) => (
                         <div key={poi.id} className="flex items-center gap-3 relative z-10">
-                          <div className="w-6 h-6 rounded-full border-2 flex items-center justify-center text-[10px] font-black bg-surface-container-highest" style={{ borderColor: getRouteColorForMode(transportMode) }}>{i + 1}</div>
+                          <div className="w-6 h-6 rounded-full border-2 flex items-center justify-center text-[10px] font-black bg-surface-container-highest shrink-0" style={{ borderColor: getRouteColorForMode(transportMode) }}>{i + 1}</div>
                           <div className="flex-1 min-w-0">
                             <span className="text-sm text-on-surface font-medium truncate block">{poi.nombre}</span>
                             <span className="text-[10px] text-on-surface-variant">
                               {t("llegada", { hora: calcularHorasLlegada(poisEnRuta, activeRoute?.duracion_segundos ?? 0)[i] })} · {t("minVisita", { min: DURACION_VISITA[poi.categoria] || 30 })}
                             </span>
                           </div>
-                          <span className="text-lg">{poi.emoji}</span>
+                          <span className="text-lg shrink-0">{poi.emoji}</span>
                         </div>
                       ))}
                     </div>
@@ -875,7 +911,7 @@ export default function MapaPage() {
                 <div className="p-6 bg-surface-container-low border-t border-outline-variant/10 space-y-3">
                   {guardadoMsg && <p className={`text-xs font-bold text-center animate-fade-in-up ${guardadoMsg.includes("Error") ? "text-error" : "text-secondary"}`}>{guardadoMsg}</p>}
                   <div className="relative">
-                    <button onClick={() => setCompartirMenuOpen((v) => !v)} className="w-full bg-surface-container-highest text-on-surface py-2.5 rounded-lg text-[10px] font-bold flex items-center justify-center gap-1.5 hover:bg-surface-bright transition-all uppercase tracking-wider">
+                    <button onClick={() => setCompartirMenuOpen((v) => !v)} className="w-full bg-surface-container-highest text-on-surface py-2.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 hover:bg-surface-bright transition-all uppercase tracking-wider">
                       <span className="material-symbols-outlined text-sm">share</span>{t("compartir")}
                     </button>
                     {compartirMenuOpen && (
@@ -886,11 +922,11 @@ export default function MapaPage() {
                       </div>
                     )}
                   </div>
-                  <button onClick={() => setPartyModalOpen(true)} className="w-full bg-gradient-to-r from-secondary/20 to-primary/10 text-on-surface py-3 rounded-xl font-headline font-bold text-sm border border-secondary/20 flex items-center justify-center gap-2 hover:from-secondary/30 transition-all"><span className="text-base">🎉</span> Modo Party</button>
+                  <button onClick={() => setPartyModalOpen(true)} className="w-full bg-gradient-to-r from-secondary/20 to-primary/10 text-on-surface py-3 rounded-xl font-headline font-bold text-sm border border-secondary/20 flex items-center justify-center gap-2"><span className="text-base">🎉</span> Modo Party</button>
                   <button onClick={guardarRuta} disabled={guardando} className="w-full bg-primary text-on-primary py-3 rounded-xl font-headline font-bold text-sm uppercase tracking-widest hover:brightness-110 transition-all disabled:opacity-50 flex items-center justify-center gap-2">
                     <span className="material-symbols-outlined text-sm">bookmark_add</span>{guardando ? t("guardando") : t("guardarRuta")}
                   </button>
-                  <button onClick={limpiarRuta} className="w-full border border-tertiary/30 text-tertiary py-3 rounded-xl font-headline font-bold text-sm uppercase tracking-widest hover:bg-tertiary/10 transition-all">{t("nuevaRuta")}</button>
+                  <button onClick={limpiarRuta} className="w-full border border-tertiary/30 text-tertiary py-2.5 rounded-xl font-headline font-bold text-sm uppercase tracking-widest hover:bg-tertiary/10 transition-all">{t("nuevaRuta")}</button>
                 </div>
               </>
             )}
@@ -900,29 +936,25 @@ export default function MapaPage() {
           <div className="flex-1 relative overflow-hidden">
             <div ref={mapContainer} className="absolute inset-0" />
 
+            {/* ✅ Sorpréndeme en mapa (botón amarillo con dado) */}
+            <button
+              onClick={handleSorprendeme}
+              disabled={sorprendeme.loading || activeLoading || !ubicacionUsuario}
+              className="absolute top-20 md:top-4 left-4 z-30 h-12 px-5 rounded-2xl bg-[#fed000] text-[#003e6f] shadow-lg border border-[#e6c200] hover:brightness-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              title={t("sorprendeme")}
+            >
+              <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: "'FILL' 1" }}>
+                casino
+              </span>
+              <span className="text-xs font-black uppercase tracking-wider">{t("sorprendeme")}</span>
+            </button>
+
             {/* Accessibility features on map */}
             <AccessibilityFeaturesLayer
               map={mapRef.current}
               features={isAccessibleMode && accessibleRoute.route ? accessibleRoute.route.accessibilityFeatures : []}
               visible={showAccessibilityFeatures && isAccessibleMode}
             />
-
-            {/* Top FABs Container */}
-            <div className="absolute top-4 left-4 z-20 flex items-stretch gap-3">
-              <div className="flex-shrink-0">
-                <SorprendemeFAB onClick={handleSorprendeme} loading={sorprendeme.loading || activeLoading} disabled={!ubicacionUsuario} />
-              </div>
-              
-              {!isAccessibleMode && (
-                <button
-                  onClick={() => setTransportMode("accessible")}
-                  className="flex items-center gap-2 px-4 rounded-xl bg-white/95 backdrop-blur-sm shadow-lg border border-white/20 text-[#003e6f] font-black text-[11px] uppercase tracking-widest hover:bg-[#fed000] transition-all active:scale-95 h-[48px] shadow-secondary/10"
-                >
-                  <span className="material-symbols-outlined text-base">accessible</span>
-                  <span>Accesible</span>
-                </button>
-              )}
-            </div>
 
             {/* Sticky AI button only on map */}
             <button
@@ -1129,9 +1161,9 @@ export default function MapaPage() {
                   </div>
                   <TransportSelector value={transportMode} onChange={setTransportMode} />
                   <div className="flex gap-2">
-                    <button onClick={handleSorprendeme} disabled={sorprendeme.loading || activeLoading} className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-xl bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high transition-all disabled:opacity-40" title="Sorpréndeme"><span className="material-symbols-outlined text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>casino</span></button>
-                    <button onClick={calcularRuta} disabled={poisEnRuta.length < 1 || activeLoading} className={`flex-1 py-3 rounded-xl font-headline font-black text-sm uppercase tracking-widest disabled:opacity-40 disabled:cursor-not-allowed ${isAccessibleMode ? "bg-[#fed000] text-[#003e6f]" : "bg-secondary text-on-secondary"}`}>
-                      {activeLoading ? (isAccessibleMode ? "Analizando..." : t("calculando")) : (isAccessibleMode ? "♿ Calcular" : t("calcularRuta"))}
+                    <button onClick={calcularRuta} disabled={poisEnRuta.length < 1 || activeLoading}
+                      className={`flex-1 py-3 rounded-xl font-headline font-black text-sm uppercase tracking-widest disabled:opacity-40 disabled:cursor-not-allowed ${isAccessibleMode ? "bg-[#fed000] text-[#003e6f]" : "bg-secondary text-on-secondary"}`}>
+                      {activeLoading ? (isAccessibleMode ? "Analizando..." : t("calculando")) : (isAccessibleMode ? "♿ Ruta Accesible" : t("calcularRuta"))}
                     </button>
                   </div>
                 </div>
