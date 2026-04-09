@@ -56,9 +56,9 @@ const PLACE_IMAGE_URLS = {
   antropologia: "https://upload.wikimedia.org/wikipedia/commons/7/74/Museo_Nacional_de_Antropologia.JPG",
   frida: "https://upload.wikimedia.org/wikipedia/commons/1/1e/Museo_Frida_Kahlo.jpg",
   temploMayor: "https://upload.wikimedia.org/wikipedia/commons/6/6a/Templo_mayor_mexico_city.JPG",
-  auditorio: "https://upload.wikimedia.org/wikipedia/commons/c/c9/Auditorio_Nacional_Mexico.jpg",
-  palacioDeportes: "https://upload.wikimedia.org/wikipedia/commons/d/df/Palacio_de_los_Deportes_%28Mexico_City%29.jpg",
-  foroSol: "https://upload.wikimedia.org/wikipedia/commons/2/2c/Foro_Sol_CDMX.jpg",
+  auditorio: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?q=80&w=1200&auto=format&fit=crop",
+  palacioDeportes: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1200&auto=format&fit=crop",
+  foroSol: "https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?q=80&w=1200&auto=format&fit=crop",
   wework: "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1200&auto=format&fit=crop",
   hospital: "https://images.unsplash.com/photo-1586773860418-d37222d8fce3?q=80&w=1200&auto=format&fit=crop",
   coworking: "https://images.unsplash.com/photo-1524758631624-e2822e304c36?q=80&w=1200&auto=format&fit=crop",
@@ -91,7 +91,7 @@ export const HOME_IMAGE_URLS = {
   },
   trends: {
     sanMiguel: "https://commons.wikimedia.org/wiki/Special:FilePath/San_Miguel_de_Allende,_Guanajuato,_Mexico..JPG",
-    puertoEscondido: "https://commons.wikimedia.org/wiki/Special:FilePath/Puerto_Escondido_Oaxaca.jpg",
+    puertoEscondido: "https://upload.wikimedia.org/wikipedia/commons/d/d6/Playa_Carrizalillo%2C_Puerto_Escondido.jpg",
   },
 };
 
