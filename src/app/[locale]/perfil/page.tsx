@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import clsx from "clsx";
 
-type TabType = "cuenta" | "direcciones" | "rutas" | "resenas" | "ajustes" | "editar";
+type TabType = "cuenta" | "publicaciones" | "amigos" | "rutas" | "medallas" | "ajustes";
 
 export default function PerfilPage() {
   const t = useTranslations("perfil");
@@ -28,6 +28,8 @@ export default function PerfilPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<TabType>("cuenta");
   const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const [friendSearch, setFriendSearch] = useState("");
+  const [requestSent, setRequestSent] = useState(false);
 
   useEffect(() => {
     const fetchPerfil = async () => {
@@ -65,10 +67,11 @@ export default function PerfilPage() {
 
   const sidebarItems: { id: TabType; icon: any; label: string }[] = [
     { id: "cuenta", icon: <User size={20} />, label: "Mi Cuenta" },
-    { id: "direcciones", icon: <MapPin size={20} />, label: "Direcciones" },
+    { id: "publicaciones", icon: <Globe size={20} />, label: "Mis Publicaciones" },
+    { id: "amigos", icon: <Globe size={20} />, label: "Mis Amigos" },
     { id: "rutas", icon: <Route size={20} />, label: "Mis Rutas" },
-    { id: "resenas", icon: <Star size={20} />, label: "Mis Reseñas" },
-    { id: "editar", icon: <Settings size={20} />, label: "Ajustes" },
+    { id: "medallas", icon: <Star size={20} />, label: "Medallas & Gamificación" },
+    { id: "ajustes", icon: <Settings size={20} />, label: "Ajustes" },
   ];
 
   const tiers = [
@@ -248,95 +251,90 @@ export default function PerfilPage() {
 
             {/* Mis Insignias */}
             <section className="space-y-8">
-              <h2 className="text-4xl font-headline italic text-primary">Mis Insignias</h2>
+              <h2 className="text-4xl font-headline italic text-primary">Mis Insignias Recientes</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                 {[
                   { emoji: "🎨", label: "Mecenas del Arte", description: "Visita 5 museos o galerías." },
                   { emoji: "☕", label: "Catador de Café", description: "Prueba cafés de 3 regiones distintas." },
-                  { emoji: "🎶", label: "Noctámbulo Musical", description: "Asiste a 3 conciertos en vivo." },
-                ].map((insignia) => {
-                  const randomTier = tiers[Math.floor(Math.random() * tiers.length)];
-                  return (
-                    <div key={insignia.label} className={`bg-surface-container-low p-8 rounded-[2.5rem] flex flex-col items-center text-center border hover:bg-white hover:shadow-xl transition-all ${randomTier.className}`}>
-                      <span className="text-6xl mb-4">{insignia.emoji}</span>
-                      <h3 className="font-headline font-bold text-xl text-on-surface mb-2">{insignia.label}</h3>
-                      <p className="text-sm text-on-surface-variant font-body">{insignia.description}</p>
+                ].map((insignia) => (
+                  <div key={insignia.label} className="bg-surface p-8 rounded-[2.5rem] flex flex-col items-center text-center shadow-sm border border-outline-variant/10 hover:shadow-md transition-shadow">
+                    <span className="text-6xl mb-4 grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-500">{insignia.emoji}</span>
+                    <h3 className="font-headline font-bold text-xl text-on-surface mb-2">{insignia.label}</h3>
+                    <p className="text-sm text-on-surface-variant font-body">{insignia.description}</p>
+                    <div className="mt-4 w-full bg-surface-variant h-2 rounded-full overflow-hidden">
+                      <div className="bg-primary h-full w-3/5"></div>
                     </div>
-                  );
-                })}
-                <div className="border-2 border-dashed border-outline-variant/30 p-8 rounded-[2.5rem] flex flex-col items-center justify-center gap-2 text-on-surface-variant hover:bg-surface-container-low transition-all cursor-pointer">
-                  <span className="text-4xl">🏆</span>
-                  <span className="font-bold text-center">Ver todas mis insignias</span>
-                </div>
-              </div>
-            </section>
-
-            {/* Reviews Section - The "Bottom Part" previously liked */}
-            <section className="space-y-8">
-              <div className="flex items-center justify-between">
-                <h2 className="text-4xl font-headline italic text-primary">{t("recientesActividades")}</h2>
-              </div>
-              <div className="grid grid-cols-1 gap-8">
-                {/* Review Card 1 */}
-                <div className="group bg-surface-container-lowest p-6 md:p-10 rounded-[2.5rem] flex flex-col md:flex-row gap-10 transition-all hover:shadow-2xl hover:bg-white border border-outline-variant/10">
-                  <div className="w-full md:w-64 aspect-video md:aspect-square rounded-3xl overflow-hidden shrink-0 bg-surface-container-low shadow-inner">
-                    <img 
-                      src="https://images.unsplash.com/photo-1582234372722-50d7ccc30ebd?q=80&auto=format&fit=crop&w=400&h=400" 
-                      alt="Palacio de Bellas Artes" 
-                      className="w-full h-full object-cover grayscale-[30%] group-hover:grayscale-0 transition-all duration-500"
-                    />
+                    <p className="text-xs text-on-surface-variant mt-2 font-label">3/5 visitas</p>
                   </div>
-                  <div className="flex-1 flex flex-col justify-center">
-                    <div className="flex justify-between items-start mb-6">
-                      <div>
-                        <h3 className="text-2xl font-headline font-bold text-on-surface mb-1">Casa del Mayorazgo de la Canal</h3>
-                        <p className="text-sm font-label text-slate-400 flex items-center gap-2 uppercase tracking-widest">
-                          <MapPin size={14} /> San Miguel de Allende, Gto.
-                        </p>
-                      </div>
-                      <span className="font-label text-xs text-slate-300 bg-surface-container-high px-3 py-1 rounded-full">14 MAR 2024</span>
-                    </div>
-                    <div className="flex gap-1 mb-6 text-secondary">
-                      {[1, 2, 3, 4, 5].map((i) => <Star key={i} size={20} fill="currentColor" stroke="none" />)}
-                    </div>
-                    <p className="text-on-surface-variant leading-relaxed font-body text-lg italic font-light">
-                      “Una joya arquitectónica que te transporta en el tiempo. La curaduría de la exposición actual es impecable.”
-                    </p>
-                  </div>
-                </div>
-
-                {/* Review Card 2 */}
-                <div className="group bg-surface-container-lowest p-6 md:p-10 rounded-[2.5rem] flex flex-col md:flex-row gap-10 transition-all hover:shadow-2xl hover:bg-white border border-outline-variant/10">
-                  <div className="w-full md:w-64 aspect-video md:aspect-square rounded-3xl overflow-hidden shrink-0 bg-surface-container-low shadow-inner">
-                    <img 
-                      src="https://images.unsplash.com/photo-1512813588641-0737a3459ced?q=80&auto=format&fit=crop&w=400&h=400" 
-                      alt="Restaurante en la Roma" 
-                      className="w-full h-full object-cover grayscale-[30%] group-hover:grayscale-0 transition-all duration-500"
-                    />
-                  </div>
-                  <div className="flex-1 flex flex-col justify-center">
-                    <div className="flex justify-between items-start mb-6">
-                      <div>
-                        <h3 className="text-2xl font-headline font-bold text-on-surface mb-1">Restaurante Los Danzantes</h3>
-                        <p className="text-sm font-label text-slate-400 flex items-center gap-2 uppercase tracking-widest">
-                          <Star size={14} /> Oaxaca de Juárez, Oax.
-                        </p>
-                      </div>
-                      <span className="font-label text-xs text-slate-300 bg-surface-container-high px-3 py-1 rounded-full">02 FEB 2024</span>
-                    </div>
-                    <div className="flex gap-1 mb-6 text-secondary">
-                      {[1, 2, 3, 4, 5].map((i) => <Star key={i} size={20} fill="currentColor" stroke="none" />)}
-                    </div>
-                    <p className="text-on-surface-variant leading-relaxed font-body text-lg italic font-light">
-                      “El mole negro es de otro planeta. El ambiente en el patio central es muy acogedor.”
-                    </p>
-                  </div>
-                </div>
+                ))}
               </div>
             </section>
           </div>
         )}
 
+        {/* --- NUEVAS SECCIONES SOCIALES --- */}
+        {activeTab === "publicaciones" && (
+          <div className="space-y-8 animate-fade-in-up">
+            <h2 className="text-4xl font-headline italic text-primary">Mis Publicaciones</h2>
+            <div className="bg-white rounded-[2rem] p-12 text-center border border-outline-variant/10 shadow-sm flex flex-col items-center justify-center">
+              <span className="material-symbols-outlined text-6xl text-neutral-300 mb-4">post_add</span>
+              <p className="font-headline text-2xl text-[#003e6f] font-bold mb-2">Aún no has publicado nada</p>
+              <p className="text-neutral-500 font-body mb-6">Comparte tus rutas o deja reseñas para que aparezcan aquí.</p>
+              <button 
+                onClick={() => window.location.href = "/comunidad"}
+                className="bg-[#fed000] text-[#003e6f] px-8 py-3 rounded-full font-headline font-black text-sm uppercase tracking-widest hover:bg-[#ffdf40] transition-colors shadow-sm focus:outline-none"
+              >
+                Ir a Comunidad
+              </button>
+            </div>
+          </div>
+        )}
+
+        {activeTab === "amigos" && (
+          <div className="space-y-8 animate-fade-in-up">
+            <h2 className="text-4xl font-headline italic text-primary">Mis Amigos</h2>
+            <div className="bg-white rounded-[2rem] p-8 border border-outline-variant/10 shadow-sm min-h-[400px]">
+              <div className="flex justify-between items-center mb-6">
+                <input 
+                  type="text" 
+                  value={friendSearch}
+                  onChange={(e) => setFriendSearch(e.target.value)}
+                  placeholder="Buscar amigos por @nombre..." 
+                  className="bg-neutral-100 border border-transparent focus:bg-white focus:border-[#fed000] px-6 py-3 rounded-full w-full max-w-md font-body text-sm outline-none transition-colors"
+                />
+              </div>
+              
+              {friendSearch.length > 0 ? (
+                <div className="animate-fade-in-up mt-8">
+                  <div className="flex items-center justify-between bg-neutral-50 p-4 rounded-2xl border border-neutral-100">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&h=200&auto=format&fit=crop" alt="Sofia" className="w-full h-full object-cover" />
+                      </div>
+                      <div>
+                        <p className="font-headline font-bold text-[#003e6f]">Sofía Navarro</p>
+                        <p className="text-xs text-neutral-500">@sofia_cdmx</p>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => setRequestSent(true)}
+                      disabled={requestSent}
+                      className={`px-6 py-2 rounded-full font-bold text-sm transition-colors ${requestSent ? 'bg-neutral-200 text-neutral-500 cursor-not-allowed' : 'bg-[#003e6f] text-white hover:bg-[#005596]'}`}
+                    >
+                      {requestSent ? 'Enviada' : 'Agregar'}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-16 animate-fade-in">
+                  <span className="material-symbols-outlined text-6xl text-neutral-300 mb-4">group_add</span>
+                  <p className="font-headline text-2xl text-[#003e6f] font-bold mb-2">No tienes amigos añadidos</p>
+                  <p className="text-neutral-500 font-body text-center max-w-sm">Conecta con otros exploradores agregándolos a tu red para ver sus rutas en vivo.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
         {activeTab === "direcciones" && (
           <div className="space-y-8 animate-fade-in-up">
             <h2 className="text-4xl font-headline italic text-primary">{t("direccionesGuardadas")}</h2>

@@ -4,6 +4,8 @@
     "categorias": "分类",
     "ofertas": "优惠",
     "amigos": "朋友",
+    "comunidad": "社区",
+    "ranking": "排名",
     "more": "更多",
     "buscarPlaceholder": "搜索路线或目的地...",
     "searchPeople": "人员",
@@ -481,6 +483,19 @@
     "subtitulo": "发现你的朋友在哪里，并一起计划你的下一次冒险。",
     "verMapa": "查看地图",
     "agregarAmigos": "添加新朋友"
+  },
+  "comunidad": {
+    "titulo": "社区",
+    "subtitulo": "发现 Muul 网络的路线、故事和顶级旅行者。",
+    "topViajeros": "本月最佳旅行者",
+    "publicaciones": "最新发布",
+    "puntos": "{count} 分",
+    "nivel": "级别",
+    "comentarios": "评论",
+    "compartirAventura": "分享你的新冒险...",
+    "publicar": "发布",
+    "tuAmigo": "你的朋友",
+    "explorador": "探险家"
   },
   "ofertas": {
     "hotDeals": "🔥 热门优惠",
