@@ -121,8 +121,8 @@ export async function POST(request: NextRequest) {
     const userId = authData.user.id;
     console.log("✅ Usuario creado en auth:", userId);
 
-    // Paso 2: Usar función RPC para guardar perfil COMPLETO (con INSERT...ON CONFLICT)
-    console.log("🔄 Guardando perfil con función RPC...");
+    // Paso 2: Guardar perfil usando RPC con SECURITY DEFINER
+    console.log("🔄 Guardando perfil con RPC...");
     
     const { error: rpcError } = await supabase.rpc('guardar_perfil_turista', {
       p_id: userId,
@@ -150,8 +150,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log("✅ Perfil guardado exitosamente con RPC");
+    console.log("✅ Perfil guardado exitosamente");
     
+    // Obtener el perfil creado
+    const { data: profileData } = await supabase
+      .from("perfiles")
+      .select("id")
+      .eq("id", userId)
+      .single();
+
     return NextResponse.json(
       {
         success: true,

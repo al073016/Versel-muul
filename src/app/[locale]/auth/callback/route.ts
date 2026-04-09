@@ -66,6 +66,9 @@ export async function GET(request: Request) {
         const telefono =
           user.phone || metadata.phone || metadata.phone_number || metadata.mobile || "";
 
+        // Obtener tipo_cuenta del metadata (por defecto turista)
+        const tipo_cuenta = metadata.tipo_cuenta || "turista";
+
         if (flow === "signin") {
           if (!existingProfile) {
             await supabase.rpc("guardar_perfil_turista", {
@@ -79,11 +82,57 @@ export async function GET(request: Request) {
             });
           }
 
-          return NextResponse.redirect(`${origin}/${safeLocale}${next}`);
+          // Redirigir basándose en tipo_cuenta desde la base de datos
+          const { data: perfilData } = await supabase
+            .from("perfiles")
+            .select("tipo_cuenta")
+            .eq("id", user.id)
+            .single();
+
+          const dbTipoCuenta = perfilData?.tipo_cuenta || tipo_cuenta;
+
+          if (dbTipoCuenta === "negocio") {
+            // Obtener ID del negocio
+            const { data: negocioData } = await supabase
+              .from("negocios")
+              .select("id")
+              .eq("propietario_id", user.id)
+              .single();
+
+            if (negocioData?.id) {
+              return NextResponse.redirect(`${origin}/${safeLocale}/negocio/${negocioData.id}`);
+            }
+          }
+
+          // Default: redireccionar al siguiente parámetro o al perfil de turista
+          const defaultPath = next === "/" ? "/perfil" : next;
+          return NextResponse.redirect(`${origin}/${safeLocale}${defaultPath}`);
         }
 
         if (existingProfile) {
-          return NextResponse.redirect(`${origin}/${safeLocale}${next}`);
+          // Consultar tipo_cuenta de la base de datos
+          const { data: perfilData } = await supabase
+            .from("perfiles")
+            .select("tipo_cuenta")
+            .eq("id", user.id)
+            .single();
+
+          const dbTipoCuenta = perfilData?.tipo_cuenta || tipo_cuenta;
+
+          if (dbTipoCuenta === "negocio") {
+            const { data: negocioData } = await supabase
+              .from("negocios")
+              .select("id")
+              .eq("propietario_id", user.id)
+              .single();
+
+            if (negocioData?.id) {
+              return NextResponse.redirect(`${origin}/${safeLocale}/negocio/${negocioData.id}`);
+            }
+          }
+
+          const defaultPath = next === "/" ? "/perfil" : next;
+          return NextResponse.redirect(`${origin}/${safeLocale}${defaultPath}`);
         }
 
         const missingRequiredData = !nombre || !apellido || !suggestedUsername || !telefono;
@@ -113,6 +162,31 @@ export async function GET(request: Request) {
           p_telefono: telefono,
           p_idioma: safeLocale,
         });
+
+        // Consultar tipo_cuenta de la base de datos
+        const { data: perfilFinalData } = await supabase
+          .from("perfiles")
+          .select("tipo_cuenta")
+          .eq("id", user.id)
+          .single();
+
+        const finalTipoCuenta = perfilFinalData?.tipo_cuenta || tipo_cuenta;
+
+        // Redirigir basándose en tipo_cuenta de la base de datos
+        if (finalTipoCuenta === "negocio") {
+          const { data: negocioData } = await supabase
+            .from("negocios")
+            .select("id")
+            .eq("propietario_id", user.id)
+            .single();
+
+          if (negocioData?.id) {
+            return NextResponse.redirect(`${origin}/${safeLocale}/negocio/${negocioData.id}`);
+          }
+        }
+
+        const defaultPath = next === "/" ? "/perfil" : next;
+        return NextResponse.redirect(`${origin}/${safeLocale}${defaultPath}`);
       }
 
       return NextResponse.redirect(`${origin}/${safeLocale}${next}`);

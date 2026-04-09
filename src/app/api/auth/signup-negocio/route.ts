@@ -132,10 +132,10 @@ export async function POST(request: NextRequest) {
     const userId = authData.user.id;
     console.log("✅ Usuario creado en auth:", userId);
 
-    // Paso 2: Usar función RPC para guardar perfil COMPLETO del propietario
+    // Paso 2: Guardar perfil del propietario usando RPC con SECURITY DEFINER
     console.log("🔄 Guardando perfil del propietario con RPC...");
     
-    const { error: rpcError } = await supabase.rpc('guardar_perfil_turista', {
+    const { error: rpcError } = await supabase.rpc('guardar_perfil_negocio', {
       p_id: userId,
       p_nombre: nombrePropietario.trim(),
       p_apellido: apellidoPropietario.trim(),
@@ -161,29 +161,27 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log("✅ Perfil del propietario guardado exitosamente con RPC");
+    console.log("✅ Perfil del propietario guardado exitosamente");
 
-    // Paso 3: Crear negocio directamente en la tabla
-    console.log("🏪 Creando negocio...");
-
-    const { data: negocioRes, error: negocioError } = await supabase
-      .from("negocios")
-      .insert({
-        propietario_id: userId,
-        nombre: nombreNegocio.trim(),
-        slug: nombreNegocio.toLowerCase().replace(/\s+/g, "_"),
-        categoria: categoriaNegocio,
-        propietario_nombre: nombrePropietario.trim(),
-        propietario_apellido: apellidoPropietario.trim(),
-        propietario_cp: cp.trim(),
-        propietario_telefono: telefonoPropietario.trim(),
-        propietario_correo: correoPropietario || null,
-        direccion: direccion.trim(),
-        latitud: parseFloat(latitud) || null,
-        longitud: parseFloat(longitud) || null,
-        ubicacion: null, // PostGIS no disponible, dejamos NULL
-      })
-      .select();
+    // Paso 3: Crear negocio usando RPC con SECURITY DEFINER
+    console.log("🏪 Creando negocio con RPC...");
+    
+    const { data: negocioResult, error: negocioError } = await supabase.rpc('crear_negocio', {
+      p_propietario_id: userId,
+      p_nombre: nombreNegocio.trim(),
+      p_categoria: categoriaNegocio,
+      p_direccion: direccion.trim(),
+      p_propietario_nombre: nombrePropietario.trim(),
+      p_propietario_apellido: apellidoPropietario.trim(),
+      p_propietario_cp: cp.trim(),
+      p_propietario_telefono: telefonoPropietario.trim(),
+      p_propietario_correo: correoPropietario || null,
+      p_latitud: parseFloat(latitud) || 19.4326,
+      p_longitud: parseFloat(longitud) || -99.1677,
+      p_caracteristicas: Object.keys(caracteristicas).filter(
+        (key) => caracteristicas[key as keyof typeof caracteristicas] === true
+      ),
+    });
 
     if (negocioError) {
       console.error("❌ Error al crear negocio:", negocioError);
@@ -194,32 +192,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const negocioId = negocioRes?.[0]?.id;
+    const negocioId = negocioResult?.id;
     console.log("✅ Negocio creado:", negocioId);
-
-    // Paso 4: Insertar características del negocio
-    if (caracteristicas.length > 0 && negocioId) {
-      console.log("🏷️ Insertando características...");
-
-      // Crear registros de características
-      const caracRecords = caracteristicas.map((carac: string) => ({
-        negocio_id: negocioId,
-        caracteristica: carac,
-      }));
-
-      const { error: caracError } = await supabase
-        .from("negocio_caracteristicas")
-        .insert(caracRecords);
-
-      if (caracError) {
-        console.error("❌ Error al insertar características:", caracError);
-        // No lanzamos error aquí, ya que el negocio se creó
-      } else {
-        console.log("✅ Características insertadas");
-      }
-    }
-
-    console.log("✅ Negocio registrado completamente");
 
     return NextResponse.json(
       {
@@ -228,6 +202,8 @@ export async function POST(request: NextRequest) {
         data: {
           user_id: userId,
           negocio_id: negocioId,
+          tipo_cuenta: "negocio",
+          nombre_negocio: nombreNegocio.trim(),
         },
       },
       { status: 201 }

@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import type { Negocio, Producto } from "@/types/database";
-import { getLocalizedDummyPois } from "@/lib/dummy-data";
+import { DUMMY_POIS } from "@/lib/dummy-data";
 import { getPremiumPhoto } from "@/lib/photo-engine";
 import { haversine } from "@/lib/haversine";
 
@@ -25,14 +25,12 @@ const slugify = (value: string) =>
     .replace(/-+/g, "-")
     .replace(/^-|-$/g, "");
 
-export default function NegocioPerfilPage() {
+export default function PerfilDinamicoPage() {
   const params = useParams();
   const id = params.id as string;
   const supabase = createClient();
   const t = useTranslations("negocio");
   const tc = useTranslations("common");
-  const locale = useLocale();
-  const dummyPois = useMemo(() => getLocalizedDummyPois(locale), [locale]);
 
   const [negocio, setNegocio] = useState<Negocio | null>(null);
   const [productos, setProductos] = useState<Producto[]>([]);

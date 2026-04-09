@@ -400,6 +400,9 @@
     "revisaCorreo": "Revisa tu correo electrónico para confirmar tu cuenta. Después podrás iniciar sesión.",
     "volverRegistro": "Volver al registro",
     "errorCredenciales": "Correo o contraseña incorrectos.",
+    "negocioNoRegistrado": "El negocio no está registrado. Por favor, regístrate como negocio.",
+    "errorNegocio": "Error al cargar el negocio. Verifica que esté registrado correctamente.",
+    "turistaNoRegistrado": "La cuenta de turista no está registrada. Por favor, regístrate como turista.",
     "errorMinContrasena": "La contraseña debe tener al menos 8 caracteres.",
     "ciudades": "Muul 2026 • Mexico City / Monterrey / Guadalajara",
     "correoPlaceholder": "tu@email.com",
@@ -569,7 +572,7 @@
     "comentarios": "Comentarios",
     "compartirAventura": "Comparte tu nueva aventura...",
     "publicar": "Publicar",
-    "tuAmigo": "Tú Amigo",
+    "tuAmigo": "Tú",
     "explorador": "Explorador"
   },
   "ofertas": {

@@ -176,18 +176,98 @@ export default function LoginPage() {
     setLoading(true);
     setErrorMessage("");
 
+    const supabase = createClient();
+
     try {
       if (mode === "login") {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
           email: loginEmail,
           password: loginPassword,
         });
+        
         if (error) {
           setErrorMessage(t("errorCredenciales"));
+          setLoading(false);
           return;
         }
-        router.push("/");
-        return;
+
+        if (!data.user?.id) {
+          setErrorMessage(t("errorCredenciales"));
+          setLoading(false);
+          return;
+        }
+
+        // Esperar un momento para que se establezca la sesión
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        // Consultar perfil en la base de datos usando RPC para obtener tipo_cuenta
+        const { data: perfilData, error: perfilError } = await supabase.rpc('get_perfil_usuario_actual');
+
+        if (perfilError || !perfilData || perfilData.length === 0) {
+          console.error("Error fetching perfil:", perfilError);
+          setErrorMessage(t("errorCredenciales"));
+          setLoading(false);
+          return;
+        }
+
+        const tipo_cuenta = perfilData[0]?.tipo_cuenta || "turista";
+        console.log("Tipo de cuenta:", tipo_cuenta);
+        console.log("Perfil seleccionado:", profile);
+
+        // Validar que el tipo de cuenta coincida con el perfil seleccionado
+        if (profile === "negocio" && tipo_cuenta !== "negocio") {
+          setErrorMessage(t("negocioNoRegistrado") || "El negocio no está registrado");
+          setLoading(false);
+          return;
+        }
+
+        if (profile === "turista" && tipo_cuenta !== "turista") {
+          setErrorMessage(t("turistaNoRegistrado") || "La cuenta de turista no está registrada");
+          setLoading(false);
+          return;
+        }
+
+        if (tipo_cuenta === "negocio") {
+          // Obtener el negocio del usuario usando RPC
+          console.log("Buscando negocio para usuario:", data.user.id);
+          
+          try {
+            const { data: negocioData, error: negocioError } = await supabase.rpc('get_negocio_usuario_actual');
+
+            console.log("Resultado de consulta negocios (RPC):", { negocioData, negocioError });
+
+            if (negocioError) {
+              console.error("Error fetching negocio:", negocioError);
+              setErrorMessage(t("errorNegocio") || "Error al cargar el negocio");
+              setLoading(false);
+              return;
+            }
+
+            if (!negocioData || negocioData.length === 0 || !negocioData[0]?.id) {
+              console.error("No se encontró negocio para el usuario");
+              setErrorMessage(t("errorNegocio") || "No se encontró el negocio");
+              setLoading(false);
+              return;
+            }
+
+            const negocioId = negocioData[0].id;
+            console.log("Redirigiendo a negocio:", negocioId);
+            setLoading(false);
+            await router.push(`/negocio/${negocioId}`);
+            return;
+          } catch (err) {
+            console.error("Exception fetching negocio:", err);
+            setErrorMessage(t("errorNegocio") || "Error al cargar el negocio");
+            setLoading(false);
+            return;
+          }
+        } else {
+          // Redirigir al perfil de turista
+          console.log("Redirigiendo a perfil turista - tipo_cuenta:", tipo_cuenta);
+          setLoading(false);
+          await router.push("/perfil");
+          return;
+        }
       }
 
       // REGISTRO - Usar RPC functions directamente
@@ -229,7 +309,7 @@ export default function LoginPage() {
             return;
           }
 
-          const { error: rpcError } = await supabase.rpc("guardar_perfil_turista", {
+          const { error: insertError } = await supabase.rpc("guardar_perfil_turista", {
             p_id: user.id,
             p_nombre: touristRegister.firstName.trim(),
             p_apellido: touristRegister.lastName.trim(),
@@ -239,8 +319,8 @@ export default function LoginPage() {
             p_idioma: locale,
           });
 
-          if (rpcError) {
-            console.error("RPC Error:", rpcError);
+          if (insertError) {
+            console.error("RPC Error:", insertError);
             setErrorMessage(t("googleProfileSaveError"));
             return;
           }
@@ -264,8 +344,7 @@ export default function LoginPage() {
           return;
         }
 
-        // Llamar RPC guardar_perfil_turista directamente
-        const { error: rpcError } = await supabase.rpc("guardar_perfil_turista", {
+        const { error: profileError } = await supabase.rpc("guardar_perfil_turista", {
           p_id: authData.user.id,
           p_nombre: touristRegister.firstName.trim(),
           p_apellido: touristRegister.lastName.trim(),
@@ -275,8 +354,8 @@ export default function LoginPage() {
           p_idioma: locale,
         });
 
-        if (rpcError) {
-          console.error("RPC Error:", rpcError);
+        if (profileError) {
+          console.error("RPC Error:", profileError);
           setErrorMessage("Error al guardar perfil");
           return;
         }
@@ -334,8 +413,8 @@ export default function LoginPage() {
           return;
         }
 
-        // Llamar RPC guardar_perfil_negocio para el propietario
-        const { error: rpcProfileError } = await supabase.rpc("guardar_perfil_negocio", {
+        // Guardar perfil del propietario con RPC
+        const { error: profileError } = await supabase.rpc("guardar_perfil_negocio", {
           p_id: authData.user.id,
           p_nombre: businessRegister.ownerFirstName.trim(),
           p_apellido: businessRegister.ownerLastName.trim(),
@@ -345,14 +424,14 @@ export default function LoginPage() {
           p_idioma: locale,
         });
 
-        if (rpcProfileError) {
-          console.error("RPC Profile Error:", rpcProfileError);
+        if (profileError) {
+          console.error("Profile RPC Error:", profileError);
           setErrorMessage("Error al guardar perfil");
           return;
         }
 
-        // Llamar RPC crear_negocio directamente
-        const { error: rpcNegocioError } = await supabase.rpc("crear_negocio", {
+        // Crear negocio con RPC
+        const { data: negocioData, error: negocioError } = await supabase.rpc("crear_negocio", {
           p_propietario_id: authData.user.id,
           p_nombre: businessRegister.businessName.trim(),
           p_categoria: businessRegister.businessType,
@@ -361,19 +440,29 @@ export default function LoginPage() {
           p_propietario_apellido: businessRegister.ownerLastName.trim(),
           p_propietario_cp: businessRegister.postalCode.trim(),
           p_propietario_telefono: businessRegister.phone.trim(),
-          p_propietario_correo: businessRegister.contactEmail.trim(),
+          p_propietario_correo: businessRegister.contactEmail.trim() || null,
           p_latitud: 19.4326,
           p_longitud: -99.1677,
           p_caracteristicas: mapFeaturesToDatabase(businessRegister.features),
         });
 
-        if (rpcNegocioError) {
-          console.error("RPC Negocio Error:", rpcNegocioError);
+        if (negocioError) {
+          console.error("Negocio RPC Error:", negocioError);
           setErrorMessage("Error al crear negocio");
           return;
         }
+
+        const negocioId = (negocioData as any)?.id;
+
+        if (negocioData?.id) {
+          router.push(`/negocio/${negocioData.id}`);
+        } else {
+          router.push("/perfil");
+        }
+        return;
       }
 
+      // Para registro de turista
       router.push("/perfil");
     } catch (error) {
       console.error("Auth error:", error);

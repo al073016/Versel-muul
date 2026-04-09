@@ -72,6 +72,21 @@ export async function POST(request: NextRequest) {
       .eq("id", user.id)
       .single();
 
+    // Obtener tipo_cuenta del user metadata
+    const tipo_cuenta = user.user_metadata?.tipo_cuenta || "turista";
+
+    // Si es negocio, obtener el ID del negocio
+    let negocio_id = null;
+    if (tipo_cuenta === "negocio") {
+      const { data: negocioData } = await supabase
+        .from("negocios")
+        .select("id")
+        .eq("propietario_id", user.id)
+        .single();
+      
+      negocio_id = negocioData?.id || null;
+    }
+
     return NextResponse.json(
       {
         success: true,
@@ -79,6 +94,8 @@ export async function POST(request: NextRequest) {
         data: {
           id: user.id,
           email: user.email,
+          tipo_cuenta: tipo_cuenta,
+          negocio_id: negocio_id,
           ...profile,
         },
       },

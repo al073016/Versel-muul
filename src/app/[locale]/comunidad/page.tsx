@@ -126,19 +126,24 @@ function RankingBoard({ users }: { users: SocialUser[] }) {
 
 export default function ComunidadPage() {
   const t = useTranslations("comunidad");
-  const [posts, setPosts] = useState<SocialPost[]>(() => {
-    const basePosts = DUMMY_POSTS.slice().sort((a, b) => (b.is_friend === a.is_friend ? 0 : b.is_friend ? 1 : -1));
-    if (typeof window !== 'undefined') {
-      try {
-        const saved = localStorage.getItem('muul_user_posts');
-        if (saved) {
-          const userPosts: SocialPost[] = JSON.parse(saved);
-          return [...userPosts, ...basePosts];
-        }
-      } catch (_) {}
-    }
-    return basePosts;
-  });
+  const [posts, setPosts] = useState<SocialPost[]>(() => 
+    DUMMY_POSTS.slice().sort((a, b) => (b.is_friend === a.is_friend ? 0 : b.is_friend ? 1 : -1))
+  );
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('muul_user_posts');
+      if (saved) {
+        const userPosts: SocialPost[] = JSON.parse(saved);
+        setPosts(prev => {
+          // Avoid duplicating posts if already loaded or if something changes
+          const existingIds = new Set(prev.map(p => p.id));
+          const filteredNew = userPosts.filter(p => !existingIds.has(p.id));
+          return [...filteredNew, ...prev];
+        });
+      }
+    } catch (_) {}
+  }, []);
   const [inputValue, setInputValue] = useState("");
   const [isPublishing, setIsPublishing] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);

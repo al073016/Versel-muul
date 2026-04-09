@@ -154,8 +154,13 @@ export default function SignupNegocioPage() {
       }
 
       setSuccess(true);
+      // Redirigir al perfil del negocio con su ID
       setTimeout(() => {
-        router.push("/perfil");
+        if (data.data?.negocio_id) {
+          router.push(`/negocio/${data.data.negocio_id}`);
+        } else {
+          router.push("/perfil");
+        }
       }, 2000);
     } catch (err) {
       console.error("Signup error:", err);
