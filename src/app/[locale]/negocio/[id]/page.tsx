@@ -92,11 +92,15 @@ const MOCKUP_IMAGEN_URLS: Record<string, string> = {
 };
 
 // Resilience Helper
-const withTimeout = <T>(promise: Promise<T>, ms: number, fallbackObj: T): Promise<T> => {
-  return Promise.race([
-    promise,
-    new Promise<T>((resolve) => setTimeout(() => resolve(fallbackObj), ms))
-  ]).catch(() => fallbackObj);
+const withTimeout = async <T,>(promise: Promise<T>, ms: number, fallbackObj: T): Promise<T> => {
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((resolve) => setTimeout(() => resolve(fallbackObj), ms))
+    ]);
+  } catch {
+    return fallbackObj;
+  }
 };
 
 export default function NegocioPerfilPage() {
@@ -128,14 +132,14 @@ export default function NegocioPerfilPage() {
     const fetchData = async () => {
       try {
         const fetchResult = await withTimeout(
-           supabase.rpc('get_negocio_by_id_or_slug', { p_id_or_slug: id }),
+           supabase.rpc('get_negocio_by_id_or_slug', { p_id_or_slug: id }) as unknown as Promise<any>,
            3000,
            { data: null, error: { message: "timeout" }, count: null, status: 500, statusText: "Timeout" }
         );
         const { data: negocioData, error: negocioError } = fetchResult;
 
-        if (!negocioError && negocioData && negocioData.length > 0) {
-          const currentNegocio = { ...negocioData[0] };
+        if (!negocioError && negocioData && Array.isArray(negocioData) && negocioData.length > 0) {
+          const currentNegocio = { ...negocioData[0] } as Negocio;
           
           // DEMO PATCH: Force Justino (Tacos Don Tino) to be near Santa Fe
           if (currentNegocio.nombre.toLowerCase().includes("tino") || currentNegocio.nombre.toLowerCase().includes("justino")) {
@@ -148,14 +152,14 @@ export default function NegocioPerfilPage() {
 
           // Fetch products for the real business
           const prodResult = await withTimeout(
-             supabase.rpc('get_productos_by_negocio_id', { p_negocio_id: currentNegocio.id }),
+             supabase.rpc('get_productos_by_negocio_id', { p_negocio_id: currentNegocio.id }) as unknown as Promise<any>,
              3000,
              { data: null, error: { message: "timeout" } }
           );
           const productosData = prodResult.data;
           
           // Usa mockup si no hay productos en BD
-          setProductos(productosData && productosData.length > 0 ? productosData : MOCKUP_PRODUCTOS);
+          setProductos((Array.isArray(productosData) && productosData.length > 0) ? productosData : MOCKUP_PRODUCTOS);
         } else {
           // FALLBACK: Look in dummy data
           const foundDummy = dummyPois.find(p => p.id === id || slugify(p.nombre) === id);
@@ -186,7 +190,7 @@ export default function NegocioPerfilPage() {
         }
 
         const { data: { user } } = await supabase.auth.getUser();
-        if (user && negocioData && negocioData.length > 0 && user.id === negocioData[0].propietario_id) {
+        if (user && negocioData && Array.isArray(negocioData) && negocioData.length > 0 && user.id === negocioData[0].propietario_id) {
           setIsOwner(true);
         }
       } catch (error) {
