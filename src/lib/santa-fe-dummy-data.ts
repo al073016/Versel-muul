@@ -31,6 +31,9 @@ export const SANTA_FE_POIS: any[] = [
     precio_rango: { es: "$$$", en: "$$$", pt: "$$$", zh: "$$$" },
     horario_apertura: '11:00',
     horario_cierre: '21:00',
+    telefono: '55 5257 1234',
+    instagram: 'centrosantafe',
+    facebook: 'CentroSantaFeOficial',
     especialidades: {
       es: ['Moda Internacional', 'Pista de Hielo', 'Food Court Premium'],
       en: ['International Fashion', 'Ice Rink', 'Premium Food Court'],
@@ -66,6 +69,9 @@ export const SANTA_FE_POIS: any[] = [
     precio_rango: { es: "$$", en: "$$", pt: "$$", zh: "$$" },
     horario_apertura: '09:00',
     horario_cierre: '21:00',
+    telefono: '800 220 7735',
+    instagram: 'coppel',
+    facebook: 'TiendasCoppel',
     especialidades: {
         es: ['BanCoppel', 'Electrónica', 'Muebles'],
         en: ['BanCoppel', 'Electronics', 'Furniture'],
@@ -135,6 +141,9 @@ export const SANTA_FE_POIS: any[] = [
     precio_rango: { es: "$$$$", en: "$$$$", pt: "$$$$", zh: "$$$$" },
     horario_apertura: '13:00',
     horario_cierre: '23:00',
+    telefono: '55 5292 5553',
+    instagram: 'nobumexicocity',
+    facebook: 'NobuMexico',
     especialidades: {
         es: ['Omakase', 'Black Cod Miso', 'Cocteles Japoneses'],
         en: ['Omakase', 'Black Cod Miso', 'Japanese Cocktails'],
@@ -176,6 +185,9 @@ export const SANTA_FE_POIS: any[] = [
     precio_rango: { es: "$$", en: "$$", pt: "$$", zh: "$$" },
     horario_apertura: '07:00',
     horario_cierre: '21:00',
+    telefono: '55 5292 1234',
+    instagram: 'puntadelcielo',
+    facebook: 'CafePuntaDelCielo',
     especialidades: {
         es: ['Cappuccino Chiapaneco', 'Pan Artesanal', 'Wifi Rápido'],
         en: ['Chiapas Cappuccino', 'Artisan Bread', 'Fast Wifi'],
@@ -207,6 +219,9 @@ export const SANTA_FE_POIS: any[] = [
     precio_rango: { es: "$", en: "$", pt: "$", zh: "$" },
     horario_apertura: '00:00',
     horario_cierre: '23:59',
+    telefono: '55 5292 4567',
+    instagram: 'smartfitmx',
+    facebook: 'SmartFitMexico',
     especialidades: {
         es: ['24 Horas', 'Spinning', 'Peso Libre'],
         en: ['24 Hours', 'Spinning', 'Free Weights'],

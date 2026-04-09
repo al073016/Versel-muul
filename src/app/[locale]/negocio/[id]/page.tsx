@@ -1,13 +1,27 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useLocale, useTranslations } from "next-intl";
 import type { Negocio, Producto } from "@/types/database";
+import { getLocalizedDummyPois } from "@/lib/dummy-data";
 import { getPremiumPhoto } from "@/lib/photo-engine";
 import { haversine } from "@/lib/haversine";
 import { Link } from "@/i18n/navigation";
+
+const slugify = (value: string | null | undefined) => {
+  if (!value) return "";
+  return value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+};
 
 // Mockup productos para taquería
 const MOCKUP_PRODUCTOS: Producto[] = [
@@ -85,6 +99,7 @@ export default function NegocioPerfilPage() {
   const t = useTranslations("negocio");
   const tc = useTranslations("common");
   const locale = useLocale();
+  const dummyPois = useMemo(() => getLocalizedDummyPois(locale), [locale]);
 
   const [negocio, setNegocio] = useState<Negocio | null>(null);
   const [productos, setProductos] = useState<Producto[]>([]);
@@ -106,33 +121,53 @@ export default function NegocioPerfilPage() {
       try {
         const { data: negocioData, error: negocioError } = await supabase.rpc('get_negocio_by_id_or_slug', { p_id_or_slug: id });
 
-        if (negocioError || !negocioData || negocioData.length === 0) {
-          console.error("Error fetching negocio:", negocioError);
-          setNotFound(true);
-          setLoading(false);
-          return;
-        }
+        if (!negocioError && negocioData && negocioData.length > 0) {
+          const currentNegocio = { ...negocioData[0] };
+          
+          // DEMO PATCH: Force Justino (Tacos Don Tino) to be near Santa Fe
+          if (currentNegocio.nombre.toLowerCase().includes("tino") || currentNegocio.nombre.toLowerCase().includes("justino")) {
+            currentNegocio.latitud = 19.3615;
+            currentNegocio.longitud = -99.2740;
+            currentNegocio.direccion = "Av. Vasco de Quiroga 3800, Santa Fe (Puesto Muul)";
+          }
 
-        const currentNegocio = negocioData[0];
-        setNegocio(currentNegocio);
+          setNegocio(currentNegocio);
 
-        const { data: productosData, error: productosError } = await supabase.rpc('get_productos_by_negocio_id', { p_negocio_id: currentNegocio.id });
-        if (!productosError) {
+          // Fetch products for the real business
+          const { data: productosData } = await supabase.rpc('get_productos_by_negocio_id', { p_negocio_id: currentNegocio.id });
           // Usa mockup si no hay productos en BD
           setProductos(productosData && productosData.length > 0 ? productosData : MOCKUP_PRODUCTOS);
-        }
-
-        if (typeof window !== "undefined" && navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition((pos) => {
-            if (currentNegocio.latitud && currentNegocio.longitud) {
-              const d = haversine([pos.coords.latitude, pos.coords.longitude], [currentNegocio.latitud, currentNegocio.longitud]);
-              setDistancia(d < 1 ? `${(d * 1000).toFixed(0)}m` : `${d.toFixed(1)}km`);
-            }
-          }, null, { timeout: 10000 });
+        } else {
+          // FALLBACK: Look in dummy data
+          const foundDummy = dummyPois.find(p => p.id === id || slugify(p.nombre) === id);
+          if (foundDummy) {
+            const mapped: Negocio = {
+              id: foundDummy.id,
+              propietario_id: 'dummy',
+              nombre: foundDummy.nombre,
+              descripcion: foundDummy.descripcion,
+              categoria: foundDummy.categoria as any,
+              latitud: foundDummy.latitud,
+              longitud: foundDummy.longitud,
+              foto_url: foundDummy.foto_url,
+              horario_apertura: foundDummy.horario_apertura,
+              horario_cierre: foundDummy.horario_cierre,
+              telefono: (foundDummy as any).telefono,
+              instagram: (foundDummy as any).instagram,
+              facebook: (foundDummy as any).facebook,
+              verificado: true,
+              activo: true,
+              created_at: new Date().toISOString(),
+            } as any;
+            setNegocio(mapped);
+            setProductos(foundDummy.productos as any || MOCKUP_PRODUCTOS);
+          } else {
+            setNotFound(true);
+          }
         }
 
         const { data: { user } } = await supabase.auth.getUser();
-        if (user && user.id === currentNegocio.propietario_id) {
+        if (user && negocioData && negocioData.length > 0 && user.id === negocioData[0].propietario_id) {
           setIsOwner(true);
         }
       } catch (error) {
@@ -143,7 +178,19 @@ export default function NegocioPerfilPage() {
       }
     };
     fetchData();
-  }, [id, supabase]);
+  }, [id, supabase, dummyPois]);
+
+  // Separate effect for distance to avoid dependency hell
+  useEffect(() => {
+    if (!negocio || !negocio.latitud || !negocio.longitud) return;
+    
+    if (typeof window !== "undefined" && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((pos) => {
+        const d = haversine([pos.coords.latitude, pos.coords.longitude], [negocio.latitud!, negocio.longitud!]);
+        setDistancia(d < 1 ? `${(d * 1000).toFixed(0)}m` : `${d.toFixed(1)}km`);
+      });
+    }
+  }, [negocio]);
 
   const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -224,7 +271,7 @@ export default function NegocioPerfilPage() {
           <img
             alt={negocio.nombre}
             className="w-full h-full object-cover"
-            src="https://qewqnirwuptcudoflgkd.supabase.co/storage/v1/object/public/muul_media/TacosTino.jpeg"
+            src={negocio.foto_url || getPremiumPhoto(negocio.nombre, negocio.categoria)}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-primary/60 to-transparent"></div>
 

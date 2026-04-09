@@ -127,6 +127,9 @@ export default function TiendasPage() {
           foto_url: p.foto_url || "",
           horario_apertura: p.horario_apertura || "09:00",
           horario_cierre: p.horario_cierre || "20:00",
+          telefono: (p as any).telefono,
+          instagram: (p as any).instagram,
+          facebook: (p as any).facebook,
           verificado: true,
           activo: true,
           created_at: new Date().toISOString(),
@@ -269,6 +272,25 @@ export default function TiendasPage() {
                         {negocio.horario_apertura && negocio.horario_cierre ? `${negocio.horario_apertura} - ${negocio.horario_cierre}` : t("horarioNoDisponible")}
                       </p>
                       {negocio.descripcion && (<p className="text-neutral-500 text-sm line-clamp-2 mb-6 font-body leading-relaxed">{negocio.descripcion}</p>)}
+                      
+                      <div className="flex items-center gap-3 mb-6">
+                        {(negocio as any).instagram && (
+                          <div className="w-8 h-8 rounded-full bg-pink-500/10 flex items-center justify-center text-pink-600">
+                            <span className="material-symbols-outlined text-base">camera_alt</span>
+                          </div>
+                        )}
+                        {(negocio as any).facebook && (
+                          <div className="w-8 h-8 rounded-full bg-blue-600/10 flex items-center justify-center text-blue-700">
+                            <span className="material-symbols-outlined text-base">facebook</span>
+                          </div>
+                        )}
+                        {(negocio as any).telefono && (
+                          <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500">
+                            <span className="material-symbols-outlined text-base">phone_in_talk</span>
+                          </div>
+                        )}
+                      </div>
+
                       <div className="w-full bg-slate-100 text-[#003e6f] py-4 rounded-2xl font-black text-sm text-center group-hover:bg-[#fed000] group-hover:text-[#003e6f] transition-all duration-300 shadow-sm">{t("verProductos")}</div>
                     </div>
                   </Link>
