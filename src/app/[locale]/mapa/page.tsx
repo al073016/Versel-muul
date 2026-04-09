@@ -24,6 +24,7 @@ import TransportSelector, { getRouteColorForMode, type RouteMode } from "@/compo
 import { useMetroRoute, getMetroCityByLocation } from "@/hooks/useMetroRoute";
 import POICard from "@/components/map/POICard";
 import PartyModeModal from "@/components/map/PartyModeModal";
+import CollabPartyMode from "@/components/map/CollabPartyMode";
 import AccessibilityFeaturesLayer from "@/components/map/AccessibilityFeaturesLayer";
 import { useGlobalSearch } from "@/hooks/useGlobalSearch";
 import { haversine } from "@/lib/haversine";
@@ -298,7 +299,8 @@ export default function MapaPage() {
   const mapboxOpt = useMapboxOptimization();
   const accessibleRoute = useAccessibleRoute();
   const metroRoute = useMetroRoute();
-  const partyMode = usePartyMode();
+  const [activePartyId, setActivePartyId] = useState<string | null>(null);
+
   const sorprendeme = useSorprendeme();
   const { buscarLugarGlobal, buscandoGlobal } = useGlobalSearch();
   const { buscarCercanos, buscandoExternos } = useNearbySearch();
@@ -710,6 +712,136 @@ export default function MapaPage() {
       }
     }
   };
+
+  // ── Jam Realtime Logic (placed here to access all resolved state/functions) ──
+  const handleRemoteUpdate = useCallback((remotePois: any[]) => {
+    const resolved = remotePois
+      .map((rp) => allPois.find((p) => p.id === rp.id))
+      .filter(Boolean) as POI[];
+    
+    if (resolved.length > 0) {
+      setPoisEnRuta(prev => {
+        const currentIds = prev.map(p => p.id).join(",");
+        const newIds = resolved.map(p => p.id).join(",");
+        
+        // Anti-Ping-Pong Lock: si los destinos son idénticos, abortamos la actualización para no disparar un ciclo infinito
+        if (currentIds === newIds) return prev;
+        
+        if (mostrarItinerario) {
+          setTimeout(() => calcularRuta(resolved), 200);
+        }
+        return resolved;
+      });
+    }
+  }, [allPois, mostrarItinerario, calcularRuta]);
+
+  const [livePresences, setLivePresences] = useState<any[]>([]);
+  const poisRef = useRef<POI[]>([]);
+  poisRef.current = poisEnRuta;
+
+  // Creamos un ref mutable para el callback y así evitar ciclos infinitos en el hook
+  const presenceCallbackRef = useRef<(p: any[]) => void>();
+  presenceCallbackRef.current = (presences: any[]) => {
+    setLivePresences(prev => {
+      // Auto-Sync: Forzar envío a los recién llegados
+      if (presences.length > prev.length && poisRef.current.length > 0) {
+         // Tiny delay to ensure connection is steady
+         setTimeout(() => broadcastRouteUpdate(poisRef.current), 500);
+      }
+      return presences;
+    });
+  };
+
+  const { broadcastRouteUpdate, participants, fetchParticipants, trackPresence, myColor } = usePartyMode(
+    activePartyId, 
+    handleRemoteUpdate, 
+    useCallback((p) => presenceCallbackRef.current?.(p), [])
+  );
+
+  // Poll for participants when party is active
+  useEffect(() => {
+    if (!activePartyId) return;
+    fetchParticipants(activePartyId);
+    const interval = setInterval(() => {
+      fetchParticipants(activePartyId);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [activePartyId, fetchParticipants]);
+
+  // Broadcast local changes
+  useEffect(() => {
+    if (activePartyId && poisEnRuta.length > 0) {
+      broadcastRouteUpdate(poisEnRuta);
+    }
+  }, [poisEnRuta, activePartyId, broadcastRouteUpdate]);
+
+  // ── Jam Realtime Presence & Render Logic ──
+  const presenceMarkersRef = useRef<{ [userId: string]: mapboxgl.Marker }>({});
+
+  useEffect(() => {
+    if (!activePartyId || !trackPresence) return;
+    const localId = `user_${myColor?.replace("#", "")}`;
+
+    const interval = setInterval(() => {
+      if (mapRef.current) {
+        // Enviar ubicación (ubicacionUsuario o el centro del mapa si navega)
+        const center = ubicacionUsuario || [mapRef.current.getCenter().lng, mapRef.current.getCenter().lat];
+        trackPresence(center[0], center[1], localId);
+      }
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [activePartyId, trackPresence, ubicacionUsuario, myColor]);
+
+  useEffect(() => {
+    if (!mapRef.current || !activePartyId) return;
+
+    const currentMarkers = presenceMarkersRef.current;
+    const activeIds = new Set(livePresences.map(p => p.user_id));
+
+    // Remove old disconnected users
+    Object.keys(currentMarkers).forEach(id => {
+      if (!activeIds.has(id)) {
+        currentMarkers[id].remove();
+        delete currentMarkers[id];
+      }
+    });
+
+    // Add or update markers based on hex identity
+    livePresences.forEach(presence => {
+      const { user_id, lng, lat, color } = presence;
+      if (!currentMarkers[user_id]) {
+        const el = document.createElement("div");
+        el.className = "w-4 h-4 rounded-full border-2 border-white shadow-xl shadow-black/30 animate-pulse transition-all";
+        el.style.backgroundColor = color || "#000000";
+        
+        // Add a micro-tooltip with "Colaborador" text
+        const tooltip = document.createElement("div");
+        tooltip.innerHTML = user_id.includes(myColor?.replace("#","") || "xx") ? "Tú" : "Colaborador";
+        tooltip.className = "absolute -top-6 left-1/2 -translate-x-1/2 bg-surface-container-highest text-on-surface text-[10px] font-black px-2 py-0.5 rounded-full shadow-md whitespace-nowrap opacity-0 transition-opacity hover:opacity-100 cursor-pointer pointer-events-auto";
+        el.appendChild(tooltip);
+        el.onmouseenter = () => tooltip.classList.remove("opacity-0");
+        el.onmouseleave = () => tooltip.classList.add("opacity-0");
+        
+        try {
+          const marker = new mapboxgl.Marker({ element: el })
+            .setLngLat([lng, lat])
+            .addTo(mapRef.current!);
+          currentMarkers[user_id] = marker;
+        } catch(e) {}
+      } else {
+        currentMarkers[user_id].setLngLat([lng, lat]);
+      }
+    });
+  }, [livePresences, activePartyId, myColor]);
+
+  // Clean presence on exit
+  useEffect(() => {
+    if (!activePartyId) {
+       Object.values(presenceMarkersRef.current).forEach(m => m.remove());
+       presenceMarkersRef.current = {};
+    }
+  }, [activePartyId]);
 
   const limpiarRuta = () => {
     setPoisEnRuta([]);
@@ -1477,6 +1609,13 @@ export default function MapaPage() {
           <div className="flex-1 relative overflow-hidden">
             <div ref={mapContainer} className="absolute inset-0" />
 
+            {/* Realtime Jam Visuals */}
+            <CollabPartyMode
+              routeId={activePartyId ?? undefined}
+              participants={participants}
+              onInvite={() => setPartyModalOpen(true)}
+            />
+
             {/* ✅ Sorpréndeme en mapa (botón amarillo con dado) */}
             <button
               onClick={handleSorprendeme}
@@ -1569,6 +1708,8 @@ export default function MapaPage() {
           poisEnRuta={poisEnRuta}
           distanciaTexto={activeRoute?.distancia_texto}
           duracionTexto={activeRoute?.duracion_texto}
+          activePartyId={activePartyId}
+          onPartyIdChange={setActivePartyId}
           onLoadRoute={(pois_data) => cargarRutaEnMapa(pois_data)}
         />
 

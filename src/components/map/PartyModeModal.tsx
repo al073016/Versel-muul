@@ -17,6 +17,8 @@ interface PartyModeModalProps {
   duracionTexto?: string;
   /** Called when user joins a public route and wants to load its POIs */
   onLoadRoute?: (pois: { id: string; nombre: string; emoji: string; categoria: string }[]) => void;
+  activePartyId?: string | null;
+  onPartyIdChange?: (id: string | null) => void;
 }
 
 /* ── Copy to clipboard util ── */
@@ -42,6 +44,8 @@ export default function PartyModeModal({
   distanciaTexto = "",
   duracionTexto = "",
   onLoadRoute,
+  activePartyId,
+  onPartyIdChange,
 }: PartyModeModalProps) {
   const tp = useTranslations("partyMode");
   const {
@@ -56,10 +60,9 @@ export default function PartyModeModal({
     fetchParticipants,
     fetchPublicRoutes,
     clearMessages,
-  } = usePartyMode();
+  } = usePartyMode(undefined, onLoadRoute);
 
   const [tab, setTab] = useState<Tab>("mi_ruta");
-  const [activeRouteId, setActiveRouteId] = useState<string | null>(savedRouteId ?? null);
   const [joinCode, setJoinCode] = useState("");
   const [copied, setCopied] = useState(false);
 
@@ -69,27 +72,27 @@ export default function PartyModeModal({
     setTab("mi_ruta");
     setJoinCode("");
     setCopied(false);
-    if (activeRouteId) fetchParticipants(activeRouteId);
-  }, [isOpen]);
+    if (activePartyId) fetchParticipants(activePartyId);
+  }, [isOpen, activePartyId, fetchParticipants]);
 
   useEffect(() => {
     if (tab === "explorar") fetchPublicRoutes();
-  }, [tab]);
+  }, [tab, fetchPublicRoutes]);
 
   if (!isOpen) return null;
 
-  const partyLink = activeRouteId
-    ? `${typeof window !== "undefined" ? window.location.origin : ""}/mapa?party=${activeRouteId}`
+  const partyLink = activePartyId
+    ? `${typeof window !== "undefined" ? window.location.origin : ""}/mapa?party=${activePartyId}`
     : null;
 
   const handleActivate = async () => {
     if (savedRouteId) {
       const ok = await activatePartyMode(savedRouteId);
-      if (ok) setActiveRouteId(savedRouteId);
+      if (ok && onPartyIdChange) onPartyIdChange(savedRouteId);
     } else {
       const id = await saveAsPartyRoute(poisEnRuta, distanciaTexto, duracionTexto);
-      if (id) {
-        setActiveRouteId(id);
+      if (id && onPartyIdChange) {
+        onPartyIdChange(id);
         await fetchParticipants(id);
       }
     }
@@ -99,6 +102,9 @@ export default function PartyModeModal({
     const id = joinCode.trim();
     if (!id) return;
     const ruta = await joinPartyRoute(id);
+    if (ruta?.id && onPartyIdChange) {
+      onPartyIdChange(ruta.id);
+    }
     if (ruta?.pois_data && onLoadRoute) {
       onLoadRoute(ruta.pois_data);
       onClose();
@@ -176,7 +182,7 @@ export default function PartyModeModal({
           {/* ── MI RUTA TAB ── */}
           {tab === "mi_ruta" && (
             <div className="p-5 space-y-4">
-              {!activeRouteId ? (
+              {!activePartyId ? (
                 <>
                   <p className="text-sm text-on-surface-variant leading-relaxed">
                     {tp("activateDescription")}
@@ -203,7 +209,7 @@ export default function PartyModeModal({
                   )}
                   <button
                     onClick={handleActivate}
-                    disabled={loading || (poisEnRuta.length < 2 && !savedRouteId)}
+                    disabled={loading || (poisEnRuta.length < 1 && !savedRouteId)}
                     className="w-full bg-secondary text-on-secondary py-3.5 rounded-xl font-headline font-black text-sm uppercase tracking-widest disabled:opacity-40 transition-all hover:brightness-110"
                   >
                     {loading ? tp("activating") : `🎉 ${tp("activateButton")}`}
@@ -217,13 +223,12 @@ export default function PartyModeModal({
                     </div>
                   )}
 
-                  {/* QR-style code display */}
                   <div className="p-4 rounded-2xl bg-surface-container-high space-y-2 text-center">
                     <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest">
                       {tp("routeCode")}
                     </p>
                     <p className="font-mono text-xs text-on-surface break-all select-all bg-surface-container-highest p-2 rounded-lg">
-                      {activeRouteId}
+                      {activePartyId}
                     </p>
                   </div>
 

@@ -91,6 +91,14 @@ const MOCKUP_IMAGEN_URLS: Record<string, string> = {
   "mock-6": "https://loremflickr.com/400/500/torta,mexican",
 };
 
+// Resilience Helper
+const withTimeout = <T>(promise: Promise<T>, ms: number, fallbackObj: T): Promise<T> => {
+  return Promise.race([
+    promise,
+    new Promise<T>((resolve) => setTimeout(() => resolve(fallbackObj), ms))
+  ]).catch(() => fallbackObj);
+};
+
 export default function NegocioPerfilPage() {
   const params = useParams();
   const id = params.id as string;
@@ -119,7 +127,12 @@ export default function NegocioPerfilPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const { data: negocioData, error: negocioError } = await supabase.rpc('get_negocio_by_id_or_slug', { p_id_or_slug: id });
+        const fetchResult = await withTimeout(
+           supabase.rpc('get_negocio_by_id_or_slug', { p_id_or_slug: id }),
+           3000,
+           { data: null, error: { message: "timeout" }, count: null, status: 500, statusText: "Timeout" }
+        );
+        const { data: negocioData, error: negocioError } = fetchResult;
 
         if (!negocioError && negocioData && negocioData.length > 0) {
           const currentNegocio = { ...negocioData[0] };
@@ -134,7 +147,13 @@ export default function NegocioPerfilPage() {
           setNegocio(currentNegocio);
 
           // Fetch products for the real business
-          const { data: productosData } = await supabase.rpc('get_productos_by_negocio_id', { p_negocio_id: currentNegocio.id });
+          const prodResult = await withTimeout(
+             supabase.rpc('get_productos_by_negocio_id', { p_negocio_id: currentNegocio.id }),
+             3000,
+             { data: null, error: { message: "timeout" } }
+          );
+          const productosData = prodResult.data;
+          
           // Usa mockup si no hay productos en BD
           setProductos(productosData && productosData.length > 0 ? productosData : MOCKUP_PRODUCTOS);
         } else {
